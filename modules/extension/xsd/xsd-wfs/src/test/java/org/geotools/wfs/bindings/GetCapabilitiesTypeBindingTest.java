@@ -17,22 +17,17 @@
 package org.geotools.wfs.bindings;
 
 import net.opengis.wfs.GetCapabilitiesType;
-
 import org.geotools.wfs.WFS;
 import org.geotools.wfs.WFSTestSupport;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
 import org.w3c.dom.Document;
 
 /**
  * Unit test suite for {@link GetCapabilitiesTypeBinding}
- * 
+ *
  * @author Gabriel Roldan
- * @version $Id: GetCapabilitiesTypeBindingTest.java 27749 2007-11-05 09:51:33Z
- *          groldan $
+ * @version $Id: GetCapabilitiesTypeBindingTest.java 27749 2007-11-05 09:51:33Z groldan $
  * @since 2.5.x
- *
- *
- * @source $URL$
  */
 public class GetCapabilitiesTypeBindingTest extends WFSTestSupport {
     public GetCapabilitiesTypeBindingTest() {

@@ -16,19 +16,13 @@
  */
 package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCPrimaryKeyTest;
+import org.geotools.jdbc.JDBCPrimaryKeyOnlineTest;
 import org.geotools.jdbc.JDBCPrimaryKeyTestSetup;
 
-/**
- * 
- *
- * @source $URL$
- */
-public class H2PrimaryKeyTest extends JDBCPrimaryKeyTest {
+public class H2PrimaryKeyTest extends JDBCPrimaryKeyOnlineTest {
 
     @Override
     protected JDBCPrimaryKeyTestSetup createTestSetup() {
         return new H2PrimaryKeyTestSetup();
     }
-
 }

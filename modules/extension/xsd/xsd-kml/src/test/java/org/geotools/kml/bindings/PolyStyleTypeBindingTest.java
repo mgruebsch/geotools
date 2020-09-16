@@ -21,14 +21,8 @@ import org.geotools.kml.KML;
 import org.geotools.kml.KMLTestSupport;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.SLD;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class PolyStyleTypeBindingTest extends KMLTestSupport {
     public void testType() {
         assertEquals(PolygonSymbolizer.class, binding(KML.PolyStyleType).getType());
@@ -39,8 +33,12 @@ public class PolyStyleTypeBindingTest extends KMLTestSupport {
     }
 
     public void testParse() throws Exception {
-        String xml = "<PolyStyle>" + "<color>ffff0000</color>" + "<outline>1</outline>"
-            + "<fill>1</fill>" + "</PolyStyle>";
+        String xml =
+                "<PolyStyle>"
+                        + "<color>ffff0000</color>"
+                        + "<outline>1</outline>"
+                        + "<fill>1</fill>"
+                        + "</PolyStyle>";
 
         buildDocument(xml);
 
@@ -48,8 +46,12 @@ public class PolyStyleTypeBindingTest extends KMLTestSupport {
         assertEquals(Color.RED, SLD.color(poly.getFill()));
         assertEquals(1, SLD.width(poly.getStroke()));
 
-        xml = "<PolyStyle>" + "<color>ffff0000</color>" + "<outline>0</outline>" + "<fill>0</fill>"
-            + "</PolyStyle>";
+        xml =
+                "<PolyStyle>"
+                        + "<color>ffff0000</color>"
+                        + "<outline>0</outline>"
+                        + "<fill>0</fill>"
+                        + "</PolyStyle>";
 
         buildDocument(xml);
         poly = (PolygonSymbolizer) parse();

@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools.xsd</groupId>
     <artifactId>xsd</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
   
   <!-- =========================================================== -->
@@ -28,12 +28,6 @@
   <name>OWS XML Support</name>
   
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-ows/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-ows/</url>
-  </scm>
 
   <description>
     Filter XML support for Geotools.
@@ -71,12 +65,24 @@
     <dependency>
       <groupId>org.geotools.ogc</groupId>
       <artifactId>net.opengis.ows</artifactId>
-      <version>12-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools.xsd</groupId>
       <artifactId>gt-xsd-filter</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-xsd-core</artifactId>
+      <classifier>tests</classifier>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -90,7 +96,16 @@
           <schemaLocation>owsAll.xsd</schemaLocation>
           <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/ows/v2_0</schemaSourceDirectory>
           <destinationPackage>org.geotools.ows.v2_0</destinationPackage>
-          <complexBindingBaseClass>org.geotools.xml.AbstractComplexEMFBinding</complexBindingBaseClass>
+          <complexBindingBaseClass>org.geotools.xsd.AbstractComplexEMFBinding</complexBindingBaseClass>
+          <simpleBindingBaseClass>org.geotools.xsd.AbstractSimpleBinding</simpleBindingBaseClass>
+          <generateConfiguration>true</generateConfiguration>
+          <generateAttributeBindings>true</generateAttributeBindings>
+          <generateElementBindings>true</generateElementBindings>
+          <generateTests>true</generateTests>
+          <generateTypeBindings>true</generateTypeBindings>
+          <generateXsd>true</generateXsd>
+          <targetPrefix>ows</targetPrefix>
+          <includeComplexTypes>true</includeComplexTypes>
           <bindingConstructorArguments>
             <bindingConstructorArgument>
               <name>factory</name>
@@ -98,9 +113,6 @@
               <mode>parent</mode>
             </bindingConstructorArgument>
           </bindingConstructorArguments>
-          <includes>
-            <include>LanguageStringType</include>
-          </includes>
           </configuration>
       </plugin>
     </plugins>

@@ -24,14 +24,10 @@ import org.eclipse.swt.widgets.Display;
 
 /**
  * A singleton cursor manager.
- * 
+ *
  * <p>This takes care of creating, reusing and managing the various cursors.
- * 
+ *
  * @author Andrea Antonello (www.hydrologis.com).
- *
- *
- *
- * @source $URL$
  */
 public class CursorManager {
     /** Info Cursor hotspot coordinates */
@@ -46,8 +42,8 @@ public class CursorManager {
     private Cursor currentCursor = null;
 
     private static CursorManager instance = null;
-    private CursorManager() {
-    }
+
+    private CursorManager() {}
 
     public static CursorManager getInstance() {
         if (instance == null) {
@@ -57,8 +53,7 @@ public class CursorManager {
     }
 
     public Cursor getArrowCursor() {
-        if (currentCursor != null && !currentCursor.isDisposed())
-            currentCursor.dispose();
+        if (currentCursor != null && !currentCursor.isDisposed()) currentCursor.dispose();
         currentCursor = new Cursor(Display.getCurrent(), SWT.CURSOR_ARROW);
         return currentCursor;
     }
@@ -87,9 +82,8 @@ public class CursorManager {
         return currentCursor;
     }
 
-    public void setCursor( Image image, Point hotspot ) {
-        if (currentCursor != null && !currentCursor.isDisposed())
-            currentCursor.dispose();
+    public void setCursor(Image image, Point hotspot) {
+        if (currentCursor != null && !currentCursor.isDisposed()) currentCursor.dispose();
         Display display = Display.getCurrent();
         currentCursor = new Cursor(display, image.getImageData(), hotspot.x, hotspot.y);
     }

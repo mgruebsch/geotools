@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -17,24 +17,12 @@
 package org.geotools.styling.visitor;
 
 import java.util.Map;
-
-import javax.measure.quantity.Length;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
-
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.PointSymbolizer;
-import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.Symbolizer;
-import org.geotools.styling.TextSymbolizer;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 
-
 /**
- * This is a style visitor that will produce a copy of the provided
- * style. The copy will be rescaled by a provided factor if UOM is PIXEL.
+ * This is a style visitor that will produce a copy of the provided style. The copy will be rescaled
+ * by a provided factor if UOM is PIXEL.
  */
 public class DpiRescaleStyleVisitor extends RescaleStyleVisitor {
 
@@ -49,53 +37,42 @@ public class DpiRescaleStyleVisitor extends RescaleStyleVisitor {
     @Override
     protected Expression rescale(Expression expr) {
         // handle null values
-        if(expr == null) {
+        if (expr == null) {
             return null;
         }
-        if(expr == Expression.NIL) {
+        if (expr == Expression.NIL) {
             return Expression.NIL;
         }
-        
-        // delegate the handling of the rescaling to ValueAndUnit 
+
+        // delegate the handling of the rescaling to ValueAndUnit
         // to deal with local uom (px, m, ft suffixes)
         Measure v = new Measure(expr, defaultUnit);
         return RescalingMode.Pixels.rescaleToExpression(scale, v);
     }
-    
+
     @Override
-    float[] rescale(float[] values) {
-        if (defaultUnit == null || defaultUnit == NonSI.PIXEL) {
-            return super.rescale(values);
-        } else {
-            return values;
-        }        
-    }
-    
-    @Override    
     protected void rescaleOption(Map<String, String> options, String key, double defaultValue) {
         double scaleFactor = (double) scale.evaluate(null, Double.class);
         String value = options.get(key);
-        if(value == null) {
+        if (value == null) {
             value = String.valueOf(defaultValue);
         }
-            
+
         Measure v = new Measure(value, defaultUnit);
         String rescaled = RescalingMode.Pixels.rescaleToString(scaleFactor, v);
         options.put(key, String.valueOf(rescaled));
     }
-    
-    @Override        
+
+    @Override
     protected void rescaleOption(Map<String, String> options, String key, int defaultValue) {
         double scaleFactor = (double) scale.evaluate(null, Double.class);
         String value = options.get(key);
-        if(value == null) {
+        if (value == null) {
             value = String.valueOf(defaultValue);
         }
-            
+
         Measure v = new Measure(value, defaultUnit);
         String rescaled = RescalingMode.Pixels.rescaleToString(scaleFactor, v);
         options.put(key, String.valueOf(rescaled));
     }
-    
-    
 }

@@ -103,7 +103,7 @@ Feature Branches
 
 To work effectively with Git one must embrace the notion of branch development. Taking
 this to the extreme would mean that a developer should never do any work on a primary 
-branch. Instead creating a *feature* branch, performing a change, and then merging the
+branch. Instead create a *feature* branch, perform a change, and then merge the
 feature branch into a primary branch. A typical branch workflow looks like the following:
 
 #. Create a new feature branch from a primary branch::
@@ -244,7 +244,7 @@ of for rebasing include:
 
    It is **critically important** that rebasing never occur on a shared or primary
    branch. The rule of thumb with rebasing is that you must **never** rewrite commits
-   that are not strictly local, ie commits that have been pushed up to an online
+   that are not strictly local, i.e. commits that have been pushed up to an online
    repository.
  
 Other Tips

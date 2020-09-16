@@ -17,17 +17,19 @@
 package org.geotools.filter.v1_1.capabilities;
 
 import javax.xml.namespace.QName;
+import org.geotools.filter.v1_1.OGC;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.capability.IdCapabilities;
-import org.geotools.filter.v1_1.OGC;
-import org.geotools.xml.*;
-
 
 /**
  * Binding object for the type http://www.opengis.net/ogc:Id_CapabilitiesType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="Id_CapabilitiesType"&gt;
  *      &lt;xsd:choice maxOccurs="unbounded"&gt;
@@ -38,13 +40,8 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class Id_CapabilitiesTypeBinding extends AbstractComplexBinding {
     FilterFactory factory;
@@ -53,14 +50,13 @@ public class Id_CapabilitiesTypeBinding extends AbstractComplexBinding {
         this.factory = factory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return OGC.Id_CapabilitiesType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -71,24 +67,23 @@ public class Id_CapabilitiesTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //&lt;xsd:element ref="ogc:EID"/&gt;
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        // &lt;xsd:element ref="ogc:EID"/&gt;
         boolean eid = node.hasChild("EID");
 
-        //&lt;xsd:element ref="ogc:FID"/&gt;
+        // &lt;xsd:element ref="ogc:FID"/&gt;
         boolean fid = node.hasChild("FID");
 
         return factory.idCapabilities(eid, fid);
     }
 
-    public Object getProperty(Object object, QName name)
-        throws Exception {
+    public Object getProperty(Object object, QName name) throws Exception {
         IdCapabilities id = (IdCapabilities) object;
 
         if (OGC.EID.equals(name) && id.hasEID()) {

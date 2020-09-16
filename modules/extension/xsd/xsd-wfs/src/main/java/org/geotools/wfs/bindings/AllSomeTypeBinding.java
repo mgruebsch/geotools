@@ -17,20 +17,17 @@
 package org.geotools.wfs.bindings;
 
 import javax.xml.namespace.QName;
-
 import net.opengis.wfs.AllSomeType;
-import net.opengis.wfs.WfsFactory;
-
 import org.geotools.wfs.WFS;
-import org.geotools.xml.AbstractSimpleBinding;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.impl.AttributeImpl;
+import org.geotools.xsd.AbstractSimpleBinding;
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.impl.AttributeImpl;
 
 /**
  * Binding object for the type http://www.opengis.net/wfs:AllSomeType.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  *         <code>
  *  &lt;xsd:simpleType name=&quot;AllSomeType&quot;&gt;
@@ -41,32 +38,21 @@ import org.geotools.xml.impl.AttributeImpl;
  *  &lt;/xsd:simpleType&gt;
  * </code>
  *         </pre>
- * 
- * </p>
- * 
+ *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class AllSomeTypeBinding extends AbstractSimpleBinding {
-    private final WfsFactory factory;
 
-    public AllSomeTypeBinding(WfsFactory factory) {
-        this.factory = factory;
-    }
-
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return WFS.AllSomeType;
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Class getType() {
@@ -74,8 +60,10 @@ public class AllSomeTypeBinding extends AbstractSimpleBinding {
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Object parse(InstanceComponent instance, Object value) throws Exception {

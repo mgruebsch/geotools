@@ -21,63 +21,46 @@ import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-
 /**
  * RangeFeatureValidation validates that a number is within a given range.
- * 
- * <p>
- * RangeFeatureValidation is a quick and simple class the checks that the given
- * number resides within a given range.
- * </p>
- * 
- * <p>
- * Capabilities:
- * 
+ *
+ * <p>RangeFeatureValidation is a quick and simple class the checks that the given number resides
+ * within a given range.
+ *
+ * <p>Capabilities:
+ *
  * <ul>
- * <li>
- * Default max value is Integer.MAX_VALUE;
- * </li>
- * <li>
- * Default min value is Integer.MIN_VALUE;
- * </li>
- * <li>
- * If only one boundary of the range is set, only that boundary is checked.
- * </li>
- * <li>
- * The value of the integer is contained in the field specified by path.
- * </li>
+ *   <li>Default max value is Integer.MAX_VALUE;
+ *   <li>Default min value is Integer.MIN_VALUE;
+ *   <li>If only one boundary of the range is set, only that boundary is checked.
+ *   <li>The value of the integer is contained in the field specified by path.
  * </ul>
- * 
+ *
  * Example Use:
+ *
  * <pre><code>
  * RangeFeatureValidation x = new RangeFeatureValidation();
- * 
+ *
  * x.setMin(3);
  * x.setMax(5);
  * x.setName("id");
- * 
+ *
  * boolean result = x.validate(feature, featureType, results);
  * </code></pre>
- * </p>
  *
  * @author rgould, Refractions Research, Inc.
  * @author $Author: cholmesny $ (last modification)
- *
- *
- * @source $URL$
  * @version $Id$
  */
 public class RangeValidation extends DefaultFeatureValidation {
     private int max = Integer.MAX_VALUE;
     private int min = Integer.MIN_VALUE;
     /** XPath expression used to specify attribute */
-	private String attribute;
+    private String attribute;
     /**
      * RangeFeatureValidation constructor.
-     * 
-     * <p>
-     * Description
-     * </p>
+     *
+     * <p>Description
      */
     public RangeValidation() {
         super();
@@ -85,22 +68,14 @@ public class RangeValidation extends DefaultFeatureValidation {
 
     /**
      * Override validate.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
-     * @param feature
-     * @param type
-     * @param results
-     *
+     * <p>Description ...
      *
      * @see org.geotools.validation.FeatureValidation#validate(org.geotools.feature.Feature,
-     *      org.geotools.feature.FeatureType,
-     *      org.geotools.validation.ValidationResults)
+     *     org.geotools.feature.FeatureType, org.geotools.validation.ValidationResults)
      */
-    public boolean validate(SimpleFeature feature, SimpleFeatureType type,
-        ValidationResults results) {
+    public boolean validate(
+            SimpleFeature feature, SimpleFeatureType type, ValidationResults results) {
         Object obj = feature.getAttribute(attribute);
 
         if (obj == null) {
@@ -125,11 +100,8 @@ public class RangeValidation extends DefaultFeatureValidation {
 
     /**
      * Override getPriority.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
+     * <p>Description ...
      *
      * @see org.geotools.validation.Validation#getPriority()
      */
@@ -139,11 +111,8 @@ public class RangeValidation extends DefaultFeatureValidation {
 
     /**
      * getMax purpose.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
+     * <p>Description ...
      */
     public int getMax() {
         return max;
@@ -151,11 +120,8 @@ public class RangeValidation extends DefaultFeatureValidation {
 
     /**
      * getMin purpose.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
+     * <p>Description ...
      */
     public int getMin() {
         return min;
@@ -163,27 +129,20 @@ public class RangeValidation extends DefaultFeatureValidation {
 
     /**
      * getPath purpose.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
-     * @task REVISIT: This wasn't compiling for me, as its parent sets
-     * this as final.  If needed for some reason then fix it.  But it
-     * looks like it should inherit ok... ch
+     * <p>Description ...
+     *
+     * @task REVISIT: This wasn't compiling for me, as its parent sets this as final. If needed for
+     *     some reason then fix it. But it looks like it should inherit ok... ch
      */
-    //public String getName() {
+    // public String getName() {
     //    return name;
-    //}
+    // }
 
     /**
      * setMax purpose.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
-     * @param i
+     * <p>Description ...
      */
     public void setMax(int i) {
         max = i;
@@ -191,12 +150,8 @@ public class RangeValidation extends DefaultFeatureValidation {
 
     /**
      * setMin purpose.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
-     * @param i
+     * <p>Description ...
      */
     public void setMin(int i) {
         min = i;
@@ -204,31 +159,25 @@ public class RangeValidation extends DefaultFeatureValidation {
 
     /**
      * setPath purpose.
-     * 
-     * <p>
-     * Description ...
-     * </p>
      *
-     * @param string
-     * see note on getName - ch.
+     * <p>Description ...
+     *
+     * @param string see note on getName - ch.
      */
-    //public void setName(String string) {
+    // public void setName(String string) {
     //    name = string;
-    //}
-	/**
-	 * XPATH expression used to locate attribute
-	 * @return xpath
-	 */
-	public String getAttribute() {
-		return attribute;
-	}
+    // }
+    /**
+     * XPATH expression used to locate attribute
+     *
+     * @return xpath
+     */
+    public String getAttribute() {
+        return attribute;
+    }
 
-	/**
-	 * XPATH expression used to locate attribute
-	 * @param xpath
-	 */
-	public void setAttribute(String xpath) {
-		attribute = xpath;
-	}
-
+    /** XPATH expression used to locate attribute */
+    public void setAttribute(String xpath) {
+        attribute = xpath;
+    }
 }

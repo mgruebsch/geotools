@@ -1,17 +1,18 @@
 EPSG Extension Plugin
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The plugin an Coordinate Reference System Authority that adds common extra or unoffical EPSG
+The plugin an Coordinate Reference System Authority that adds common extra or unofficial EPSG
 codes into the mix. Internally it uses the same java property file as the :doc:`wkt` plugin.
 
 This plugin is compatible with a restricted environment and does not require disk access.
 
-The Plugin will work out of the box, inlcude it in your CLASSPATH path.
+The Plugin will work out of the box, just include it in your CLASSPATH path.
 
-**References**
+References
+'''''''''''
 
-* `esri.properties <http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-extension/src/main/resources/org/geotools/referencing/factory/epsg/esri.properties>`_ (svn) Additional ESRI Compatibility Codes 
-* `unnamed.properties <http://svn.osgeo.org/geotools/trunk/modules/plugin/epsg-extension/src/main/resources/org/geotools/referencing/factory/epsg/unnamed.properties>`_ (svn) Additional EPS Codes
+* `esri.properties <https://github.com/geotools/geotools/blob/master/modules/plugin/epsg-extension/src/main/resources/org/geotools/referencing/factory/epsg/esri.properties>`_ Additional ESRI Compatibility Codes 
+* `unnamed.properties <https://github.com/geotools/geotools/blob/master/modules/plugin/epsg-extension/src/main/resources/org/geotools/referencing/factory/epsg/unnamed.properties>`_ Additional EPSG Codes
 
 **Maven**::
    

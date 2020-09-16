@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008-2011, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,11 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -40,7 +38,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import org.geotools.process.ProcessFactory;
 import org.geotools.process.Processors;
 import org.geotools.swing.wizard.JPage;
@@ -50,11 +47,9 @@ import org.opengis.util.InternationalString;
 /**
  * This page is responsible for making a process selection widget that moves onto to the selected
  * process page.
- * 
+ *
  * @author gdavis (Refractions)
  * @since 8.0
- *
- * @source $URL$
  * @version $Id$
  */
 public class ProcessSelectionPage extends JPage {
@@ -67,9 +62,7 @@ public class ProcessSelectionPage extends JPage {
     /** List of available processes */
     JTree processList;
 
-    /**
-     * This set of process factories avaialble (mostly an internal detail).
-     */
+    /** This set of process factories avaialble (mostly an internal detail). */
     Set<ProcessFactory> processFactories;
 
     /** Description of the current process */
@@ -78,9 +71,7 @@ public class ProcessSelectionPage extends JPage {
     /** The currently selected factory responsible for describing a process */
     ProcessFactory selectedFactory;
 
-    private Name selectedName;
-
-    final static String defaultDesc = "Select a process to see its description";
+    static final String defaultDesc = "Select a process to see its description";
 
     public ProcessSelectionPage() {
         this(null);
@@ -153,18 +144,22 @@ public class ProcessSelectionPage extends JPage {
 
         processList.setFont(new Font("Arial", Font.PLAIN, 12));
         processList.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        processList.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                TreePath path = e.getNewLeadSelectionPath();
-                if (path.getLastPathComponent() instanceof Name) {
-                    Name name = (Name) path.getLastPathComponent();
-                    ProcessFactory factory = (ProcessFactory) path.getParentPath()
-                            .getLastPathComponent();
-                    updateProcessDesc(factory, name);
-                }
-            }
-        });
+        processList
+                .getSelectionModel()
+                .addTreeSelectionListener(
+                        new TreeSelectionListener() {
+                            @Override
+                            public void valueChanged(TreeSelectionEvent e) {
+                                TreePath path = e.getNewLeadSelectionPath();
+                                if (path.getLastPathComponent() instanceof Name) {
+                                    Name name = (Name) path.getLastPathComponent();
+                                    ProcessFactory factory =
+                                            (ProcessFactory)
+                                                    path.getParentPath().getLastPathComponent();
+                                    updateProcessDesc(factory, name);
+                                }
+                            }
+                        });
         c.gridx = 0;
         c.gridy = 3;
         gridBag.setConstraints(processList, c);
@@ -188,25 +183,26 @@ public class ProcessSelectionPage extends JPage {
 
     /**
      * Populates an array of strings with the process factory titles based on the factory set
-     * 
-     * @param processFactories2 the string array to populate
-     * @return
+     *
+     * @param factories the string array to populate
      */
     private TreeModel createFactoryTitleArray(Set<ProcessFactory> factories) {
         final List<ProcessFactory> root = new ArrayList<ProcessFactory>();
         final Map<ProcessFactory, List<Name>> branch = new HashMap<ProcessFactory, List<Name>>();
 
         root.addAll(factories);
-        Collections.sort(root, new Comparator<ProcessFactory>() {
+        Collections.sort(
+                root,
+                new Comparator<ProcessFactory>() {
 
-            @Override
-            public int compare(ProcessFactory o1, ProcessFactory o2) {
-                String s1 = o1.getTitle().toString();
-                String s2 = o2.getTitle().toString();
+                    @Override
+                    public int compare(ProcessFactory o1, ProcessFactory o2) {
+                        String s1 = o1.getTitle().toString();
+                        String s2 = o2.getTitle().toString();
 
-                return s1.compareTo(s2);
-            }
-        });
+                        return s1.compareTo(s2);
+                    }
+                });
         return new TreeModel() {
             @Override
             public Object getRoot() {
@@ -219,14 +215,16 @@ public class ProcessSelectionPage extends JPage {
                     if (list == null) {
                         list = new ArrayList<Name>();
                         list.addAll(factory.getNames());
-                        Collections.sort(list, new Comparator<Name>() {
-                            @Override
-                            public int compare(Name o1, Name o2) {
-                                String s1 = o1.toString();
-                                String s2 = o2.toString();
-                                return s1.compareTo(s2);
-                            }
-                        });
+                        Collections.sort(
+                                list,
+                                new Comparator<Name>() {
+                                    @Override
+                                    public int compare(Name o1, Name o2) {
+                                        String s1 = o1.toString();
+                                        String s2 = o2.toString();
+                                        return s1.compareTo(s2);
+                                    }
+                                });
                         branch.put(factory, list);
                     }
                     return list;
@@ -295,31 +293,7 @@ public class ProcessSelectionPage extends JPage {
         };
     }
 
-    /**
-     * Returns the first instance of a ProcssFactory in the factories set that has a title matching
-     * the given title.
-     * 
-     * @param title
-     * @return ProcessFactory instance
-     */
-    private ProcessFactory findProcessFactoryByTitle(String title) {
-        Iterator<ProcessFactory> iterator = processFactories.iterator();
-        while (iterator.hasNext()) {
-            ProcessFactory fac = iterator.next();
-            if (fac.getTitle().toString().equalsIgnoreCase(title)) {
-                return fac;
-            }
-
-        }
-        return null;
-    }
-
-    /**
-     * Update the process description based on the selected process
-     * 
-     * @param selection title of selected process
-     * @param name
-     */
+    /** Update the process description based on the selected process */
     private void updateProcessDesc(ProcessFactory factory, Name name) {
         if (name == null || factory == null) {
             return;
@@ -328,9 +302,8 @@ public class ProcessSelectionPage extends JPage {
         InternationalString description = factory.getDescription(name);
         descLabel.setText(defaultDesc);
         selectedFactory = factory;
-        selectedName = name;
         updateNavButtons();
-        descLabel.setText("<html><b>"+title+"</b>"+description);
+        descLabel.setText("<html><b>" + title + "</b>" + description);
         updateNavButtons();
     }
 

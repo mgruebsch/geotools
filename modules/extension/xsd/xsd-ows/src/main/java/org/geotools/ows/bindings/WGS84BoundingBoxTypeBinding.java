@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2014, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,20 +16,17 @@
  */
 package org.geotools.ows.bindings;
 
-import java.util.List;
-
-import net.opengis.ows10.Ows10Factory;
-import net.opengis.ows10.WGS84BoundingBoxType;
 import javax.xml.namespace.QName;
-import org.geotools.ows.OWS;
-import org.geotools.xml.*;
-
+import net.opengis.ows10.Ows10Factory;
+import org.eclipse.emf.ecore.EFactory;
+import org.geotools.xsd.ows.OWS;
 
 /**
  * Binding object for the type http://www.opengis.net/ows:WGS84BoundingBoxType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType name="WGS84BoundingBoxType"&gt;
  *      &lt;annotation&gt;
@@ -68,60 +65,21 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
-public class WGS84BoundingBoxTypeBinding extends AbstractComplexEMFBinding {
-    public WGS84BoundingBoxTypeBinding(Ows10Factory factory) {
-        super(factory);
+public class WGS84BoundingBoxTypeBinding extends BoundingBoxTypeBinding {
+
+    public WGS84BoundingBoxTypeBinding() {
+        super(Ows10Factory.eINSTANCE, OWS.WGS84BoundingBoxType);
     }
 
-    /**
-     * @generated
-     */
+    public WGS84BoundingBoxTypeBinding(EFactory owsFactory, QName target) {
+        super(owsFactory, target);
+    }
+
+    /** @generated */
     public QName getTarget() {
         return OWS.WGS84BoundingBoxType;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Class getType() {
-        return super.getType();
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     *
-     * @generated modifiable
-     */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //TODO: implement and remove call to super
-        return super.parse(instance, node, value);
-    }
-    
-    @Override
-    public Object getProperty(Object object, QName name) throws Exception {
-        if ("LowerCorner".equals(name.getLocalPart()) || "UpperCorner".equals(name.getLocalPart())) {
-            //JD: this is a hack to get around the fact that the encoder won't match up simple list
-            // types with a binding
-            Object value = super.getProperty(object, name);
-            if (value instanceof List) {
-                return new PositionTypeBinding().encode(value, value.toString());
-            }
-        }
-        
-        return super.getProperty(object, name);    
-        
     }
 }

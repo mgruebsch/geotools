@@ -1,10 +1,10 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
- *   (C) 2009, Open Source Geospatial Foundation (OSGeo)
- *   (C) 2001, Vivid Solutions
- *   
+ *
+ *    (C) 2009 - 2016, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2001, Vivid Solutions
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -14,43 +14,49 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *    
+ *
  *    This is a port of the JTS WKTReader to handle SQL MM types such as Curve.
- *    We have subclassed so that our implementation can be used anywhere 
+ *    We have subclassed so that our implementation can be used anywhere
  *    a WKTReader is needed. We would of tried for more code reuse  except
- *    the base class has reduced everything to privatee methods.
- *    
+ *    the base class has reduced everything to private methods.
+ *
  *    This class also contains code written by Mark Leslie for PostGIS while working
- *    at Refractions Reserach with whom we have a code contribution agreement.
+ *    at Refractions Research with whom we have a code contribution agreement.
  */
 package org.geotools.geometry.jts;
-
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.util.*;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import static java.lang.Math.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateXYZM;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.util.Assert;
+import org.locationtech.jts.util.AssertionFailedException;
+
 /**
  * Create a geometry from SQL Multi-Media Extension Well-Known Text which allows curves.
- * <p>
- * 
- * 
  *
- *
- *
- * @source $URL$
  * @version 1.7
- * @see WKTWriter
+ * @see WKTWriter2
  */
 public class WKTReader2 extends WKTReader {
     private static final String EMPTY = "EMPTY";
@@ -63,44 +69,43 @@ public class WKTReader2 extends WKTReader {
 
     private static final String NAN_SYMBOL = "NaN";
 
-    private static final double EPSILON_SQLMM = 1.0e-8;
-
-    private static final double M_PI = PI;
-    private static final double M_PI_2 = PI/2.0;
-    
-    private GeometryFactory geometryFactory;
+    private CurvedGeometryFactory geometryFactory;
 
     private PrecisionModel precisionModel;
 
     private StreamTokenizer tokenizer;
 
-    /**
-     * Creates a reader that creates objects using the default {@link GeometryFactory}.
-     */
+    /** Creates a reader that creates objects using the default {@link GeometryFactory}. */
     public WKTReader2() {
-        this(JTSFactoryFinder.getGeometryFactory( null ));
+        this(JTSFactoryFinder.getGeometryFactory(null));
+    }
+
+    /** Creates a reader that creates objects using the default {@link GeometryFactory}. */
+    public WKTReader2(double tolerance) {
+        this(new CurvedGeometryFactory(JTSFactoryFinder.getGeometryFactory(null), tolerance));
     }
 
     /**
      * Creates a reader that creates objects using the given {@link GeometryFactory}.
-     * 
-     *@param geometryFactory
-     *            the factory used to create <code>Geometry</code>s.
+     *
+     * @param geometryFactory the factory used to create <code>Geometry</code>s.
      */
     public WKTReader2(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+        if (geometryFactory instanceof CurvedGeometryFactory) {
+            this.geometryFactory = (CurvedGeometryFactory) geometryFactory;
+        } else {
+            this.geometryFactory = new CurvedGeometryFactory(geometryFactory, Double.MAX_VALUE);
+        }
         precisionModel = geometryFactory.getPrecisionModel();
     }
 
     /**
      * Reads a Well-Known Text representation of a {@link Geometry} from a {@link String}.
-     * 
-     * @param wellKnownText
-     *            one or more <Geometry Tagged Text>strings (see the OpenGIS Simple Features
-     *            Specification) separated by whitespace
+     *
+     * @param wellKnownText one or more <Geometry Tagged Text>strings (see the OpenGIS Simple
+     *     Features Specification) separated by whitespace
      * @return a <code>Geometry</code> specified by <code>wellKnownText</code>
-     * @throws ParseException
-     *             if a parsing problem occurs
+     * @throws ParseException if a parsing problem occurs
      */
     public Geometry read(String wellKnownText) throws ParseException {
         StringReader reader = new StringReader(wellKnownText);
@@ -113,13 +118,11 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Reads a Well-Known Text representation of a {@link Geometry} from a {@link Reader}.
-     * 
-     *@param reader
-     *            a Reader which will return a <Geometry Tagged Text> string (see the OpenGIS Simple
-     *            Features Specification)
-     *@return a <code>Geometry</code> read from <code>reader</code>
-     *@throws ParseException
-     *             if a parsing problem occurs
+     *
+     * @param reader a Reader which will return a <Geometry Tagged Text> string (see the OpenGIS
+     *     Simple Features Specification)
+     * @return a <code>Geometry</code> read from <code>reader</code>
+     * @throws ParseException if a parsing problem occurs
      */
     public Geometry read(Reader reader) throws ParseException {
         tokenizer = new StreamTokenizer(reader);
@@ -142,40 +145,45 @@ public class WKTReader2 extends WKTReader {
         }
     }
 
+    /** Returns the next array of <code>Coordinate</code>s in the stream. */
+    private Coordinate[] getCoordinates() throws IOException, ParseException {
+        return getCoordinates(false);
+    }
+
     /**
      * Returns the next array of <code>Coordinate</code>s in the stream.
-     * 
-     *@return the next array of <code>Coordinate</code>s in the stream, or an empty array if EMPTY
-     *         is the next element returned by the stream.
-     *@throws IOException
-     *             if an I/O error occurs
-     *@throws ParseException
-     *             if an unexpected token was encountered
+     *
+     * @param measures TRUE if measures are available
+     * @return the next array of <code>Coordinate</code>s in the stream, or an empty array if EMPTY
+     *     is the next element returned by the stream.
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if an unexpected token was encountered
      */
-    private Coordinate[] getCoordinates() throws IOException, ParseException {
+    private Coordinate[] getCoordinates(boolean measures) throws IOException, ParseException {
         String nextToken = getNextEmptyOrOpener();
         if (nextToken.equals(EMPTY)) {
             return new Coordinate[] {};
         }
         ArrayList coordinates = new ArrayList();
-        coordinates.add(getPreciseCoordinate());
+        coordinates.add(getPreciseCoordinate(measures));
         nextToken = getNextCloserOrComma();
         while (nextToken.equals(COMMA)) {
-            coordinates.add(getPreciseCoordinate());
+            coordinates.add(getPreciseCoordinate(measures));
             nextToken = getNextCloserOrComma();
         }
         Coordinate[] array = new Coordinate[coordinates.size()];
         return (Coordinate[]) coordinates.toArray(array);
     }
 
-    private List<Coordinate> getCoordinateList(boolean openExpected) throws IOException, ParseException {
+    private List<Coordinate> getCoordinateList(boolean openExpected)
+            throws IOException, ParseException {
         String nextToken;
-        if( openExpected ){
+        if (openExpected) {
             nextToken = getNextEmptyOrOpener();
             if (nextToken.equals(EMPTY)) {
                 return Collections.emptyList();
             }
-        }        
+        }
         ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
         coordinates.add(getPreciseCoordinate());
         nextToken = getNextCloserOrComma();
@@ -183,16 +191,17 @@ public class WKTReader2 extends WKTReader {
             coordinates.add(getPreciseCoordinate());
             nextToken = getNextCloserOrComma();
         }
-        Coordinate[] array = new Coordinate[coordinates.size()];
         return coordinates;
     }
 
     private Coordinate getPreciseCoordinate() throws IOException, ParseException {
-        Coordinate coord = new Coordinate();
-        coord.x = getNextNumber();
-        coord.y = getNextNumber();
-        if (isNumberNext()) {
-            coord.z = getNextNumber();
+        return getPreciseCoordinate(false);
+    }
+
+    private Coordinate getPreciseCoordinate(boolean measures) throws IOException, ParseException {
+        Coordinate coord = measures ? new CoordinateXYZM() : new Coordinate();
+        for (int i = 0; isNumberNext(); i++) {
+            coord.setOrdinate(i, getNextNumber());
         }
         precisionModel.makePrecise(coord);
         return coord;
@@ -207,30 +216,26 @@ public class WKTReader2 extends WKTReader {
     /**
      * Parses the next number in the stream. Numbers with exponents are handled. <tt>NaN</tt> values
      * are handled correctly, and the case of the "NaN" token is not significant.
-     * 
-     *@param tokenizer
-     *            tokenizer over a stream of text in Well-known Text format. The next token must be
-     *            a number.
-     *@return the next number in the stream
-     *@throws ParseException
-     *             if the next token is not a valid number
-     *@throws IOException
-     *             if an I/O error occurs
+     *
+     * @return the next number in the stream
+     * @throws ParseException if the next token is not a valid number
+     * @throws IOException if an I/O error occurs
      */
     private double getNextNumber() throws IOException, ParseException {
         int type = tokenizer.nextToken();
         switch (type) {
-        case StreamTokenizer.TT_WORD: {
-            if (tokenizer.sval.equalsIgnoreCase(NAN_SYMBOL)) {
-                return Double.NaN;
-            } else {
-                try {
-                    return Double.parseDouble(tokenizer.sval);
-                } catch (NumberFormatException ex) {
-                    throw new ParseException("Invalid number: " + tokenizer.sval);
+            case StreamTokenizer.TT_WORD:
+                {
+                    if (tokenizer.sval.equalsIgnoreCase(NAN_SYMBOL)) {
+                        return Double.NaN;
+                    } else {
+                        try {
+                            return Double.parseDouble(tokenizer.sval);
+                        } catch (NumberFormatException ex) {
+                            throw new ParseException("Invalid number: " + tokenizer.sval);
+                        }
+                    }
                 }
-            }
-        }
         }
         parseError("number");
         return 0.0;
@@ -238,12 +243,10 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Returns the next EMPTY or L_PAREN in the stream as uppercase text.
-     * 
-     *@return the next EMPTY or L_PAREN in the stream as uppercase text.
-     *@throws ParseException
-     *             if the next token is not EMPTY or L_PAREN
-     *@throws IOException
-     *             if an I/O error occurs
+     *
+     * @return the next EMPTY or L_PAREN in the stream as uppercase text.
+     * @throws ParseException if the next token is not EMPTY or L_PAREN
+     * @throws IOException if an I/O error occurs
      */
     private String getNextEmptyOrOpener() throws IOException, ParseException {
         String nextWord = getNextWord();
@@ -256,12 +259,10 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Returns the next R_PAREN or COMMA in the stream.
-     * 
-     *@return the next R_PAREN or COMMA in the stream
-     *@throws ParseException
-     *             if the next token is not R_PAREN or COMMA
-     *@throws IOException
-     *             if an I/O error occurs
+     *
+     * @return the next R_PAREN or COMMA in the stream
+     * @throws ParseException if the next token is not R_PAREN or COMMA
+     * @throws IOException if an I/O error occurs
      */
     private String getNextCloserOrComma() throws IOException, ParseException {
         String nextWord = getNextWord();
@@ -274,12 +275,10 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Returns the next R_PAREN in the stream.
-     * 
-     *@return the next R_PAREN in the stream
-     *@throws ParseException
-     *             if the next token is not R_PAREN
-     *@throws IOException
-     *             if an I/O error occurs
+     *
+     * @return the next R_PAREN in the stream
+     * @throws ParseException if the next token is not R_PAREN
+     * @throws IOException if an I/O error occurs
      */
     private String getNextCloser() throws IOException, ParseException {
         String nextWord = getNextWord();
@@ -292,29 +291,25 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Returns the next word in the stream.
-     * 
-     *@return the next word in the stream as uppercase text
-     *@throws ParseException
-     *             if the next token is not a word
-     *@throws IOException
-     *             if an I/O error occurs
+     *
+     * @return the next word in the stream as uppercase text
+     * @throws ParseException if the next token is not a word
+     * @throws IOException if an I/O error occurs
      */
     private String getNextWord() throws IOException, ParseException {
         int type = tokenizer.nextToken();
         switch (type) {
-        case StreamTokenizer.TT_WORD:
+            case StreamTokenizer.TT_WORD:
+                String word = tokenizer.sval;
+                if (word.equalsIgnoreCase(EMPTY)) return EMPTY;
+                return word;
 
-            String word = tokenizer.sval;
-            if (word.equalsIgnoreCase(EMPTY))
-                return EMPTY;
-            return word;
-
-        case '(':
-            return L_PAREN;
-        case ')':
-            return R_PAREN;
-        case ',':
-            return COMMA;
+            case '(':
+                return L_PAREN;
+            case ')':
+                return R_PAREN;
+            case ',':
+                return COMMA;
         }
         parseError("word");
         return null;
@@ -322,12 +317,9 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Throws a formatted ParseException for the current token.
-     * 
-     * @param expected
-     *            a description of what was expected
-     * @throws ParseException
-     * @throws AssertionFailedException
-     *             if an invalid token is encountered
+     *
+     * @param expected a description of what was expected
+     * @throws AssertionFailedException if an invalid token is encountered
      */
     private void parseError(String expected) throws ParseException {
         // throws Asserts for tokens that should never be seen
@@ -342,32 +334,30 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Gets a description of the current token
-     * 
+     *
      * @return a description of the current token
      */
     private String tokenString() {
         switch (tokenizer.ttype) {
-        case StreamTokenizer.TT_NUMBER:
-            return "<NUMBER>";
-        case StreamTokenizer.TT_EOL:
-            return "End-of-Line";
-        case StreamTokenizer.TT_EOF:
-            return "End-of-Stream";
-        case StreamTokenizer.TT_WORD:
-            return "'" + tokenizer.sval + "'";
+            case StreamTokenizer.TT_NUMBER:
+                return "<NUMBER>";
+            case StreamTokenizer.TT_EOL:
+                return "End-of-Line";
+            case StreamTokenizer.TT_EOF:
+                return "End-of-Stream";
+            case StreamTokenizer.TT_WORD:
+                return "'" + tokenizer.sval + "'";
         }
         return "'" + (char) tokenizer.ttype + "'";
     }
 
     /**
      * Creates a <code>Geometry</code> using the next token in the stream.
-     * 
-     *@return a <code>Geometry</code> specified by the next token in the stream
-     *@throws ParseException
-     *             if the coordinates used to create a <code>Polygon</code> shell and holes do not
-     *             form closed linestrings, or if an unexpected token was encountered
-     *@throws IOException
-     *             if an I/O error occurs
+     *
+     * @return a <code>Geometry</code> specified by the next token in the stream
+     * @throws ParseException if the coordinates used to create a <code>Polygon</code> shell and
+     *     holes do not form closed linestrings, or if an unexpected token was encountered
+     * @throws IOException if an I/O error occurs
      */
     private Geometry readGeometryTaggedText() throws IOException, ParseException {
         String type = null;
@@ -380,7 +370,7 @@ public class WKTReader2 extends WKTReader {
             return null;
         }
 
-        if (type.equals("POINT")) {
+        if (type.equalsIgnoreCase("POINT")) {
             return readPointText();
         } else if (type.equalsIgnoreCase("LINESTRING")) {
             return readLineStringText();
@@ -392,6 +382,8 @@ public class WKTReader2 extends WKTReader {
             return readMultiPointText();
         } else if (type.equalsIgnoreCase("MULTILINESTRING")) {
             return readMultiLineStringText();
+        } else if (type.equalsIgnoreCase("MULTICURVE")) {
+            return readMultiCurveText();
         } else if (type.equalsIgnoreCase("MULTIPOLYGON")) {
             return readMultiPolygonText();
         } else if (type.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
@@ -402,18 +394,24 @@ public class WKTReader2 extends WKTReader {
             return readCompoundCurveText();
         } else if (type.equalsIgnoreCase("CURVEPOLYGON")) {
             return readCurvePolygonText();
+        } else if (type.equalsIgnoreCase("MULTISURFACE")) {
+            return readMultiSurfaceText();
+        } else if (type.equalsIgnoreCase("LINESTRINGZ")) {
+            return readLineStringText(3, 0);
+        } else if (type.equalsIgnoreCase("LINESTRINGM")) {
+            return readLineStringText(3, 1);
+        } else if (type.equalsIgnoreCase("LINESTRINGZM")) {
+            return readLineStringText(4, 1);
         }
         throw new ParseException("Unknown geometry type: " + type);
     }
 
     /**
      * Creates a <code>Point</code> using the next token in the stream.
-     * 
-     *@return a <code>Point</code> specified by the next token in the stream
-     *@throws IOException
-     *             if an I/O error occurs
-     *@throws ParseException
-     *             if an unexpected token was encountered
+     *
+     * @return a <code>Point</code> specified by the next token in the stream
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if an unexpected token was encountered
      */
     private Point readPointText() throws IOException, ParseException {
         String nextToken = getNextEmptyOrOpener();
@@ -425,274 +423,90 @@ public class WKTReader2 extends WKTReader {
         return point;
     }
 
-    /**
-     * Creates a <code>LineString</code> using the next token in the stream.
-     * 
-     *@return a <code>LineString</code> specified by the next token in the stream
-     *@throws IOException
-     *             if an I/O error occurs
-     *@throws ParseException
-     *             if an unexpected token was encountered
-     */
+    /** Creates a <code>LineString</code> using the next token in the stream. */
     private LineString readLineStringText() throws IOException, ParseException {
-        return geometryFactory.createLineString(getCoordinates());
+        return readLineStringText(2, 0);
     }
 
     /**
-     * Creates a <code>LineString</code> using the next token in the stream.
-     * 
-     * @return
-     * @throws IOException
-     * @throws ParseException
+     * Creates a <code>LineString</code> using the next token in the stream, the provided dimension
+     * and measures will be used to create the <code>LineString</code>.
      */
+    private LineString readLineStringText(int dimension, int measures)
+            throws IOException, ParseException {
+        if (measures == 0) {
+            // default situation, capable of handle elevations but no measures
+            return geometryFactory.createLineString(getCoordinates());
+        }
+        // handle linestring subtypes with measures (elevation and measures)
+        return geometryFactory.createLineString(
+                buildCoordinateSequence(getCoordinates(true), dimension, measures));
+    }
+
+    /**
+     * Helper method that builds a coordinate sequence using the provided array coordinates,
+     * dimension and measures.
+     */
+    private CoordinateSequence buildCoordinateSequence(
+            Coordinate[] coordinates, int dimension, int measures) {
+        // create the coordinate sequence
+        LiteCoordinateSequence coordinateSequence =
+                new LiteCoordinateSequence(coordinates.length, dimension, measures);
+        // add the coordinates to the sequence
+        insertCoordinates(coordinates, coordinateSequence);
+        return coordinateSequence;
+    }
+
+    /**
+     * Helper method that just inserts the coordinates of the provided array into the provide
+     * coordinates sequence.
+     */
+    private void insertCoordinates(
+            Coordinate[] coordinates, CoordinateSequence coordinateSequence) {
+        for (int i = 0; i < coordinates.length; i++) {
+            Coordinate coordinate = coordinates[i];
+            for (int j = 0; j < coordinateSequence.getDimension(); j++) {
+                // j is the index of the ordinate, i.e. X, Y, Z or M
+                coordinateSequence.setOrdinate(i, j, coordinate.getOrdinate(j));
+            }
+        }
+    }
+
+    /** Creates a <code>LineString</code> using the next token in the stream. */
     private LineString readCircularStringText() throws IOException, ParseException {
-        List<Coordinate> coordinates = getCoordinateList( true );
-        List<Coordinate> segmentized;
-        if (coordinates.size() < 3) {
-            segmentized = coordinates;
+        List<Coordinate> coordinates = getCoordinateList(true);
+        if (coordinates.size() == 0) {
+            return geometryFactory.createCurvedGeometry(
+                    new LiteCoordinateSequence(new Coordinate[0]));
+        } else if (coordinates.size() < 3) {
+            throw new ParseException("A CIRCULARSTRING must contain at least 3 control points");
         } else {
-            segmentized = new ArrayList<Coordinate>();
-            for (int i = 0; i < coordinates.size() - 1; i += 2) {
-                Coordinate p1 = coordinates.get(i);
-                Coordinate p2 = coordinates.get(i + 1);
-                Coordinate p3 = coordinates.get(i + 2);
-
-                List<Coordinate> segments = circularSegmentize(p1, p2, p3);
-                segmentized.addAll(segments.subList(0, segments.size() - 1));
-            }
-            segmentized.add(coordinates.get(coordinates.size() - 1));
+            double[] controlPoints = toControlPoints(coordinates);
+            return geometryFactory.createCurvedGeometry(2, controlPoints);
         }
-        // we can now process these coordinates based on the current precision model
-        Coordinate array[] = segmentized.toArray(new Coordinate[segmentized.size()]);
-
-        return geometryFactory.createLineString(array);
-
     }
 
-    /**
-     * Constructs a series of segments based on the provided three points. The routine is based on
-     * the JTS Buffer code which devides a circle into 128 segments.
-     * 
-     * @param p1
-     * @param p2
-     * @param p3
-     * @return List of Coordinates forming a set number of segments
-     */
-    /*
-    private List<Coordinate> circularSegmentizeSimple(Coordinate p1, Coordinate p2, Coordinate p3) {
-        List<Coordinate> curve = new ArrayList<Coordinate>();
-        curve.add(p1);
-        curve.add(p2);
-        curve.add(p3);
-
-        return curve;
-    }
-    */
-
-    private List<Coordinate> circularSegmentize(Coordinate p1, Coordinate p2, Coordinate p3) {
-        Coordinate center;
-
-        double centerX, centerY, radius;
-        double temp, bc, cd, determinate;
-        
-        /* Closed circle */
-        if (abs(p1.x - p3.x) < EPSILON_SQLMM && abs(p1.y - p3.y) < EPSILON_SQLMM) {
-            centerX = p1.x + (p2.x - p1.x) / 2.0;
-            centerY = p1.y + (p2.y - p1.y) / 2.0;
-            center = new Coordinate();
-            center.x = centerX;
-            center.y = centerY;
-
-            radius = sqrt((centerX - p1.x) * (centerX - p1.x) + (centerY - p1.y) * (centerY - p1.y));
-        } else {
-            temp = p2.x * p2.x + p2.y * p2.y;
-            bc = (p1.x * p1.x + p1.y * p1.y - temp) / 2.0;
-            cd = (temp - p3.x * p3.x - p3.y * p3.y) / 2.0;
-            determinate = (p1.x - p2.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p2.y);
-
-            /* Check colinearity */
-            if (abs(determinate) < EPSILON_SQLMM) {
-                List<Coordinate> curve = new ArrayList<Coordinate>();
-                curve.add(p1);
-                // curve.add( p1 ); // forms a straight line not needed
-                curve.add(p3);
-
-                return curve;
-            }
-            determinate = 1.0 / determinate;
-            centerX = (bc * (p2.y - p3.y) - cd * (p1.y - p2.y)) * determinate;
-            centerY = ((p1.x - p2.x) * cd - (p2.x - p3.x) * bc) * determinate;
-            center = new Coordinate();
-            center.x = centerX;
-            center.y = centerY;
-
-            radius = sqrt((centerX - p1.x) * (centerX - p1.x) + (centerY - p1.y) * (centerY - p1.y));
+    private double[] toControlPoints(List<Coordinate> coordinates) {
+        double[] result = new double[coordinates.size() * 2];
+        for (int i = 0; i < coordinates.size(); i++) {
+            Coordinate c = coordinates.get(i);
+            result[i * 2] = c.x;
+            result[i * 2 + 1] = c.y;
         }
-        return circularSegmentize( p1, p2, p3, center, radius, 32 );
-    }
 
-    private List<Coordinate> circularSegmentize(Coordinate p1, Coordinate p2, Coordinate p3, Coordinate center,
-            double radius, int perQuad) {
-        List<Coordinate> result;
-
-        Coordinate pbuf = new Coordinate();
-        int ptcount;
-        
-        Coordinate pt;
-        
-        double sweep = 0.0,
-               angle = 0.0,
-               increment = 0.0;
-        double a1, a2, a3, i;
-        
-        if(radius < 0)
-        {
-            // does not form a circle
-            result = new ArrayList<Coordinate>();
-            result.add(p1);
-            result.add(p2);
-            return result;
-        }
- 
-        a1 = atan2(p1.y - center.y, p1.x - center.x);
-        a2 = atan2(p2.y - center.y, p2.x - center.x);
-        a3 = atan2(p3.y - center.y, p3.x - center.x);
-  
-        if(abs(p1.x - p3.x) < EPSILON_SQLMM
-                        && abs(p1.y - p3.y) < EPSILON_SQLMM)
-        {
-                sweep = 2*M_PI;
-        }
-        /* Clockwise */
-        else if(a1 > a2 && a2 > a3)
-        {
-                sweep = a3 - a1;
-        }
-        /* Counter-clockwise */
-        else if(a1 < a2 && a2 < a3)
-        {
-                sweep = a3 - a1;
-        }
-        /* Clockwise, wrap */
-        else if((a1 < a2 && a1 > a3) || (a2 < a3 && a1 > a3))
-        {
-                sweep = a3 - a1 + 2*M_PI;
-        }
-        /* Counter-clockwise, wrap */
-        else if((a1 > a2 && a1 < a3) || (a2 > a3 && a1 < a3))
-        {
-                sweep = a3 - a1 - 2*M_PI;
-        }
-        else
-        {
-                sweep = 0.0;
-        }
-         
-        ptcount = (int) ceil(abs(perQuad * sweep / M_PI_2));
-       
-        result = new ArrayList<Coordinate>( ptcount );
- 
-        increment = M_PI_2 / perQuad;
-        if(sweep < 0) increment *= -1.0;
-        angle = a1;
-
-        result.add( p1 ); // start with first point
-        
-        for(i = 0; i < ptcount - 1; i++)
-        {
-            pt = new Coordinate();
-            result.add( pt );
-            
-            angle += increment;
-            if(increment > 0.0 && angle > M_PI) angle -= 2*M_PI;
-            if(increment < 0.0 && angle < -1*M_PI) angle -= 2*M_PI;
-            
-            pt.x = center.x + radius*cos(angle);
-            pt.y = center.y + radius*sin(angle);
-            /*
-             //
-             // update this code to handle interopolation of z and m values
-             //
-            if((sweep > 0 && angle < a2) || (sweep < 0 && angle > a2))
-            {
-                if((sweep > 0 && a1 < a2) || (sweep < 0 && a1 > a2))
-                {
-                        pbuf.z = interpolate_arc(angle, p1->z, a1, p2->z, a2);
-                        pbuf.m = interpolate_arc(angle, p1->m, a1, p2->m, a2);
-                }
-                else
-                {
-                    if(sweep > 0)
-                    {
-                        pbuf.z = interpolate_arc(angle, p1->z, a1-(2*M_PI), p2->z, a2);
-                        pbuf.m = interpolate_arc(angle, p1->m, a1-(2*M_PI), p2->m, a2);
-                    }
-                    else
-                    {
-                        pbuf.z = interpolate_arc(angle, p1->z, a1+(2*M_PI), p2->z, a2);
-                        pbuf.m = interpolate_arc(angle, p1->m, a1+(2*M_PI), p2->m, a2);
-                    }
-                }
-            }
-            else
-            {
-                if((sweep > 0 && a2 < a3) || (sweep < 0 && a2 > a3))
-                {
-                    pbuf.z = interpolate_arc(angle, p2->z, a2, p3->z, a3);
-                    pbuf.m = interpolate_arc(angle, p2->m, a2, p3->m, a3);
-                }
-                else
-                {
-                    if(sweep > 0)
-                    {
-                        pbuf.z = interpolate_arc(angle, p2->z, a2-(2*M_PI), p3->z, a3);
-                        pbuf.m = interpolate_arc(angle, p2->m, a2-(2*M_PI), p3->m, a3);
-                    }
-                    else
-                    {
-                        pbuf.z = interpolate_arc(angle, p2->z, a2+(2*M_PI), p3->z, a3);
-                        pbuf.m = interpolate_arc(angle, p2->m, a2+(2*M_PI), p3->m, a3);
-                    }
-                }
-            }
-            */
-        }
-        result.add( p3 );
- 
         return result;
     }
 
-    private LineString readCompoundCurveText()
-            throws IOException, ParseException {
+    private LineString readCompoundCurveText() throws IOException, ParseException {
         List<LineString> lineStrings = getLineStrings();
-        
-        if( lineStrings.isEmpty() ){
-            // return an empty lineString?
-            return geometryFactory.createLineString(new Coordinate[] {});
-        }
-        if( lineStrings.size() == 1 ){
-            return lineStrings.get(0);
-        }
-        // we must gather these all into one - removing duplicates!
-        List<Coordinate> coords = new ArrayList<Coordinate>();
-        for( LineString segment : lineStrings ){
-            List<Coordinate> segmentCoordinates = Arrays.asList(segment.getCoordinates());
-            coords.addAll( segmentCoordinates.subList(0, segmentCoordinates.size()-1 ));            
-        }
-        LineString last = lineStrings.get( lineStrings.size()-1);
-        Coordinate end = last.getCoordinateN( last.getNumPoints()-1);
-        coords.add( end );
-        
-        return geometryFactory.createLineString( coords.toArray( new Coordinate[ coords.size()]));
+        return geometryFactory.createCurvedGeometry(lineStrings);
     }
-    
+
     /**
      * Handles mixed line string notation - either LineString (the default) or CircularCurve.
      * Isolated as a seperate method as I think we will need to call this from the polygon code.
-     * 
+     *
      * @return List of LineString (defined in a mixed format)
-     * @throws IOException
-     * @throws ParseException
      */
     List<LineString> getLineStrings() throws IOException, ParseException {
         ArrayList<LineString> lineStrings = new ArrayList<LineString>();
@@ -702,61 +516,58 @@ public class WKTReader2 extends WKTReader {
         }
         // must be an opener!
         nextWord = COMMA;
-        while( nextWord.equals( COMMA )){
+        while (nextWord.equals(COMMA)) {
             nextWord = getNextWord();
-            if( nextWord.equals(L_PAREN) ){
-                List<Coordinate> coords = getCoordinateList(false);                
-                LineString lineString  = geometryFactory.createLineString( coords.toArray( new Coordinate[coords.size()]));
+            if (nextWord.equals(L_PAREN)) {
+                List<Coordinate> coords = getCoordinateList(false);
+                LineString lineString =
+                        geometryFactory.createLineString(
+                                coords.toArray(new Coordinate[coords.size()]));
                 lineStrings.add(lineString);
-            }
-            else if( nextWord.equalsIgnoreCase("CIRCULARSTRING")){
+            } else if (nextWord.equalsIgnoreCase("CIRCULARSTRING")) {
                 LineString circularString = readCircularStringText();
                 lineStrings.add(circularString);
+            } else if (nextWord.equalsIgnoreCase("COMPOUNDCURVE")) {
+                LineString compound = readCompoundCurveText();
+                lineStrings.add(compound);
             }
+
             nextWord = getNextCloserOrComma();
         }
         return lineStrings;
     }
     /**
-     * This method will read a LineString, CircularString or CompoundCurve and return the result as a LinearRing.
+     * This method will read a LineString, CircularString or CompoundCurve and return the result as
+     * a LinearRing.
+     *
      * @return LinearRing
-     * <p>
-     * This method expects either "EMPTY", "(", "CIRCULARSTRING", or "COMPOIUNDCURVE" to start out with.
-     * 
-     * @throws IOException
-     * @throws ParseException
+     *     <p>This method expects either "EMPTY", "(", "CIRCULARSTRING", or "COMPOIUNDCURVE" to
+     *     start out with.
      */
     private LinearRing readCurvedLinearRingText() throws IOException, ParseException {
-        Coordinate ring[] = null;
-        
-        String nextWord = getNextWord();        
-        if( nextWord.equals(L_PAREN) ){
+        String nextWord = getNextWord();
+        if (nextWord.equals(L_PAREN)) {
             List<Coordinate> coords = getCoordinateList(false);
-            ring = coords.toArray( new Coordinate[coords.size()]);            
-        }
-        else if( nextWord.equalsIgnoreCase("CIRCULARSTRING")){
-            LineString circularString = readCircularStringText();
-            ring = circularString.getCoordinates();
-        }
-        else if( nextWord.equalsIgnoreCase("COMPOUNDCURVE")){
-            LineString circularString = readCompoundCurveText();
-            ring = circularString.getCoordinates();
-        }
-        else {
+            return new LinearRing(
+                    new CoordinateArraySequence(coords.toArray(new Coordinate[coords.size()])),
+                    geometryFactory);
+        } else if (nextWord.equalsIgnoreCase("CIRCULARSTRING")) {
+            return (LinearRing) readCircularStringText();
+        } else if (nextWord.equalsIgnoreCase("COMPOUNDCURVE")) {
+            return (LinearRing) readCompoundCurveText();
+        } else {
             parseError(L_PAREN + ", CIRCULARSTRING or COMPOUNDCURVE");
-        }        
-        return geometryFactory.createLinearRing( ring );
+            return null;
+        }
     }
-    
+
     /**
      * Creates a <code>LinearRing</code> using the next token in the stream.
-     * 
-     *@return a <code>LinearRing</code> specified by the next token in the stream
-     *@throws IOException
-     *             if an I/O error occurs
-     *@throws ParseException
-     *             if the coordinates used to create the <code>LinearRing</code> do not form a
-     *             closed linestring, or if an unexpected token was encountered
+     *
+     * @return a <code>LinearRing</code> specified by the next token in the stream
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if the coordinates used to create the <code>LinearRing</code> do not
+     *     form a closed linestring, or if an unexpected token was encountered
      */
     private LinearRing readLinearRingText() throws IOException, ParseException {
         return geometryFactory.createLinearRing(getCoordinates());
@@ -764,24 +575,71 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Creates a <code>MultiPoint</code> using the next token in the stream.
-     * 
-     *@return a <code>MultiPoint</code> specified by the next token in the stream
-     *@throws IOException
-     *             if an I/O error occurs
-     *@throws ParseException
-     *             if an unexpected token was encountered
+     *
+     * @return a <code>MultiPoint</code> specified by the next token in the stream
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if an unexpected token was encountered
      */
     private MultiPoint readMultiPointText() throws IOException, ParseException {
-        return geometryFactory.createMultiPoint(toPoints(getCoordinates()));
+        return geometryFactory.createMultiPoint(toPoints(getCoordinatesForMultiPoint()));
+    }
+
+    /**
+     * Get a Coordinate array for a MultiPoint. Specifically handle both WKT styles: MULTIPOINT (111
+     * -47, 110 -46.5) and MULTIPOINT ((111 -47), (110 -46.5)).
+     *
+     * @return An Array of Coordinates
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if an unexpected token was encountered
+     */
+    private Coordinate[] getCoordinatesForMultiPoint() throws IOException, ParseException {
+        String nextToken = getNextEmptyOrOpener();
+        if (nextToken.equals(EMPTY)) {
+            return new Coordinate[] {};
+        }
+
+        // Check for inner parens
+        boolean innerParens = false;
+        try {
+            String peek = getNextWord();
+            innerParens = peek.equals(L_PAREN);
+        } catch (ParseException ex) {
+            // Do nothing
+        } finally {
+            tokenizer.pushBack();
+        }
+
+        if (innerParens) {
+            ArrayList coordinates = new ArrayList();
+            Coordinate[] coords = getCoordinates();
+            coordinates.add(coords[0]);
+            nextToken = getNextCloserOrComma();
+            while (nextToken.equals(COMMA)) {
+                coords = getCoordinates();
+                coordinates.add(coords[0]);
+                nextToken = getNextCloserOrComma();
+            }
+            Coordinate[] array = new Coordinate[coordinates.size()];
+            return (Coordinate[]) coordinates.toArray(array);
+        } else {
+            ArrayList coordinates = new ArrayList();
+            coordinates.add(getPreciseCoordinate());
+            nextToken = getNextCloserOrComma();
+            while (nextToken.equals(COMMA)) {
+                coordinates.add(getPreciseCoordinate());
+                nextToken = getNextCloserOrComma();
+            }
+            Coordinate[] array = new Coordinate[coordinates.size()];
+            return (Coordinate[]) coordinates.toArray(array);
+        }
     }
 
     /**
      * Creates an array of <code>Point</code>s having the given <code>Coordinate</code> s.
-     * 
-     *@param coordinates
-     *            the <code>Coordinate</code>s with which to create the <code>Point</code>s
-     *@return <code>Point</code>s created using this <code>WKTReader</code> s
-     *         <code>GeometryFactory</code>
+     *
+     * @param coordinates the <code>Coordinate</code>s with which to create the <code>Point</code>s
+     * @return <code>Point</code>s created using this <code>WKTReader</code> s <code>GeometryFactory
+     *     </code>
      */
     private Point[] toPoints(Coordinate[] coordinates) {
         ArrayList points = new ArrayList();
@@ -793,19 +651,17 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Creates a <code>Polygon</code> using the next token in the stream.
-     * 
-     *@return a <code>Polygon</code> specified by the next token in the stream
-     *@throws ParseException
-     *             if the coordinates used to create the <code>Polygon</code> shell and holes do not
-     *             form closed linestrings, or if an unexpected token was encountered.
-     *@throws IOException
-     *             if an I/O error occurs
+     *
+     * @return a <code>Polygon</code> specified by the next token in the stream
+     * @throws ParseException if the coordinates used to create the <code>Polygon</code> shell and
+     *     holes do not form closed linestrings, or if an unexpected token was encountered.
+     * @throws IOException if an I/O error occurs
      */
     private Polygon readPolygonText() throws IOException, ParseException {
         String nextToken = getNextEmptyOrOpener();
         if (nextToken.equals(EMPTY)) {
-            return geometryFactory.createPolygon(geometryFactory
-                    .createLinearRing(new Coordinate[] {}), new LinearRing[] {});
+            return geometryFactory.createPolygon(
+                    geometryFactory.createLinearRing(new Coordinate[] {}), new LinearRing[] {});
         }
         ArrayList holes = new ArrayList();
         LinearRing shell = readLinearRingText();
@@ -818,37 +674,41 @@ public class WKTReader2 extends WKTReader {
         LinearRing[] array = new LinearRing[holes.size()];
         return geometryFactory.createPolygon(shell, (LinearRing[]) holes.toArray(array));
     }
-    
+
+    private MultiLineString readMultiCurveText() throws IOException, ParseException {
+        List<LineString> lineStrings = getLineStrings();
+        return geometryFactory.createMultiCurve(lineStrings);
+    }
+
     private Polygon readCurvePolygonText() throws IOException, ParseException {
         String nextToken = getNextEmptyOrOpener();
         if (nextToken.equals(EMPTY)) {
-            return geometryFactory.createPolygon(geometryFactory
-                    .createLinearRing(new Coordinate[] {}), new LinearRing[] {});
+            return geometryFactory.createCurvePolygon(
+                    geometryFactory.createLinearRing(new Coordinate[] {}), new LinearRing[] {});
         }
-        if( !nextToken.equals( L_PAREN )){
+        if (!nextToken.equals(L_PAREN)) {
             parseError("Ring expected");
         }
         LinearRing shell = readCurvedLinearRingText();
-        ArrayList holes = new ArrayList();       
+        ArrayList holes = new ArrayList();
         nextToken = getNextCloserOrComma();
         while (nextToken.equals(COMMA)) {
             LinearRing hole = readCurvedLinearRingText();
-            holes.add(hole);    
+            holes.add(hole);
             nextToken = getNextCloserOrComma();
         }
         LinearRing[] array = new LinearRing[holes.size()];
-        return geometryFactory.createPolygon(shell, (LinearRing[]) holes.toArray(array));
+        return geometryFactory.createCurvePolygon(shell, (LinearRing[]) holes.toArray(array));
     }
+
     /**
      * Creates a <code>MultiLineString</code> using the next token in the stream.
-     * 
-     *@return a <code>MultiLineString</code> specified by the next token in the stream
-     *@throws IOException
-     *             if an I/O error occurs
-     *@throws ParseException
-     *             if an unexpected token was encountered
+     *
+     * @return a <code>MultiLineString</code> specified by the next token in the stream
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if an unexpected token was encountered
      */
-    private com.vividsolutions.jts.geom.MultiLineString readMultiLineStringText()
+    private org.locationtech.jts.geom.MultiLineString readMultiLineStringText()
             throws IOException, ParseException {
         String nextToken = getNextEmptyOrOpener();
         if (nextToken.equals(EMPTY)) {
@@ -869,14 +729,12 @@ public class WKTReader2 extends WKTReader {
 
     /**
      * Creates a <code>MultiPolygon</code> using the next token in the stream.
-     * 
-     *@return a <code>MultiPolygon</code> specified by the next token in the stream, or if if the
-     *         coordinates used to create the <code>Polygon</code> shells and holes do not form
-     *         closed linestrings.
-     *@throws IOException
-     *             if an I/O error occurs
-     *@throws ParseException
-     *             if an unexpected token was encountered
+     *
+     * @return a <code>MultiPolygon</code> specified by the next token in the stream, or if if the
+     *     coordinates used to create the <code>Polygon</code> shells and holes do not form closed
+     *     linestrings.
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if an unexpected token was encountered
      */
     private MultiPolygon readMultiPolygonText() throws IOException, ParseException {
         String nextToken = getNextEmptyOrOpener();
@@ -897,14 +755,46 @@ public class WKTReader2 extends WKTReader {
     }
 
     /**
+     * Creates a <code>MultiSurface</code> using the next token in the stream.
+     *
+     * @return a <code>MultiSurface</code> specified by the next token in the stream, or if if the
+     *     coordinates used to create the <code>Polygon</code> shells and holes do not form closed
+     *     linestrings.
+     * @throws IOException if an I/O error occurs
+     * @throws ParseException if an unexpected token was encountered
+     */
+    private MultiPolygon readMultiSurfaceText() throws IOException, ParseException {
+        String nextToken = getNextEmptyOrOpener();
+        if (nextToken.equals(EMPTY)) {
+            return geometryFactory.createMultiSurface(new ArrayList<Polygon>());
+        }
+        ArrayList polygons = new ArrayList();
+        // must be an opener!
+        String nextWord = COMMA;
+        while (nextWord.equals(COMMA)) {
+            nextWord = getNextWord();
+            if (nextWord.equals(L_PAREN) || nextWord.equals(EMPTY)) {
+                tokenizer.pushBack();
+                Polygon polygon = readPolygonText();
+                polygons.add(polygon);
+            } else if (nextWord.equalsIgnoreCase("CURVEPOLYGON")) {
+                Polygon polygon = readCurvePolygonText();
+                polygons.add(polygon);
+            }
+
+            nextWord = getNextCloserOrComma();
+        }
+
+        return geometryFactory.createMultiSurface(polygons);
+    }
+
+    /**
      * Creates a <code>GeometryCollection</code> using the next token in the stream.
-     * 
+     *
      * @return a <code>GeometryCollection</code> specified by the next token in the stream
-     * @throws ParseException
-     *             if the coordinates used to create a <code>Polygon</code> shell and holes do not
-     *             form closed linestrings, or if an unexpected token was encountered
-     * @throws IOException
-     *             if an I/O error occurs
+     * @throws ParseException if the coordinates used to create a <code>Polygon</code> shell and
+     *     holes do not form closed linestrings, or if an unexpected token was encountered
+     * @throws IOException if an I/O error occurs
      */
     private GeometryCollection readGeometryCollectionText() throws IOException, ParseException {
         String nextToken = getNextEmptyOrOpener();
@@ -923,5 +813,4 @@ public class WKTReader2 extends WKTReader {
         Geometry[] array = new Geometry[geometries.size()];
         return geometryFactory.createGeometryCollection((Geometry[]) geometries.toArray(array));
     }
-
 }

@@ -25,13 +25,12 @@ import org.geotools.map.Layer;
  *
  * @author Michael Bedward
  * @since 8.0
- * @source $URL$
  * @version $URL$
  */
 public class MockLayer extends Layer {
-    
+
     private ReferencedEnvelope bounds;
-    
+
     public MockLayer() {
         this(null);
     }
@@ -39,10 +38,9 @@ public class MockLayer extends Layer {
     public MockLayer(ReferencedEnvelope bounds) {
         this.bounds = bounds == null ? new ReferencedEnvelope() : new ReferencedEnvelope(bounds);
     }
-    
+
     @Override
     public ReferencedEnvelope getBounds() {
         return bounds;
     }
-
 }

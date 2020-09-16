@@ -1,18 +1,15 @@
 /*
- *    GeoTools - The Open Source Java GIS Toolkit
- *    http://geotools.org
+ * GeoTools - The Open Source Java GIS Toolkit http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ * (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of
+ * the License.
  *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  */
 package org.geotools.data.shapefile;
 
@@ -27,7 +24,6 @@ import java.nio.charset.Charset;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.TestData;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
@@ -38,18 +34,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
- *
- *
- * @source $URL$
  * @version $Id$
  * @author Ian Schneider
  * @author James Macgill
  */
 public class DbaseFileTest extends TestCaseSupport {
 
-    private static final Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger("org.geotools.data.shapefile");
+    private static final Logger LOGGER =
+            org.geotools.util.logging.Logging.getLogger(DbaseFileTest.class);
 
     static final String TEST_FILE = "shapes/statepop.dbf";
 
@@ -60,14 +52,12 @@ public class DbaseFileTest extends TestCaseSupport {
     @Before
     public void setUp() throws Exception {
         shpFiles = new ShpFiles(TestData.url(TEST_FILE));
-        dbf = new DbaseFileReader(shpFiles, false,
-                ShapefileDataStore.DEFAULT_STRING_CHARSET);
+        dbf = new DbaseFileReader(shpFiles, false, ShapefileDataStore.DEFAULT_STRING_CHARSET);
     }
 
     @Test
     public void testNumberofColsLoaded() {
-        assertEquals("Number of attributes found incorect", 252, dbf
-                .getHeader().getNumFields());
+        assertEquals("Number of attributes found incorect", 252, dbf.getHeader().getNumFields());
     }
 
     @After
@@ -86,15 +76,15 @@ public class DbaseFileTest extends TestCaseSupport {
         Object[] attrs = new Object[dbf.getHeader().getNumFields()];
         dbf.readEntry(attrs);
         assertEquals("Value of Column 0 is wrong", "Illinois", attrs[0]);
-        assertEquals("Value of Column 4 is wrong", 143986.61,
-                ((Double) attrs[4]).doubleValue(), 0.001);
+        assertEquals(
+                "Value of Column 4 is wrong", 143986.61, ((Double) attrs[4]).doubleValue(), 0.001);
     }
 
     @Test
     public void testRowVsEntry() throws Exception {
         Object[] attrs = new Object[dbf.getHeader().getNumFields()];
-        DbaseFileReader dbf2 = new DbaseFileReader(shpFiles, false,
-                ShapefileDataStore.DEFAULT_STRING_CHARSET);
+        DbaseFileReader dbf2 =
+                new DbaseFileReader(shpFiles, false, ShapefileDataStore.DEFAULT_STRING_CHARSET);
         while (dbf.hasNext()) {
             dbf.readEntry(attrs);
             DbaseFileReader.Row r = dbf2.readRow();
@@ -163,51 +153,49 @@ public class DbaseFileTest extends TestCaseSupport {
         header.addColumn("emptyLogical", 'L', 1, 0);
         header.addColumn("emptyDate", 'D', 20, 0);
         header.setNumRecords(20);
-        File f = new File(System.getProperty("java.io.tmpdir"),
-                "scratchDBF.dbf");
+        File f = new File(System.getProperty("java.io.tmpdir"), "scratchDBF.dbf");
         f.deleteOnExit();
-        FileOutputStream fout = new FileOutputStream(f);
-        DbaseFileWriter dbf = new DbaseFileWriter(header, fout.getChannel(), Charset.defaultCharset());
-        for (int i = 0; i < header.getNumRecords(); i++) {
-            dbf.write(new Object[6]);
+        try (FileOutputStream fout = new FileOutputStream(f)) {
+            DbaseFileWriter dbf =
+                    new DbaseFileWriter(header, fout.getChannel(), Charset.defaultCharset());
+            for (int i = 0; i < header.getNumRecords(); i++) {
+                dbf.write(new Object[6]);
+            }
         }
-        dbf.close();
         ShpFiles tempShpFiles = new ShpFiles(f);
-        DbaseFileReader r = new DbaseFileReader(tempShpFiles, false,
-                ShapefileDataStore.DEFAULT_STRING_CHARSET);
-        int cnt = 0;
-        while (r.hasNext()) {
-            cnt++;
-            Object[] o = r.readEntry();
-            assertTrue(o.length == r.getHeader().getNumFields());
+        try (DbaseFileReader r =
+                new DbaseFileReader(
+                        tempShpFiles, false, ShapefileDataStore.DEFAULT_STRING_CHARSET)) {
+            int cnt = 0;
+            while (r.hasNext()) {
+                cnt++;
+                Object[] o = r.readEntry();
+                assertTrue(o.length == r.getHeader().getNumFields());
+            }
+            assertEquals("Bad number of records", cnt, 20);
+        } finally {
+            f.delete();
         }
-        assertEquals("Bad number of records", cnt, 20);
-        r.close(); // make sure the channel is closed
-        f.delete();
     }
 
     @Test
     public void testFieldFormatter() throws Exception {
-        DbaseFileWriter.FieldFormatter formatter = new DbaseFileWriter.FieldFormatter(Charset.defaultCharset(), TimeZone.getDefault(), false);
+        DbaseFileWriter.FieldFormatter formatter =
+                new DbaseFileWriter.FieldFormatter(
+                        Charset.defaultCharset(), TimeZone.getDefault(), false);
 
         String stringWithInternationChars = "hello " + '\u20ac';
         // if (verbose) {
         // System.out.println(stringWithInternationChars);
         // }
-        String formattedString = formatter.getFieldString(10,
-                stringWithInternationChars);
+        String formattedString = formatter.getFieldString(10, stringWithInternationChars);
 
-        assertEquals("          ".getBytes().length,
-                formattedString.getBytes().length);
+        assertEquals("          ".getBytes().length, formattedString.getBytes().length);
 
         // test when the string is too big.
         stringWithInternationChars = '\u20ac' + "1234567890";
-        formattedString = formatter.getFieldString(10,
-                stringWithInternationChars);
+        formattedString = formatter.getFieldString(10, stringWithInternationChars);
 
-        assertEquals("          ".getBytes().length,
-                formattedString.getBytes().length);
-
+        assertEquals("          ".getBytes().length, formattedString.getBytes().length);
     }
-
 }

@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,32 +16,21 @@
  */
 package org.geotools.wfs.bindings;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import net.opengis.wfs.FeatureCollectionType;
 import net.opengis.wfs.WfsFactory;
-
 import org.eclipse.emf.ecore.EObject;
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.gml3.GML;
-import org.geotools.wfs.CompositeFeatureCollection;
 import org.geotools.wfs.WFS;
-import org.geotools.xml.AbstractComplexEMFBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-import org.opengis.feature.simple.SimpleFeature;
-
+import org.geotools.xsd.AbstractComplexEMFBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 
 /**
  * Binding object for the type http://www.opengis.net/wfs:FeatureCollectionType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="FeatureCollectionType"&gt;
  *      &lt;xsd:annotation&gt;
@@ -92,22 +81,16 @@ import org.opengis.feature.simple.SimpleFeature;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
-public class FeatureCollectionTypeBinding extends AbstractComplexEMFBinding {
+public abstract class FeatureCollectionTypeBinding extends AbstractComplexEMFBinding {
+
     public FeatureCollectionTypeBinding(WfsFactory factory) {
         super(factory);
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return WFS.FeatureCollectionType;
     }
@@ -115,30 +98,26 @@ public class FeatureCollectionTypeBinding extends AbstractComplexEMFBinding {
     @Override
     public Object getProperty(Object object, QName name) throws Exception {
         FeatureCollectionType fc = (FeatureCollectionType) object;
-        if ( !fc.getFeature().isEmpty() ) {
+        if (!fc.getFeature().isEmpty()) {
             Object val = WFSParsingUtils.FeatureCollectionType_getProperty(fc, name);
             if (val != null) {
                 return val;
             }
         }
-        
+
         return super.getProperty(object, name);
     }
-    
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         FeatureCollectionType fct = (FeatureCollectionType) super.parse(instance, node, value);
         return WFSParsingUtils.FeatureCollectionType_parse(fct, instance, node);
     }
-    
+
     @Override
     protected void setProperty(EObject eObject, String property, Object value, boolean lax) {
-        if ("featureMembers".equalsIgnoreCase(property)) {
-            //ignore feature, handled in parse()
-        }
-        else {
+        // ignore feature, handled in parse()
+        if (!"featureMembers".equalsIgnoreCase(property)) {
             super.setProperty(eObject, property, value, lax);
         }
     }
-    
 }

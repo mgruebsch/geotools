@@ -20,31 +20,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import junit.framework.TestCase;
-
-import org.geotools.xml.Parser;
-import org.geotools.xml.StreamingParser;
+import org.geotools.xsd.StreamingParser;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.w3c.dom.Document;
 
-import com.vividsolutions.jts.geom.Point;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLApplicationSchemaParsingTest extends TestCase {
-    public void testStreamFeatureWithIncorrectSchemaLocation()
-        throws Exception {
+    public void testStreamFeatureWithIncorrectSchemaLocation() throws Exception {
         InputStream in = getClass().getResourceAsStream("feature.xml");
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -52,10 +40,10 @@ public class GMLApplicationSchemaParsingTest extends TestCase {
 
         Document document = factory.newDocumentBuilder().parse(in);
 
-        //update hte schema location
+        // update hte schema location
         document.getDocumentElement().removeAttribute("xsi:schemaLocation");
 
-        //reserialize the document
+        // reserialize the document
         File schemaFile = File.createTempFile("test", "xsd");
         schemaFile.deleteOnExit();
 
@@ -66,9 +54,6 @@ public class GMLApplicationSchemaParsingTest extends TestCase {
         in = new FileInputStream(schemaFile);
 
         GMLConfiguration configuration = new GMLConfiguration();
-        configuration.getProperties().add(Parser.Properties.IGNORE_SCHEMA_LOCATION);
-        configuration.getProperties().add(Parser.Properties.PARSE_UNKNOWN_ELEMENTS);
-
         StreamingParser parser = new StreamingParser(configuration, in, "//TestFeature");
 
         for (int i = 0; i < 3; i++) {
@@ -86,8 +71,7 @@ public class GMLApplicationSchemaParsingTest extends TestCase {
         }
     }
 
-    public void testStreamPointWithIncorrectSchemaLocation()
-        throws Exception {
+    public void testStreamPointWithIncorrectSchemaLocation() throws Exception {
         InputStream in = getClass().getResourceAsStream("feature.xml");
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -95,10 +79,10 @@ public class GMLApplicationSchemaParsingTest extends TestCase {
 
         Document document = factory.newDocumentBuilder().parse(in);
 
-        //update hte schema location
+        // update hte schema location
         document.getDocumentElement().removeAttribute("xsi:schemaLocation");
 
-        //reserialize the document
+        // reserialize the document
         File schemaFile = File.createTempFile("test", "xsd");
         schemaFile.deleteOnExit();
 
@@ -109,9 +93,6 @@ public class GMLApplicationSchemaParsingTest extends TestCase {
         in = new FileInputStream(schemaFile);
 
         GMLConfiguration configuration = new GMLConfiguration();
-        configuration.getProperties().add(Parser.Properties.IGNORE_SCHEMA_LOCATION);
-        configuration.getProperties().add(Parser.Properties.PARSE_UNKNOWN_ELEMENTS);
-
         StreamingParser parser = new StreamingParser(configuration, in, "//Point");
 
         for (int i = 0; i < 3; i++) {
@@ -138,12 +119,12 @@ public class GMLApplicationSchemaParsingTest extends TestCase {
 
         Document document = factory.newDocumentBuilder().parse(in);
 
-        //update hte schema location
+        // update hte schema location
         String schemaLocation = getClass().getResource("test.xsd").toString();
         document.getDocumentElement()
                 .setAttribute("xsi:schemaLocation", TEST.NAMESPACE + " " + schemaLocation);
 
-        //reserialize the document
+        // reserialize the document
         File schemaFile = File.createTempFile("test", "xsd");
         schemaFile.deleteOnExit();
 

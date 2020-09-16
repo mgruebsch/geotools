@@ -1,7 +1,7 @@
 package org.geotools.filter.v2_0;
 
-import org.geotools.xml.Configuration;
-import org.geotools.xml.test.XMLTestSupport;
+import org.geotools.xsd.Configuration;
+import org.geotools.xsd.test.XMLTestSupport;
 
 public class FESTestSupport extends XMLTestSupport {
 
@@ -9,5 +9,4 @@ public class FESTestSupport extends XMLTestSupport {
     protected Configuration createConfiguration() {
         return new FESConfiguration();
     }
-
 }

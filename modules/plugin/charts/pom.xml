@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>plugin</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
 
 
@@ -29,12 +29,6 @@
   <name>Dynamic symbolizer module based on JFreeChart and Eastwood</name>
   
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/unsupported/charts/
-    </connection>
-    <url>http://svn.geotools.org/trunk/modules/unsupported/charts/</url>
-  </scm>
 
   <description>
     TODO
@@ -103,6 +97,12 @@
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-property</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-xml</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

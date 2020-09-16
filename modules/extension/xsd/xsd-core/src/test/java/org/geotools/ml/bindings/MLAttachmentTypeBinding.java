@@ -22,16 +22,16 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import org.geotools.ml.Attachment;
 import org.geotools.ml.MimeType;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 
 /**
  * Strategy object for the type http://mails/refractions/net:attachmentType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="attachmentType"&gt;
  *      &lt;xsd:group ref="ml:attachmentContent"/&gt;
@@ -40,23 +40,17 @@ import org.geotools.xml.Node;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class MLAttachmentTypeBinding extends AbstractComplexBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return ML.ATTACHMENTTYPE;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -71,23 +65,23 @@ public class MLAttachmentTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         Map mime = (Map) node.getChildValue("mimetype");
         MimeType mimeType = new MimeType((String) mime.get("type"), (String) mime.get("subtype"));
 
         String name = (String) node.getChildValue("name");
 
-        //content is optional
+        // content is optional
         List contentList = node.getChildValues("content");
         StringBuffer content = new StringBuffer();
 
-        for (Iterator itr = contentList.iterator(); itr.hasNext();) {
+        for (Iterator itr = contentList.iterator(); itr.hasNext(); ) {
             content.append((String) itr.next());
         }
 

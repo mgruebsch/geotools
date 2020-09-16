@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>extension</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
   
 
@@ -29,12 +29,6 @@
   <name>Validation Processor and Framework</name>
   
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/validation/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/validation/</url>
-  </scm>
 
   <description>
     Validation module (and validator batch tool) for use with geotools2.
@@ -93,14 +87,18 @@
   <dependencies>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-graph</artifactId>
+      <artifactId>gt-main</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.geotools.jdbc</groupId>
-      <artifactId>gt-jdbc-postgis</artifactId>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-xml</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-graph</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>

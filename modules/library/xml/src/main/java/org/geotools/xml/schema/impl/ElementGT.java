@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -17,7 +17,6 @@
 package org.geotools.xml.schema.impl;
 
 import java.net.URI;
-
 import org.geotools.xml.schema.Element;
 import org.geotools.xml.schema.ElementGrouping;
 import org.geotools.xml.schema.Schema;
@@ -25,49 +24,46 @@ import org.geotools.xml.schema.Type;
 
 /**
  * Provides ...TODO summary sentence
- * <p>
- * TODO Description
- * </p><p>
- * Responsibilities:
+ *
+ * <p>TODO Description
+ *
+ * <p>Responsibilities:
+ *
  * <ul>
- * <li>
- * <li>
+ *   <li>
+ *   <li>
  * </ul>
- * </p><p>
- * Example Use:<pre><code>
+ *
+ * <p>Example Use:
+ *
+ * <pre><code>
  * ElementGT x = new ElementGT( ... );
  * TODO code example
  * </code></pre>
- * </p>
+ *
  * @author dzwiers
  * @since 0.3
- *
- *
- * @source $URL$
  */
 public class ElementGT implements Element {
 
     private Type type = null;
-    private boolean _abstract,nillable;
+    private boolean _abstract, nillable;
     private Element sub = null;
     private URI ns = null;
-    private String name = null,id = null;
-    private int min=1,max=1;
-    
-    /**
-     * Construct <code>ElementGT</code>.
-     *
-     * @param id
-     * @param name
-     * @param namespace
-     * @param type
-     * @param min
-     * @param max
-     * @param nillable
-     * @param substitutionGroup
-     * @param _abstract
-     */
-    public ElementGT(String id,String name, URI namespace, Type type, int min, int max, boolean nillable, Element substitutionGroup, boolean _abstract){
+    private String name = null, id = null;
+    private int min = 1, max = 1;
+
+    /** Construct <code>ElementGT</code>. */
+    public ElementGT(
+            String id,
+            String name,
+            URI namespace,
+            Type type,
+            int min,
+            int max,
+            boolean nillable,
+            Element substitutionGroup,
+            boolean _abstract) {
         this.type = type;
         this._abstract = _abstract;
         this.nillable = nillable;
@@ -78,10 +74,10 @@ public class ElementGT implements Element {
         this.min = min;
         this.max = max;
     }
-    
+
     /**
      * TODO summary sentence for isAbstract ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#isAbstract()
      */
     public boolean isAbstract() {
@@ -90,7 +86,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getBlock ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getBlock()
      */
     public int getBlock() {
@@ -99,7 +95,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getDefault ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getDefault()
      */
     public String getDefault() {
@@ -108,7 +104,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getFinal ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getFinal()
      */
     public int getFinal() {
@@ -117,7 +113,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getFixed ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getFixed()
      */
     public String getFixed() {
@@ -126,7 +122,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for isForm ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#isForm()
      */
     public boolean isForm() {
@@ -135,7 +131,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getId ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getId()
      */
     public String getId() {
@@ -144,7 +140,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getMaxOccurs ...
-     * 
+     *
      * @see org.geotools.xml.schema.ElementGrouping#getMaxOccurs()
      */
     public int getMaxOccurs() {
@@ -153,7 +149,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getMinOccurs ...
-     * 
+     *
      * @see org.geotools.xml.schema.ElementGrouping#getMinOccurs()
      */
     public int getMinOccurs() {
@@ -162,7 +158,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getName ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getName()
      */
     public String getName() {
@@ -171,7 +167,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getNamespace ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getNamespace()
      */
     public URI getNamespace() {
@@ -180,7 +176,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for isNillable ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#isNillable()
      */
     public boolean isNillable() {
@@ -189,7 +185,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getSubstitutionGroup ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getSubstitutionGroup()
      */
     public Element getSubstitutionGroup() {
@@ -198,7 +194,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getType ...
-     * 
+     *
      * @see org.geotools.xml.schema.Element#getType()
      */
     public Type getType() {
@@ -207,7 +203,7 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for getGrouping ...
-     * 
+     *
      * @see org.geotools.xml.schema.ElementGrouping#getGrouping()
      */
     public int getGrouping() {
@@ -216,17 +212,18 @@ public class ElementGT implements Element {
 
     /**
      * TODO summary sentence for findChildElement ...
-     * 
+     *
      * @see org.geotools.xml.schema.ElementGrouping#findChildElement(java.lang.String)
-     * @param name1
      */
-    public Element findChildElement( String name1 ) {
-        return (getName()!=null && getName().equals(name1))?this:null;
+    public Element findChildElement(String name1) {
+        return (getName() != null && getName().equals(name1)) ? this : null;
     }
 
-	public Element findChildElement(String localName, URI namespaceURI) {
-        return (getName()!=null 
-        		&& getName().equals(localName)
-        		&& getNamespace().equals(namespaceURI))?this:null;
-	}
+    public Element findChildElement(String localName, URI namespaceURI) {
+        return (getName() != null
+                        && getName().equals(localName)
+                        && getNamespace().equals(namespaceURI))
+                ? this
+                : null;
+    }
 }

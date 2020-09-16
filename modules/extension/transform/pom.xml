@@ -10,7 +10,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>extension</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
 
 
@@ -23,12 +23,6 @@
   <name>Feature transforming feature source wrapper</name>
 
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/transform/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/transform/</url>
-  </scm>
 
   <description>
     A FeatureSource/FeatureStore wrapper that can rename attributes, hide others, and create new ones by applying expressions on the wrapped ones
@@ -87,13 +81,6 @@
 
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-sample-data</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.geotools</groupId>
       <artifactId>gt-epsg-hsql</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -108,6 +95,14 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
 

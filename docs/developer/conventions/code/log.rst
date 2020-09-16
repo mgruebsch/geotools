@@ -1,7 +1,7 @@
 Logging
 -------
 
-We use the logging package bundled into J2SE 1.4 and above (java.util.logging). An overview is available on line in the Sun's SDK documentation. An other valuable source of inspiration is Logging in NetBeans.
+We use the logging package bundled into J2SE 1.4 and above (java.util.logging). An overview is available on line in the Sun's SDK documentation. Another valuable source of inspiration is Logging in NetBeans.
 
 GeoTools typically (but not always) uses one logger per package and is named after the package name. Private classes or implementations sometime use the name of their public counterpart.
 
@@ -40,6 +40,7 @@ Logging Messages
 ^^^^^^^^^^^^^^^^
 
 Message can be conveniently logged using one of 7 predefined levels. The levels in descending order are:
+
 ========== ================================ ====================================================
 Level      Displayed on standard output     Comments 
 ========== ================================ ====================================================
@@ -64,7 +65,7 @@ The info level is for end users. Use the fine, finer or finest levels for debug 
 Entering/Existing Logger
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-There is three more convenience methods: entering, exiting and throwing when entering and exiting a method, or when we are about to terminate a method with an exception.::
+There are three more convenience methods: entering, exiting and throwing when entering and exiting a method, or when we are about to terminate a method with an exception.::
    
    public Object myMethod(String myArgument) {
        LOGGER.entering("MyClass", "MyMethod", myArgument);
@@ -94,7 +95,7 @@ Good use of logging::
 Selective Logging
 ^^^^^^^^^^^^^^^^^^
 
-If the log message is expensive to construct, then consider enclosing it in a if statement.::
+If the log message is expensive to construct, then consider enclosing it in an if statement.::
    
    if (LOGGER.isLoggable(Level.FINER)) {
       LOGGER.finer("Current state = "+someVeryExpensiveMethodCall());
@@ -130,7 +131,7 @@ Provides fairly detailed logging message from the GML module, but not from the r
 Log4J interoperability
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Geotools can produces a console output similar to the Log4J one (single-line instead of multi-line log message) if the following code is invoked once at application starting time::
+GeoTools can produces a console output similar to the Log4J one (single-line instead of multi-line log message) if the following code is invoked once at application starting time::
    
    Logging.ALL.forceMonolineConsoleOutput();
    
@@ -156,4 +157,4 @@ Log4J offers similar functionalities with a wider range of handler implementatio
 
 We are not claiming that Java logging in superior to Log4J, neither we are forcing peoples to use Java logging. We push for usage of Java logging API, which may very well redirect to Log4J under the hood through java.util.logging.Log4JLoggerFactory implementations.
 
-Commons-logging is widely used in server containers, but other communities like scientists face a different picture. For example the NetCDF library developped by University Corporation for Atmospheric Research (UCAR) uses SLF4J, yet other logging framework that aims to be a replacement for commons-logging.
+Commons-logging is widely used in server containers, but other communities like scientists face a different picture. For example the NetCDF library developed by the University Corporation for Atmospheric Research (UCAR) uses SLF4J, yet another logging framework that aims to be a replacement for commons-logging.

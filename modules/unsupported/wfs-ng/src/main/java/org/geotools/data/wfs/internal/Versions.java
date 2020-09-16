@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2004-2014, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,9 +18,7 @@ package org.geotools.data.wfs.internal;
 
 import org.geotools.util.Version;
 
-/**
- * Supported WFS versions
- */
+/** Supported WFS versions */
 public final class Versions {
 
     public static final Version v1_0_0 = new Version("1.0.0");
@@ -46,4 +44,7 @@ public final class Versions {
         throw new IllegalArgumentException();
     }
 
+    public static Version highest() {
+        return v2_0_0;
+    }
 }

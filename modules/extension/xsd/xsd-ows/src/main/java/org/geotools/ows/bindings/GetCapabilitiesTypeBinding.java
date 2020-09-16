@@ -16,18 +16,19 @@
  */
 package org.geotools.ows.bindings;
 
-import net.opengis.ows10.GetCapabilitiesType;
-import net.opengis.ows10.Ows10Factory;
 import javax.xml.namespace.QName;
-import org.geotools.ows.OWS;
-import org.geotools.xml.*;
-
+import net.opengis.ows10.Ows10Factory;
+import org.geotools.xsd.AbstractComplexEMFBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.geotools.xsd.ows.OWS;
 
 /**
  * Binding object for the type http://www.opengis.net/ows:GetCapabilitiesType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType name="GetCapabilitiesType"&gt;
  *      &lt;annotation&gt;
@@ -59,27 +60,21 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class GetCapabilitiesTypeBinding extends AbstractComplexEMFBinding {
     public GetCapabilitiesTypeBinding(Ows10Factory factory) {
         super(factory);
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return OWS.GetCapabilitiesType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -90,14 +85,14 @@ public class GetCapabilitiesTypeBinding extends AbstractComplexEMFBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //TODO: implement and remove call to super
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        // TODO: implement and remove call to super
         return super.parse(instance, node, value);
     }
 }

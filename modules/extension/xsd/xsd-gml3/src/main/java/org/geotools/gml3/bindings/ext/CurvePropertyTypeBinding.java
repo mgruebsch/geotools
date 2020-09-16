@@ -16,24 +16,20 @@
  */
 package org.geotools.gml3.bindings.ext;
 
-import javax.xml.namespace.QName;
-import org.geotools.gml3.GML;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.bindings.CurveTypeBinding;
 import org.geotools.gml3.bindings.GML3EncodingUtils;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:CurvePropertyType.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  *         <code>
  *  &lt;complexType name="CurvePropertyType"&gt;
@@ -56,58 +52,29 @@ import com.vividsolutions.jts.geom.MultiLineString;
  *          &lt;/annotation&gt;
  *      &lt;/attributeGroup&gt;
  *  &lt;/complexType&gt;
- * 
+ *
  *          </code>
  * </pre>
- * 
- * </p>
- * 
- * @generated
- * 
- *
- *
- * @source $URL$
- *         http://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/main/java/org
- *         /geotools/gml3/bindings/CurvePropertyTypeBinding.java $
  */
+@SuppressWarnings("ComparableType")
 public class CurvePropertyTypeBinding extends org.geotools.gml3.bindings.CurvePropertyTypeBinding
-    implements Comparable {
+        implements Comparable {
 
     GeometryFactory gf;
-    
-    public CurvePropertyTypeBinding(GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry, GeometryFactory gf) {
+
+    public CurvePropertyTypeBinding(
+            GML3EncodingUtils encodingUtils, XSDIdRegistry idRegistry, GeometryFactory gf) {
         super(encodingUtils, idRegistry);
         this.gf = gf;
     }
 
     public Class<? extends Geometry> getGeometryType() {
-        return MultiLineString.class;
+        return LineString.class;
     }
-    
+
     @Override
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
-        // LineString
-        LineString lineString = (LineString)node.getChildValue(LineString.class);
-        // or Curve or OrientableCurve
-        MultiLineString multiLineString = (MultiLineString)node.getChildValue(MultiLineString.class);
-
-        if (lineString != null) {
-            return new MultiLineString(new LineString[] {lineString}, gf);
-        } else {
-            return multiLineString;
-        }
-    }
-
-    @Override
-    public Object getProperty(Object object, QName name)
-        throws Exception {
-        if ("_Curve".equals(name.getLocalPart()) || "AbstractCurve".equals(name.getLocalPart())) {
-            MultiLineString multiLineString = (MultiLineString) object;
-            // this MultiLineString consists of a single LineString wrapped in a MultiLineString:
-            return multiLineString.getGeometryN(0);
-        }
-        
-        return super.getProperty(object, name);
+        return node.getChildValue(LineString.class);
     }
 
     public int compareTo(Object o) {
@@ -117,5 +84,4 @@ public class CurvePropertyTypeBinding extends org.geotools.gml3.bindings.CurvePr
             return 0;
         }
     }
-
 }

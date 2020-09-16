@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>plugin</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
 
 
@@ -29,12 +29,6 @@
   <name>Feature-Pregeneralized</name>
   
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/plugin/feature-pregeneralized/
-    </connection>
-    <url>http://svn.geotools.org/trunk/modules/plugin/feature-pregeneralized/</url>
-  </scm>
 
   <description>
 	Feature Source with prebuild generalizations
@@ -67,18 +61,8 @@
   <dependencies>
     <dependency>                                                     
         <groupId>org.geotools</groupId>                                 
-	<artifactId>gt-api</artifactId>                                
-	<version>${project.version}</version>                           
-    </dependency>                                              
-    <dependency>                                                     
-        <groupId>org.geotools</groupId>                                 
-	<artifactId>gt-main</artifactId>                                
-	<version>${project.version}</version>                           
-    </dependency>                                              
-    <dependency>                                                     
-        <groupId>org.geotools</groupId>                                 
-	<artifactId>gt-data</artifactId>                                
-	<version>${project.version}</version>                           
+        <artifactId>gt-main</artifactId>
+        <version>${project.version}</version>                           
     </dependency>                                                  
     <dependency>
         <groupId>org.geotools</groupId>
@@ -91,12 +75,6 @@
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-referencing</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-sample-data</artifactId>

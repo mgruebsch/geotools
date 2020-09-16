@@ -16,14 +16,13 @@
  */
 package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCJoinTest;
+import org.geotools.jdbc.JDBCJoinOnlineTest;
 import org.geotools.jdbc.JDBCJoinTestSetup;
 
-public class H2JoinTest extends JDBCJoinTest {
+public class H2JoinTest extends JDBCJoinOnlineTest {
 
     @Override
     protected JDBCJoinTestSetup createTestSetup() {
         return new H2JoinTestSetup();
     }
-
 }

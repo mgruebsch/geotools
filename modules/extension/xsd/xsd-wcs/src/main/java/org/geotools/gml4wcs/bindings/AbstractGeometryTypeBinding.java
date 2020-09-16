@@ -1,22 +1,38 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 package org.geotools.gml4wcs.bindings;
 
 import javax.xml.namespace.QName;
-
 import org.geotools.gml4wcs.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:AbstractGeometryType.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
- *	 <code>
+ *  <code>
  *  &lt;complexType abstract=&quot;true&quot; name=&quot;AbstractGeometryType&quot;&gt;
  *      &lt;annotation&gt;
  *          &lt;documentation&gt;All geometry elements are derived directly or indirectly from this abstract supertype. A geometry element may have an identifying attribute (&quot;id&quot;), a name (attribute &quot;name&quot;) and a description (attribute &quot;description&quot;). It may be associated with a spatial reference system (attribute &quot;srsName&quot;). The following rules shall be adhered: - Every geometry type shall derive from this abstract type. - Every geometry element (i.e. an element of a geometry type) shall be directly or indirectly in the substitution group of _Geometry.&lt;/documentation&gt;
@@ -31,30 +47,25 @@ import com.vividsolutions.jts.geom.Geometry;
  *              &lt;/attribute&gt;
  *          &lt;/extension&gt;
  *      &lt;/complexContent&gt;
- *  &lt;/complexType&gt; 
- * 	
+ *  &lt;/complexType&gt;
+ *
  * </code>
- *	 </pre>
- * 
- * </p>
- * 
+ *  </pre>
+ *
  * @generated
- *
- *
- * @source $URL$
  */
 public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return GML.AbstractGeometryType;
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Class getType() {
@@ -62,12 +73,13 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-            throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         // set the crs
         if (value instanceof Geometry) {
             CoordinateReferenceSystem crs = GML3ParsingUtils.crs(node);
@@ -87,7 +99,7 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
             CoordinateReferenceSystem crs = GML3EncodingUtils.getCRS(geometry);
 
             if (crs != null) {
-                return GML3EncodingUtils.crs(crs);
+                return GML3EncodingUtils.toURI(crs);
             }
         }
 
@@ -104,5 +116,4 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
         }
         return null;
     }
-
 }

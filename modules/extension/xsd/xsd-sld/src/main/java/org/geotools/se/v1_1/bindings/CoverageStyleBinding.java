@@ -16,35 +16,35 @@
  */
 package org.geotools.se.v1_1.bindings;
 
+import javax.xml.namespace.QName;
+import org.geotools.feature.NameImpl;
 import org.geotools.se.v1_1.SE;
-import org.geotools.sld.bindings.SLDFeatureTypeStyleBinding;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.StyleFactory;
-import org.geotools.xml.*;
-
-import javax.xml.namespace.QName;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 
 /**
  * Binding object for the element http://www.opengis.net/se:CoverageStyle.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  *  <code>
  *  &lt;xsd:element name="CoverageStyle" type="se:CoverageStyleType"&gt;
  *      &lt;xsd:annotation&gt;
  *          &lt;xsd:documentation&gt;
  *          A CoverageStyle contains styling information specific to one
- *          Coverage offering. 
+ *          Coverage offering.
  *        &lt;/xsd:documentation&gt;
  *      &lt;/xsd:annotation&gt;
- *  &lt;/xsd:element&gt; 
- * 	
+ *  &lt;/xsd:element&gt;
+ *
  *   </code>
  * </pre>
- * 
+ *
  * *
- * 
+ *
  * <pre>
  *       <code>
  *  &lt;xsd:complexType name="CoverageStyleType"&gt;
@@ -59,17 +59,12 @@ import javax.xml.namespace.QName;
  *          &lt;/xsd:choice&gt;
  *      &lt;/xsd:sequence&gt;
  *      &lt;xsd:attribute name="version" type="se:VersionType"/&gt;
- *  &lt;/xsd:complexType&gt; 
- *              
+ *  &lt;/xsd:complexType&gt;
+ *
  *        </code>
  * </pre>
- * 
- * </p>
- * 
+ *
  * @generated
- *
- *
- * @source $URL$
  */
 public class CoverageStyleBinding extends FeatureTypeStyleBinding {
 
@@ -77,16 +72,16 @@ public class CoverageStyleBinding extends FeatureTypeStyleBinding {
         super(styleFactory);
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return SE.CoverageStyle;
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
@@ -95,11 +90,14 @@ public class CoverageStyleBinding extends FeatureTypeStyleBinding {
 
         if (node.hasChild("CoverageName")) {
             QName name = (QName) node.getChildValue("CoverageName");
-            fts.setFeatureTypeName(name.getPrefix() != null ? 
-                name.getPrefix()+":"+name.getLocalPart() : name.getLocalPart());
+            fts.featureTypeNames()
+                    .add(
+                            new NameImpl(
+                                    name.getPrefix() != null
+                                            ? name.getPrefix() + ":" + name.getLocalPart()
+                                            : name.getLocalPart()));
         }
 
         return fts;
     }
-
 }

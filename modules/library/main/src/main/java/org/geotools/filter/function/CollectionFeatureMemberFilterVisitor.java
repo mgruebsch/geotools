@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
- *    (C) 2011 Open Source Geospatial Foundation (OSGeo)
- *    
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -21,13 +21,11 @@ import org.opengis.filter.expression.PropertyName;
 
 /**
  * Replace "featureMembers/ * /ATTRIBUTE" change with "ATTRIBUTE"
- * <p>
- * This is used to clean up xpath expressions prior to use by
- * the various aggregate functions such as Collection_AverageFunction.
- * 
- * @since 8.0
  *
- * @source $URL$
+ * <p>This is used to clean up xpath expressions prior to use by the various aggregate functions
+ * such as Collection_AverageFunction.
+ *
+ * @since 8.0
  */
 public final class CollectionFeatureMemberFilterVisitor extends DuplicatingFilterVisitor {
     public Object visit(PropertyName expression, Object data) {
@@ -37,6 +35,6 @@ public final class CollectionFeatureMemberFilterVisitor extends DuplicatingFilte
         } else if (xpath.startsWith("featureMember/*/")) {
             xpath = xpath.substring(16);
         }
-        return getFactory(data).property(xpath, expression.getNamespaceContext());         
+        return getFactory(data).property(xpath, expression.getNamespaceContext());
     }
 }

@@ -1,8 +1,8 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
- *    (C) 2002-2009, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    (C) 2002-2016, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.geotools.feature.type.FeatureTypeImpl;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -31,39 +30,44 @@ import org.opengis.filter.Filter;
 import org.opengis.util.InternationalString;
 
 /**
- * Implementation fo SimpleFeatureType, subtypes must be atomic and are stored
- * in a list.
- * 
+ * Implementation fo SimpleFeatureType, subtypes must be atomic and are stored in a list.
+ *
  * @author Justin
  * @author Ben Caradoc-Davies, CSIRO Exploration and Mining
- *
- *
- *
- * @source $URL$
  */
-public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
-        SimpleFeatureType {
+public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements SimpleFeatureType {
 
     // list of types
-    List<AttributeType> types = null;
+    volatile List<AttributeType> types = null;
 
     Map<String, Integer> index;
 
+    Map<String, AttributeDescriptor> descriptors;
+
     @SuppressWarnings("unchecked")
-    public SimpleFeatureTypeImpl(Name name, List<AttributeDescriptor> schema,
-            GeometryDescriptor defaultGeometry, boolean isAbstract,
-            List<Filter> restrictions, AttributeType superType,
+    public SimpleFeatureTypeImpl(
+            Name name,
+            List<AttributeDescriptor> schema,
+            GeometryDescriptor defaultGeometry,
+            boolean isAbstract,
+            List<Filter> restrictions,
+            AttributeType superType,
             InternationalString description) {
         // Note intentional circumvention of generics type checking;
         // this is only valid if schema is not modified.
-        super(name, (List) schema, defaultGeometry, isAbstract, restrictions,
-                superType, description);
+        super(
+                name,
+                (List) schema,
+                defaultGeometry,
+                isAbstract,
+                restrictions,
+                superType,
+                description);
         index = buildIndex(this);
+        descriptors = buildDescriptorIndex(this);
     }
 
-    /**
-     * @see org.opengis.feature.simple.SimpleFeatureType#getAttributeDescriptors()
-     */
+    /** @see org.opengis.feature.simple.SimpleFeatureType#getAttributeDescriptors() */
     @SuppressWarnings("unchecked")
     public final List<AttributeDescriptor> getAttributeDescriptors() {
         // Here we circumvent the generics type system. Because we provide the schema and know it is
@@ -76,10 +80,11 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
         if (types == null) {
             synchronized (this) {
                 if (types == null) {
-                    types = new ArrayList<AttributeType>();
+                    ArrayList<AttributeType> temp = new ArrayList<AttributeType>();
                     for (AttributeDescriptor ad : getAttributeDescriptors()) {
-                        types.add(ad.getType());
+                        temp.add(ad.getType());
                     }
+                    types = temp;
                 }
             }
         }
@@ -111,7 +116,7 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
     }
 
     public AttributeDescriptor getDescriptor(String name) {
-        return (AttributeDescriptor) super.getDescriptor(name);
+        return descriptors.get(name);
     }
 
     public AttributeDescriptor getDescriptor(int index) {
@@ -119,12 +124,12 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
     }
 
     public int indexOf(Name name) {
-        if(name.getNamespaceURI() == null) {
+        if (name.getNamespaceURI() == null) {
             return indexOf(name.getLocalPart());
         }
         // otherwise do a full scan
         int index = 0;
-        for (AttributeDescriptor descriptor :  getAttributeDescriptors()) {
+        for (AttributeDescriptor descriptor : getAttributeDescriptors()) {
             if (descriptor.getName().equals(name)) {
                 return index;
             }
@@ -135,7 +140,7 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
 
     public int indexOf(String name) {
         Integer idx = index.get(name);
-        if(idx != null) {
+        if (idx != null) {
             return idx.intValue();
         } else {
             return -1;
@@ -150,11 +155,7 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
         return getName().getLocalPart();
     }
 
-    /**
-     * Builds the name -> position index used by simple features for fast attribute lookup
-     * @param featureType
-     * @return
-     */
+    /** Builds the name -> position index used by simple features for fast attribute lookup */
     static Map<String, Integer> buildIndex(SimpleFeatureType featureType) {
         // build an index of attribute name to index
         Map<String, Integer> index = new HashMap<String, Integer>();
@@ -163,10 +164,21 @@ public class SimpleFeatureTypeImpl extends FeatureTypeImpl implements
             index.put(ad.getLocalName(), i++);
         }
         if (featureType.getGeometryDescriptor() != null) {
-            index.put(null, index.get(featureType.getGeometryDescriptor()
-                    .getLocalName()));
+            index.put(null, index.get(featureType.getGeometryDescriptor().getLocalName()));
         }
         return index;
     }
 
+    /** Builds the name -> descriptor index used by simple features for fast attribute lookup */
+    static Map<String, AttributeDescriptor> buildDescriptorIndex(SimpleFeatureType featureType) {
+        // build an index of attribute name to index
+        Map<String, AttributeDescriptor> index = new HashMap<>();
+        for (AttributeDescriptor ad : featureType.getAttributeDescriptors()) {
+            index.put(ad.getLocalName(), ad);
+        }
+        if (featureType.getGeometryDescriptor() != null) {
+            index.put(null, featureType.getGeometryDescriptor());
+        }
+        return index;
+    }
 }

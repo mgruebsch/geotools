@@ -1,21 +1,36 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 package org.geotools.wfs.v1_0;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import net.opengis.ows10.DCPType;
 import net.opengis.ows10.DomainType;
 import net.opengis.ows10.OperationType;
 import net.opengis.ows10.OperationsMetadataType;
 import net.opengis.ows10.Ows10Factory;
-
-import org.geotools.xml.AbstractComplexEMFBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.Node;
+import org.geotools.xsd.AbstractComplexEMFBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.Node;
 
 public class CapabilityBinding extends AbstractComplexEMFBinding {
 
@@ -49,17 +64,23 @@ public class CapabilityBinding extends AbstractComplexEMFBinding {
         operation = getFeature(request.getChild("GetFeature"), ows10Factory);
         addOperation(om, operation);
 
-        operation = createOperation("Transaction", node, ows10Factory);
-        addOperation(om, operation);
+        Node nodeOp = request.getChild("Transaction");
+        if (nodeOp != null) {
+            operation = createOperation("Transaction", nodeOp, ows10Factory);
+            addOperation(om, operation);
+        }
 
-        operation = createOperation("LockFeature", node, ows10Factory);
-        addOperation(om, operation);
+        nodeOp = request.getChild("LockFeature");
+        if (nodeOp != null) {
+            operation = createOperation("LockFeature", nodeOp, ows10Factory);
+            addOperation(om, operation);
+        }
 
-        operation = createOperation("GetFeatureWithLock", node, ows10Factory);
-        addOperation(om, operation);
-
-        operation = createOperation("Transaction", node, ows10Factory);
-        addOperation(om, operation);
+        nodeOp = request.getChild("GetFeatureWithLock");
+        if (nodeOp != null) {
+            operation = createOperation("GetFeatureWithLock", nodeOp, ows10Factory);
+            addOperation(om, operation);
+        }
 
         return om;
     }
@@ -77,7 +98,8 @@ public class CapabilityBinding extends AbstractComplexEMFBinding {
         return operationType;
     }
 
-    private OperationType createOperation(String opetationName, Node node, Ows10Factory ows10Factory) {
+    private OperationType createOperation(
+            String opetationName, Node node, Ows10Factory ows10Factory) {
         if (node == null) {
             return null;
         }
@@ -88,7 +110,10 @@ public class CapabilityBinding extends AbstractComplexEMFBinding {
     }
 
     @SuppressWarnings("unchecked")
-    private void addParameter(Node node, Ows10Factory ows10Factory, OperationType operationType,
+    private void addParameter(
+            Node node,
+            Ows10Factory ows10Factory,
+            OperationType operationType,
             String parameterName) {
         Node paramParentNode = node.getChild(parameterName);
         List<String> paramValues = childNames(paramParentNode);
@@ -142,5 +167,4 @@ public class CapabilityBinding extends AbstractComplexEMFBinding {
             om.getOperation().add(operation);
         }
     }
-
 }

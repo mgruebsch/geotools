@@ -18,11 +18,6 @@ package org.geotools.data.sqlserver;
 
 import org.geotools.jdbc.JDBCEmptyTestSetup;
 
-/**
- * 
- *
- * @source $URL$
- */
 public class SQLServerEmptyTestSetup extends JDBCEmptyTestSetup {
 
     protected SQLServerEmptyTestSetup() {
@@ -36,7 +31,6 @@ public class SQLServerEmptyTestSetup extends JDBCEmptyTestSetup {
 
     @Override
     protected void dropEmptyTable() throws Exception {
-        runSafe( "DROP TABLE empty" );
+        runSafe("DROP TABLE empty");
     }
-
 }

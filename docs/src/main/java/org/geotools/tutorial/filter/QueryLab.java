@@ -1,3 +1,21 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 // docs start source
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
@@ -40,23 +58,24 @@ import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JDataStoreWizard;
 import org.geotools.swing.table.FeatureCollectionTableModel;
 import org.geotools.swing.wizard.JWizard;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 
 /**
  * The Query Lab is an excuse to try out Filters and Expressions on your own data with a table to
  * show the results.
- * <p>
- * Remember when programming that you have other options then the CQL parser, you can directly make
- * a Filter using CommonFactoryFinder.getFilterFactory2().
+ *
+ * <p>Remember when programming that you have other options then the CQL parser, you can directly
+ * make a Filter using CommonFactoryFinder.getFilterFactory2().
  */
+@SuppressWarnings("serial")
 public class QueryLab extends JFrame {
     private DataStore dataStore;
-    private JComboBox featureTypeCBox;
+    private JComboBox<String> featureTypeCBox;
     private JTable table;
     private JTextField text;
 
@@ -89,7 +108,7 @@ public class QueryLab extends JFrame {
         JMenu fileMenu = new JMenu("File");
         menubar.add(fileMenu);
 
-        featureTypeCBox = new JComboBox();
+        featureTypeCBox = new JComboBox<>();
         menubar.add(featureTypeCBox);
 
         JMenu dataMenu = new JMenu("Data");
@@ -97,51 +116,59 @@ public class QueryLab extends JFrame {
         pack();
 
         // docs start file menu
-        fileMenu.add(new SafeAction("Open shapefile...") {
-            public void action(ActionEvent e) throws Throwable {
-                connect(new ShapefileDataStoreFactory());
-            }
-        });
-        fileMenu.add(new SafeAction("Connect to PostGIS database...") {
-            public void action(ActionEvent e) throws Throwable {
-                connect(new PostgisNGDataStoreFactory());
-            }
-        });
-        fileMenu.add(new SafeAction("Connect to DataStore...") {
-            public void action(ActionEvent e) throws Throwable {
-                connect(null);
-            }
-        });
+        fileMenu.add(
+                new SafeAction("Open shapefile...") {
+                    public void action(ActionEvent e) throws Throwable {
+                        connect(new ShapefileDataStoreFactory());
+                    }
+                });
+        fileMenu.add(
+                new SafeAction("Connect to PostGIS database...") {
+                    public void action(ActionEvent e) throws Throwable {
+                        connect(new PostgisNGDataStoreFactory());
+                    }
+                });
+        fileMenu.add(
+                new SafeAction("Connect to DataStore...") {
+                    public void action(ActionEvent e) throws Throwable {
+                        connect(null);
+                    }
+                });
         fileMenu.addSeparator();
-        fileMenu.add(new SafeAction("Exit") {
-            public void action(ActionEvent e) throws Throwable {
-                System.exit(0);
-            }
-        });
+        fileMenu.add(
+                new SafeAction("Exit") {
+                    public void action(ActionEvent e) throws Throwable {
+                        System.exit(0);
+                    }
+                });
         // docs end file menu
 
         // docs start data menu
-        dataMenu.add(new SafeAction("Get features") {
-            public void action(ActionEvent e) throws Throwable {
-                filterFeatures();
-            }
-        });
-        dataMenu.add(new SafeAction("Count") {
-            public void action(ActionEvent e) throws Throwable {
-                countFeatures();
-            }
-        });
-        dataMenu.add(new SafeAction("Geometry") {
-            public void action(ActionEvent e) throws Throwable {
-                queryFeatures();
-            }
-        });
+        dataMenu.add(
+                new SafeAction("Get features") {
+                    public void action(ActionEvent e) throws Throwable {
+                        filterFeatures();
+                    }
+                });
+        dataMenu.add(
+                new SafeAction("Count") {
+                    public void action(ActionEvent e) throws Throwable {
+                        countFeatures();
+                    }
+                });
+        dataMenu.add(
+                new SafeAction("Geometry") {
+                    public void action(ActionEvent e) throws Throwable {
+                        queryFeatures();
+                    }
+                });
         // docs end data menu
-        dataMenu.add(new SafeAction("Center") {
-            public void action(ActionEvent e) throws Throwable {
-                centerFeatures();
-            }
-        });
+        dataMenu.add(
+                new SafeAction("Center") {
+                    public void action(ActionEvent e) throws Throwable {
+                        centerFeatures();
+                    }
+                });
     }
     // docs end constructor
 
@@ -162,7 +189,7 @@ public class QueryLab extends JFrame {
 
     // docs start update
     private void updateUI() throws Exception {
-        ComboBoxModel cbm = new DefaultComboBoxModel(dataStore.getTypeNames());
+        ComboBoxModel<String> cbm = new DefaultComboBoxModel<>(dataStore.getTypeNames());
         featureTypeCBox.setModel(cbm);
 
         table.setModel(new DefaultTableModel(5, 5));
@@ -204,7 +231,7 @@ public class QueryLab extends JFrame {
 
         Filter filter = CQL.toFilter(text.getText());
 
-        Query query = new Query(typeName, filter, new String[] { name });
+        Query query = new Query(typeName, filter, new String[] {name});
 
         SimpleFeatureCollection features = source.getFeatures(query);
 
@@ -222,15 +249,14 @@ public class QueryLab extends JFrame {
 
         FeatureType schema = source.getSchema();
         String name = schema.getGeometryDescriptor().getLocalName();
-        Query query = new Query(typeName, filter, new String[] { name });
+        Query query = new Query(typeName, filter, new String[] {name});
 
-        SimpleFeatureCollection features = source.getFeatures(filter);
+        SimpleFeatureCollection features = source.getFeatures(query);
 
         double totalX = 0.0;
         double totalY = 0.0;
         long count = 0;
-        SimpleFeatureIterator iterator = features.features();
-        try {
+        try (SimpleFeatureIterator iterator = features.features()) {
             while (iterator.hasNext()) {
                 SimpleFeature feature = iterator.next();
                 Geometry geom = (Geometry) feature.getDefaultGeometry();
@@ -239,8 +265,6 @@ public class QueryLab extends JFrame {
                 totalY += centroid.getY();
                 count++;
             }
-        } finally {
-            iterator.close(); // IMPORTANT
         }
         double averageX = totalX / (double) count;
         double averageY = totalY / (double) count;

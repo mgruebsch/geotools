@@ -1,3 +1,21 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 package org.geotools.data;
 
 import java.util.ArrayList;
@@ -5,15 +23,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.GeometryBuilder;
+import org.geotools.util.SuppressFBWarnings;
+import org.geotools.util.factory.GeoTools;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
@@ -23,131 +40,132 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.identity.FeatureId;
 
 @SuppressWarnings("unused")
+@SuppressFBWarnings("UWF_NULL_FIELD")
 public class SimpleFeatureStoreExamples {
-DataStore dataStore = null;
+    @SuppressFBWarnings("NP_UNWRITTEN_FIELD")
+    DataStore dataStore = null;
 
-String typeName;
+    String typeName;
 
-private void addFeaturesExample() throws Exception {
-    // addExample start
-    SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource( typeName );
-    
-    SimpleFeatureType featureType = store.getSchema();
-    
-    SimpleFeatureBuilder build = new SimpleFeatureBuilder(featureType);
-    GeometryBuilder geom = new GeometryBuilder();
-    
-    List<SimpleFeature> list = new ArrayList<SimpleFeature>();
-    list.add( build.buildFeature("fid1", new Object[]{ geom.point(1,1), "hello" } ) );
-    list.add( build.buildFeature("fid2", new Object[]{ geom.point(2,3), "martin" } ) );
-    SimpleFeatureCollection collection = new ListFeatureCollection(featureType, list);
+    private void addFeaturesExample() throws Exception {
+        // addExample start
+        SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
 
-    Transaction transaction = new DefaultTransaction("Add Example");
-    store.setTransaction( transaction );
-    try {
-        store.addFeatures( collection );
-        transaction.commit(); // actually writes out the features in one go
+        SimpleFeatureType featureType = store.getSchema();
+
+        SimpleFeatureBuilder build = new SimpleFeatureBuilder(featureType);
+        GeometryBuilder geom = new GeometryBuilder();
+
+        List<SimpleFeature> list = new ArrayList<>();
+        list.add(build.buildFeature("fid1", new Object[] {geom.point(1, 1), "hello"}));
+        list.add(build.buildFeature("fid2", new Object[] {geom.point(2, 3), "martin"}));
+        SimpleFeatureCollection collection = new ListFeatureCollection(featureType, list);
+
+        Transaction transaction = new DefaultTransaction("Add Example");
+        store.setTransaction(transaction);
+        try {
+            store.addFeatures(collection);
+            transaction.commit(); // actually writes out the features in one go
+        } catch (Exception eek) {
+            transaction.rollback();
+        }
+        // addExample end
     }
-    catch( Exception eek){
-        transaction.rollback();
-    }
-    // addExample end
-}
 
-private void addFeatureIdExample(SimpleFeatureCollection collection ) throws Exception {
-    // addFeatureIdExample start
-    Transaction transaction = new DefaultTransaction("Add Example");
-    SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
-    store.setTransaction(transaction);
-    try {
-        List<FeatureId> added = store.addFeatures( collection );
-        System.out.println( added ); // prints out the temporary feature ids
-        
-        transaction.commit();
-        System.out.println( added ); // prints out the final feature ids
-        
-        Set<FeatureId> selection = new HashSet<FeatureId>( added );
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory();
-        Filter selected = ff.id( selection ); // filter selecting all the features just added
-    }
-    catch( Exception problem){
-        transaction.rollback();
-        throw problem;
-    }
-    // addFeatureIdExample end
-}
+    private void addFeatureIdExample(SimpleFeatureCollection collection) throws Exception {
+        // addFeatureIdExample start
+        Transaction transaction = new DefaultTransaction("Add Example");
+        SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
+        store.setTransaction(transaction);
+        try {
+            List<FeatureId> added = store.addFeatures(collection);
+            System.out.println(added); // prints out the temporary feature ids
 
-private void addFeaturesEvents(SimpleFeatureCollection collection ) throws Exception {
-    // addEvents start
-    Transaction transaction = new DefaultTransaction("Add Example");
-    SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
-    store.setTransaction(transaction);
+            transaction.commit();
+            System.out.println(added); // prints out the final feature ids
 
-    class CommitListener implements FeatureListener {
-        public void changed(FeatureEvent featureEvent) {
-            if (featureEvent instanceof BatchFeatureEvent ){
-                BatchFeatureEvent batchEvent = (BatchFeatureEvent) featureEvent;
-                
-                System.out.println( "area changed:" + batchEvent.getBounds() );
-                System.out.println( "created fids:" + batchEvent.fids );
-            }
-            else {
-                System.out.println( "bounds:" + featureEvent.getBounds() );
-                System.out.println( "change:" + featureEvent.filter );
+            Set<FeatureId> selection = new HashSet<>(added);
+            FilterFactory ff = CommonFactoryFinder.getFilterFactory();
+            Filter selected = ff.id(selection); // filter selecting all the features just added
+        } catch (Exception problem) {
+            transaction.rollback();
+            throw problem;
+        }
+        // addFeatureIdExample end
+    }
+
+    private void addFeaturesEvents(SimpleFeatureCollection collection) throws Exception {
+        // addEvents start
+        Transaction transaction = new DefaultTransaction("Add Example");
+        SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
+        store.setTransaction(transaction);
+
+        class CommitListener implements FeatureListener {
+            public void changed(FeatureEvent featureEvent) {
+                if (featureEvent instanceof BatchFeatureEvent) {
+                    BatchFeatureEvent batchEvent = (BatchFeatureEvent) featureEvent;
+
+                    System.out.println("area changed:" + batchEvent.getBounds());
+                    System.out.println("created fids:" + batchEvent.fids);
+                } else {
+                    System.out.println("bounds:" + featureEvent.getBounds());
+                    System.out.println("change:" + featureEvent.filter);
+                }
             }
         }
+        CommitListener listener = new CommitListener();
+        store.addFeatureListener(listener);
+        try {
+            List<FeatureId> added = store.addFeatures(collection);
+            transaction.commit();
+        } catch (Exception problem) {
+            transaction.rollback();
+            throw problem;
+        }
+        // addEvents end
     }
-    CommitListener listener = new CommitListener();
-    store.addFeatureListener( listener );
-    try {
-        List<FeatureId> added = store.addFeatures( collection );
-        transaction.commit();
-    }
-    catch( Exception problem){
-        transaction.rollback();
-        throw problem;
-    }
-    // addEvents end
-}
-private void removeExample() throws Exception {
-    // removeExample start
-    Transaction transaction = new DefaultTransaction("removeExample");
-    SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
-    store.setTransaction(transaction);
-    
-    FilterFactory ff = CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints());
-    Filter filter = ff.id(Collections.singleton(ff.featureId("fred")));
-    try {
-        store.removeFeatures(filter);
-        transaction.commit();
-    } catch (Exception eek) {
-        transaction.rollback();
-    }
-    // removeExample end
-}
-private void removeExample2() throws Exception {
-    // removeExample2 start
-    Transaction transaction = new DefaultTransaction("removeExample");
-    SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
-    store.setTransaction(transaction);
-    
-    FilterFactory ff = CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints());
-    Filter filter = ff.id(Collections.singleton(ff.featureId("fred")));
-    try {
-        final Set<FeatureId> removed = new HashSet<FeatureId>();
-        SimpleFeatureCollection collection = store.getFeatures( new Query( typeName, filter, Query.NO_NAMES ));
-        collection.accepts( new FeatureVisitor(){
-            public void visit(Feature feature) {
-                removed.add( feature.getIdentifier() );
-            }
-        }, null );
-        store.removeFeatures(filter);
-        transaction.commit();
-    } catch (Exception eek) {
-        transaction.rollback();
-    }
-    // removeExample2 end
-}
 
+    private void removeExample() throws Exception {
+        // removeExample start
+        Transaction transaction = new DefaultTransaction("removeExample");
+        SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
+        store.setTransaction(transaction);
 
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints());
+        Filter filter = ff.id(Collections.singleton(ff.featureId("fred")));
+        try {
+            store.removeFeatures(filter);
+            transaction.commit();
+        } catch (Exception eek) {
+            transaction.rollback();
+        }
+        // removeExample end
+    }
+
+    private void removeExample2() throws Exception {
+        // removeExample2 start
+        Transaction transaction = new DefaultTransaction("removeExample");
+        SimpleFeatureStore store = (SimpleFeatureStore) dataStore.getFeatureSource(typeName);
+        store.setTransaction(transaction);
+
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints());
+        Filter filter = ff.id(Collections.singleton(ff.featureId("fred")));
+        try {
+            final Set<FeatureId> removed = new HashSet<>();
+            SimpleFeatureCollection collection =
+                    store.getFeatures(new Query(typeName, filter, Query.NO_NAMES));
+            collection.accepts(
+                    new FeatureVisitor() {
+                        public void visit(Feature feature) {
+                            removed.add(feature.getIdentifier());
+                        }
+                    },
+                    null);
+            store.removeFeatures(filter);
+            transaction.commit();
+        } catch (Exception eek) {
+            transaction.rollback();
+        }
+        // removeExample2 end
+    }
 }

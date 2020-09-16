@@ -16,18 +16,22 @@
  */
 package org.geotools.ows.bindings;
 
-import net.opengis.ows10.DescriptionType;
-import net.opengis.ows10.Ows10Factory;
+import java.util.List;
 import javax.xml.namespace.QName;
-import org.geotools.ows.OWS;
-import org.geotools.xml.*;
-
+import net.opengis.ows10.Ows10Factory;
+import net.opengis.ows11.DescriptionType;
+import net.opengis.ows11.Ows11Factory;
+import org.geotools.xsd.AbstractComplexEMFBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.geotools.xsd.ows.OWS;
 
 /**
  * Binding object for the type http://www.opengis.net/ows:DescriptionType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType name="DescriptionType"&gt;
  *      &lt;annotation&gt;
@@ -43,27 +47,25 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class DescriptionTypeBinding extends AbstractComplexEMFBinding {
+
+    Ows10Factory ows10Factory;
+
     public DescriptionTypeBinding(Ows10Factory factory) {
         super(factory);
+        ows10Factory = factory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return OWS.DescriptionType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -74,14 +76,31 @@ public class DescriptionTypeBinding extends AbstractComplexEMFBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //TODO: implement and remove call to super
-        return super.parse(instance, node, value);
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+
+        // DescriptionType description;
+        if (!(value instanceof DescriptionType)) {
+            value = Ows11Factory.eINSTANCE.createDescriptionType();
+        }
+
+        List<Node> children2 = node.getChildren("Keywords");
+        for (Node c : children2) {
+            ((DescriptionType) value).getKeywords().add(c.getValue());
+        }
+        List<Node> children3 = node.getChildren("Title");
+        for (Node c : children3) {
+            ((DescriptionType) value).getTitle().add(c.getValue());
+        }
+        List<Node> children4 = node.getChildren("Abstract");
+        for (Node c : children4) {
+            ((DescriptionType) value).getAbstract().add(c.getValue());
+        }
+        return value;
     }
 }

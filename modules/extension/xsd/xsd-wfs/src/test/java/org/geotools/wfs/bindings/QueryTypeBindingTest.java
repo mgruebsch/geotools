@@ -20,18 +20,15 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import net.opengis.wfs.QueryType;
 import net.opengis.wfs.XlinkPropertyNameType;
-
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.v1_1.OGC;
 import org.geotools.test.TestData;
 import org.geotools.wfs.WFS;
 import org.geotools.wfs.WFSTestSupport;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.expression.Expression;
@@ -43,14 +40,11 @@ import org.w3c.dom.Element;
 
 /**
  * Unit test suite for {@link QueryTypeBinding}
- * 
+ *
  * @author Justin Deoliveira
  * @author Gabriel Roldan
  * @version $Id$
  * @since 2.5.x
- *
- *
- * @source $URL$
  */
 public class QueryTypeBindingTest extends WFSTestSupport {
     public QueryTypeBindingTest() {
@@ -62,7 +56,8 @@ public class QueryTypeBindingTest extends WFSTestSupport {
         buildDocument(resource);
 
         final Object parsed = parse(WFS.Query);
-        assertTrue((parsed == null) ? "null" : parsed.getClass().toString(),
+        assertTrue(
+                (parsed == null) ? "null" : parsed.getClass().toString(),
                 parsed instanceof QueryType);
 
         QueryType query = (QueryType) parsed;
@@ -117,7 +112,7 @@ public class QueryTypeBindingTest extends WFSTestSupport {
 
         assertName(WFS.Query, root);
         assertEquals(8, root.getChildNodes().getLength());
-        
+
         assertEquals("typeName1", root.getAttribute("typeName"));
 
         assertEquals(2, getElementsByQName(dom, WFS.PropertyName).getLength());
@@ -137,20 +132,18 @@ public class QueryTypeBindingTest extends WFSTestSupport {
     }
 
     /**
-     * Builds a {@link QueryType} instance equivalent to the test query in the
-     * file <code>test-data/QueryTypeBinding.xml</code> in the
-     * <code>org.geotools.wfs.bindings</code> package of the test resources.
-     * 
-     * @return
+     * Builds a {@link QueryType} instance equivalent to the test query in the file <code>
+     * test-data/QueryTypeBinding.xml</code> in the <code>org.geotools.wfs.bindings</code> package
+     * of the test resources.
      */
     @SuppressWarnings("unchecked")
     private QueryType buildTestQuery() {
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
-        final Function function1 = ff.function("MAX", new Expression[] { ff.literal(1),
-                ff.literal(2) });
-        final Function function2 = ff.function("MIN", new Expression[] { ff.literal(1),
-                ff.literal(2) });
+        final Function function1 =
+                ff.function("MAX", new Expression[] {ff.literal(1), ff.literal(2)});
+        final Function function2 =
+                ff.function("MIN", new Expression[] {ff.literal(1), ff.literal(2)});
 
         final XlinkPropertyNameType xlinkPropertyName1 = factory.createXlinkPropertyNameType();
         xlinkPropertyName1.setTraverseXlinkExpiry(BigInteger.valueOf(10));

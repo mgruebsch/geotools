@@ -1,8 +1,26 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
- *    (C) 2006-2013, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2006-2014, Open Source Geospatial Foundation (OSGeo)
  *
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
@@ -18,11 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-
+import javax.swing.UIManager;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
@@ -37,19 +51,24 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
- * This example reads data for point locations and associated attributes from a 
- * comma separated text (CSV) file and exports them as a new shapefile. It illustrates how to build a feature type.
- * <p>
- * Note: to keep things simple in the code below the input file should not have additional spaces or
- * tabs between fields.
+ * This example reads data for point locations and associated attributes from a comma separated text
+ * (CSV) file and exports them as a new shapefile. It illustrates how to build a feature type.
+ *
+ * <p>Note: to keep things simple in the code below the input file should not have additional spaces
+ * or tabs between fields.
  */
 public class Csv2Shape {
 
     public static void main(String[] args) throws Exception {
+        // Set cross-platform look & feel for compatability
+        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 
         File file = JFileDataStoreChooser.showOpenFile("csv", null);
         if (file == null) {
@@ -59,21 +78,25 @@ public class Csv2Shape {
         /*
          * We use the DataUtilities class to create a FeatureType that will describe the data in our
          * shapefile.
-         * 
+         *
          * See also the createFeatureType method below for another, more flexible approach.
          */
-        final SimpleFeatureType TYPE = DataUtilities.createType("Location",
-                "the_geom:Point:srid=4326," + // <- the geometry attribute: Point type
-                "name:String," +   // <- a String attribute
-                "number:Integer"   // a number attribute
-        );
-        System.out.println("TYPE:"+TYPE);
+        final SimpleFeatureType TYPE =
+                DataUtilities.createType(
+                        "Location",
+                        "the_geom:Point:srid=4326,"
+                                + // <- the geometry attribute: Point type
+                                "name:String,"
+                                + // <- a String attribute
+                                "number:Integer" // a number attribute
+                        );
+        System.out.println("TYPE:" + TYPE);
         // docs break feature collection
         /*
          * A list to collect features as we create them.
          */
-        List<SimpleFeature> features = new ArrayList<SimpleFeature>();
-        
+        List<SimpleFeature> features = new ArrayList<>();
+
         /*
          * GeometryFactory will be used to create the geometry attribute of each feature,
          * using a Point object for the location.
@@ -82,8 +105,7 @@ public class Csv2Shape {
 
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
 
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        try {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             /* First line of the data file is the header */
             String line = reader.readLine();
             System.out.println("Header: " + line);
@@ -107,8 +129,6 @@ public class Csv2Shape {
                     features.add(feature);
                 }
             }
-        } finally {
-            reader.close();
         }
         // docs break new shapefile
         /*
@@ -118,17 +138,18 @@ public class Csv2Shape {
 
         ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
 
-        Map<String, Serializable> params = new HashMap<String, Serializable>();
+        Map<String, Serializable> params = new HashMap<>();
         params.put("url", newFile.toURI().toURL());
         params.put("create spatial index", Boolean.TRUE);
 
-        ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+        ShapefileDataStore newDataStore =
+                (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
 
         /*
          * TYPE is used as a template to describe the file contents
          */
         newDataStore.createSchema(TYPE);
-        
+
         // docs break transaction
         /*
          * Write the features to the shapefile
@@ -142,12 +163,12 @@ public class Csv2Shape {
          * The Shapefile format has a couple limitations:
          * - "the_geom" is always first, and used for the geometry attribute name
          * - "the_geom" must be of type Point, MultiPoint, MuiltiLineString, MultiPolygon
-         * - Attribute names are limited in length 
+         * - Attribute names are limited in length
          * - Not all data types are supported (example Timestamp represented as Date)
-         * 
+         *
          * Each data store has different limitations so check the resulting SimpleFeatureType.
          */
-        System.out.println("SHAPE:"+SHAPE_TYPE);
+        System.out.println("SHAPE:" + SHAPE_TYPE);
 
         if (featureSource instanceof SimpleFeatureStore) {
             SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
@@ -179,10 +200,8 @@ public class Csv2Shape {
     // start get shapefile
     /**
      * Prompt the user for the name and path to use for the output shapefile
-     * 
-     * @param csvFile
-     *            the input csv file used to create a default shapefile name
-     * 
+     *
+     * @param csvFile the input csv file used to create a default shapefile name
      * @return name and path for the shapefile as a new File object
      */
     private static File getNewShapeFile(File csvFile) {
@@ -215,8 +234,8 @@ public class Csv2Shape {
     /**
      * Here is how you can use a SimpleFeatureType builder to create the schema for your shapefile
      * dynamically.
-     * <p>
-     * This method is an improvement on the code used in the main method above (where we used
+     *
+     * <p>This method is an improvement on the code used in the main method above (where we used
      * DataUtilities.createFeatureType) because we can set a Coordinate Reference System for the
      * FeatureType and a a maximum field length for the 'name' field dddd
      */
@@ -229,8 +248,8 @@ public class Csv2Shape {
         // add attributes in order
         builder.add("the_geom", Point.class);
         builder.length(15).add("Name", String.class); // <- 15 chars width for name field
-        builder.add("number",Integer.class);
-        
+        builder.add("number", Integer.class);
+
         // build the type
         final SimpleFeatureType LOCATION = builder.buildFeatureType();
 

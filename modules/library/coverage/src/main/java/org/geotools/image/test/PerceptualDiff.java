@@ -1,3 +1,19 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.image.test;
 
 import java.io.BufferedReader;
@@ -8,12 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.geotools.util.logging.Logging;
 
 /**
  * Wrapper around the PerceptualDiff command line utility http://pdiff.sourceforge.net/
- * 
+ *
  * @author Andrea Aime - GeoSolutions
  */
 class PerceptualDiff {
@@ -25,7 +40,7 @@ class PerceptualDiff {
     static class Difference {
         boolean imagesDifferent;
         String output;
-        
+
         public Difference(boolean different, String output) {
             this.imagesDifferent = different;
             this.output = output;
@@ -47,20 +62,16 @@ class PerceptualDiff {
 
     /**
      * Compares two images (either png or tiffs)
-     * 
-     * @param image1
-     *            A png/tiff file
-     * @param image2
-     *            A png/tiff file
-     * @param threshold
-     *            The number of pixels to be visually different in order to consider the test a
-     *            failure, if negative the PerceptualDiff default value will be used
-     * @return
+     *
+     * @param image1 A png/tiff file
+     * @param image2 A png/tiff file
+     * @param threshold The number of pixels to be visually different in order to consider the test
+     *     a failure, if negative the PerceptualDiff default value will be used
      */
     public static Difference compareImages(File image1, File image2, int threshold) {
         if (!AVAILABLE) {
-            LOGGER.severe("perceptualdiff is not available, can't compare " + image1
-                    + " with image2");
+            LOGGER.severe(
+                    "perceptualdiff is not available, can't compare " + image1 + " with image2");
             return new Difference(false, "Perceptual diff not available...");
         }
 
@@ -90,29 +101,24 @@ class PerceptualDiff {
         }
     }
 
-    /**
-     * Runs the specified command and returns the output as a string
-     * 
-     * @param cmd
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
-     */
+    /** Runs the specified command and returns the output as a string */
     static String run(List<String> cmd) throws IOException, InterruptedException {
         // run the process and grab the output for error reporting purposes
         ProcessBuilder builder = new ProcessBuilder(cmd);
         StringBuilder sb = new StringBuilder();
         builder.redirectErrorStream(true);
         Process p = builder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            if (sb != null) {
-                sb.append("\n");
-                sb.append(line);
+        try (BufferedReader reader =
+                new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                if (sb != null) {
+                    sb.append("\n");
+                    sb.append(line);
+                }
             }
+            p.waitFor();
         }
-        p.waitFor();
 
         return sb.toString();
     }

@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.geotools</groupId>
         <artifactId>unsupported</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
   <!-- =========================================================== -->
@@ -27,12 +27,6 @@
     <packaging>jar</packaging>
     <name>GeoJSON Support</name>
 
-    <scm>
-        <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/geojson/
-        </connection>
-        <url>http://svn.osgeo.org/geotools/trunk/modules/extension/geojson/</url>
-    </scm>
 
     <description>
     Provides GeoJSON Encoding and Parsing support.
@@ -74,7 +68,7 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1</version>
+            <version>1.1.1</version>
         </dependency>
 
         <dependency>
@@ -82,6 +76,10 @@
             <artifactId>gt-epsg-hsql</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
 

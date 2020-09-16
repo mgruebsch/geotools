@@ -16,21 +16,15 @@
  */
 package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCFeatureSourceTest;
+import org.geotools.jdbc.JDBCFeatureSourceOnlineTest;
 import org.geotools.jdbc.JDBCTestSetup;
-
 
 /**
  * SimpleFeatureSource test for H2.
  *
  * @author Justin Deoliveira, The Open Planning Project
- *
- *
- *
- *
- * @source $URL$
  */
-public class H2FeatureSourceTest extends JDBCFeatureSourceTest {
+public class H2FeatureSourceTest extends JDBCFeatureSourceOnlineTest {
     protected JDBCTestSetup createTestSetup() {
         return new H2TestSetup();
     }

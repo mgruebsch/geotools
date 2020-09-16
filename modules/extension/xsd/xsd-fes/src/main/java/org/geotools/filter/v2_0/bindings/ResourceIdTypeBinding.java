@@ -1,13 +1,27 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.filter.v2_0.bindings;
 
 import java.util.Date;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.filter.v2_0.FES;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.identity.ResourceId;
@@ -21,9 +35,7 @@ public class ResourceIdTypeBinding extends AbstractComplexBinding {
         this.factory = factory;
     }
 
-    /**
-     * @return {@code FeatureId.class}, meant to catch {@code ResourceId.class} too
-     */
+    /** @return {@code FeatureId.class}, meant to catch {@code ResourceId.class} too */
     public Class<?> getType() {
         return FeatureId.class;
     }
@@ -35,7 +47,7 @@ public class ResourceIdTypeBinding extends AbstractComplexBinding {
     @Override
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         final String rid = (String) node.getAttributeValue("rid");
-        //final String previousRid = (String) node.getAttributeValue("previousRid");
+        // final String previousRid = (String) node.getAttributeValue("previousRid");
         final Version version = (Version) node.getAttributeValue("version");
         final Date startTime = (Date) node.getAttributeValue("startDate");
         final Date endTime = (Date) node.getAttributeValue("endDate");
@@ -55,7 +67,7 @@ public class ResourceIdTypeBinding extends AbstractComplexBinding {
         } else {
             resourceId = factory.resourceId(fid, featureVersion, version);
         }
-        //resourceId.setPreviousRid(previousRid);
+        // resourceId.setPreviousRid(previousRid);
 
         return resourceId;
     }

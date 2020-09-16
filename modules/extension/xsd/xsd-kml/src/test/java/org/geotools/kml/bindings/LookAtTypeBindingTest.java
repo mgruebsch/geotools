@@ -18,17 +18,10 @@ package org.geotools.kml.bindings;
 
 import org.geotools.kml.KML;
 import org.geotools.kml.KMLTestSupport;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Point;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class LookAtTypeBindingTest extends KMLTestSupport {
 
     public void testType() {
@@ -40,22 +33,26 @@ public class LookAtTypeBindingTest extends KMLTestSupport {
     }
 
     public void testParse() throws Exception {
-        String xml = "<LookAt>" + "<longitude>1</longitude>" + "<latitude>2</latitude>"
-            + "<altitude>3</altitude>" + "</LookAt>";
+        String xml =
+                "<LookAt>"
+                        + "<longitude>1</longitude>"
+                        + "<latitude>2</latitude>"
+                        + "<altitude>3</altitude>"
+                        + "</LookAt>";
         buildDocument(xml);
 
         Point p = (Point) parse();
         Coordinate c = p.getCoordinate();
-        assertEquals(1d, c.y, 0.1);
-        assertEquals(2d, c.x, 0.1);
-        assertEquals(3d, c.z, 0.1);
+        assertEquals(1d, c.x, 0.1);
+        assertEquals(2d, c.y, 0.1);
+        assertEquals(3d, c.getZ(), 0.1);
 
         xml = "<LookAt/>";
         buildDocument(xml);
         p = (Point) parse();
         c = p.getCoordinate();
-        assertEquals(0d, c.y, 0.1);
         assertEquals(0d, c.x, 0.1);
-        assertEquals(0d, c.z, 0.1);
+        assertEquals(0d, c.y, 0.1);
+        assertEquals(0d, c.getZ(), 0.1);
     }
 }

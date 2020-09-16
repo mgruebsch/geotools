@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,17 +16,25 @@
  */
 package org.geotools.filter.v2_0.bindings;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.namespace.QName;
-
+import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDFactory;
+import org.eclipse.xsd.XSDParticle;
 import org.geotools.filter.v1_0.OGCBBOXTypeBinding;
 import org.geotools.filter.v2_0.FES;
-
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.gml3.v3_2.GML;
+import org.opengis.filter.spatial.BBOX;
 
 /**
  * Binding object for the type http://www.opengis.net/ogc:BBOXType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *       <code>
  *  &lt;xsd:complexType name="BBOXType"&gt;
  *      &lt;xsd:complexContent&gt;
@@ -37,19 +45,58 @@ import org.geotools.filter.v2_0.FES;
  *              &lt;/xsd:sequence&gt;
  *          &lt;/xsd:extension&gt;
  *      &lt;/xsd:complexContent&gt;
- *  &lt;/xsd:complexType&gt; 
- *              
+ *  &lt;/xsd:complexType&gt;
+ *
  *        </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- * @source $URL$
  */
 public class BBOXTypeBinding extends OGCBBOXTypeBinding {
 
+    static final XSDParticle ENVELOPE_PARTICLE;
+
+    static {
+        ENVELOPE_PARTICLE = XSDFactory.eINSTANCE.createXSDParticle();
+        ENVELOPE_PARTICLE.setMinOccurs(0);
+        ENVELOPE_PARTICLE.setMaxOccurs(-1);
+        try {
+            ENVELOPE_PARTICLE.setContent(
+                    GML.getInstance()
+                            .getSchema()
+                            .resolveElementDeclaration(GML.Envelope.getLocalPart()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public QName getTarget() {
         return FES.BBOXType;
+    }
+
+    public Class getType() {
+        return BBOX.class;
+    }
+
+    @Override
+    public Object getProperty(Object object, QName name) throws Exception {
+        BBOX box = (BBOX) object;
+
+        if (FES.expression.equals(name)) {
+            return box.getExpression1();
+        }
+
+        return null;
+    }
+
+    @Override
+    public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
+        BBOX box = (BBOX) object;
+
+        List properties = new ArrayList();
+        ReferencedEnvelope env = ReferencedEnvelope.reference(box.getBounds());
+
+        properties.add(new Object[] {ENVELOPE_PARTICLE, env});
+        return properties;
     }
 }

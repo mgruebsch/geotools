@@ -17,17 +17,10 @@
 package org.geotools.gml2.bindings;
 
 import org.geotools.gml2.GML;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
+import org.locationtech.jts.geom.Polygon;
 import org.w3c.dom.Document;
 
-import com.vividsolutions.jts.geom.Polygon;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLPolygonPropertyTypeBinding2Test extends GMLTestSupport {
     public void testType() {
         assertEquals(Polygon.class, binding(GML.PolygonPropertyType).getType());
@@ -47,7 +40,8 @@ public class GMLPolygonPropertyTypeBinding2Test extends GMLTestSupport {
     public void testEncode() throws Exception {
         Document doc = encode(GML2MockData.polygon(), GML.polygonProperty);
 
-        assertEquals(1,
-            doc.getElementsByTagNameNS(GML.NAMESPACE, GML.Polygon.getLocalPart()).getLength());
+        assertEquals(
+                1,
+                doc.getElementsByTagNameNS(GML.NAMESPACE, GML.Polygon.getLocalPart()).getLength());
     }
 }

@@ -1,3 +1,21 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 package org.geotools.mbtiles.mosaic;
 
 import java.io.File;
@@ -6,21 +24,20 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
-import org.geotools.data.DataUtilities;
-import org.geotools.factory.Hints;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.parameter.ParameterGroup;
+import org.geotools.util.URLs;
+import org.geotools.util.factory.Hints;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
 public class MBTilesFormat extends AbstractGridFormat {
-       
-    private final static Logger LOGGER = Logging.getLogger(MBTilesFormat.class.getPackage().getName());
+
+    private static final Logger LOGGER = Logging.getLogger(MBTilesFormat.class);
 
     public static File getFileFromSource(Object source) {
         if (source == null) {
@@ -33,8 +50,8 @@ public class MBTilesFormat extends AbstractGridFormat {
             if (source instanceof File) {
                 sourceFile = (File) source;
             } else if (source instanceof URL) {
-                if (((URL) source).getProtocol().equals("file")){
-                    sourceFile = DataUtilities.urlToFile((URL) source);
+                if (((URL) source).getProtocol().equals("file")) {
+                    sourceFile = URLs.urlToFile((URL) source);
                 }
             } else if (source instanceof String) {
                 sourceFile = new File((String) source);
@@ -69,7 +86,7 @@ public class MBTilesFormat extends AbstractGridFormat {
     public GridCoverageWriter getWriter(Object destination) {
         return getWriter(destination, null);
     }
-    
+
     @Override
     public GridCoverageWriter getWriter(Object destination, Hints hints) {
         throw new UnsupportedOperationException("Unsupported method: MBTiles format is read-only.");
@@ -81,13 +98,13 @@ public class MBTilesFormat extends AbstractGridFormat {
             return false;
         }
 
-       File sourceFile = getFileFromSource(source);
+        File sourceFile = getFileFromSource(source);
 
         if (sourceFile == null) {
             return false;
         }
-        
-        //TODO: check if it is proper sqlite and mbtiles file
+
+        // TODO: check if it is proper sqlite and mbtiles file
         return sourceFile.getName().endsWith(".mbtiles");
     }
 
@@ -95,19 +112,15 @@ public class MBTilesFormat extends AbstractGridFormat {
     public GeoToolsWriteParams getDefaultImageIOWriteParameters() {
         throw new UnsupportedOperationException("Unsupported method.");
     }
-    
-    /**
-     * Creates an instance and sets the metadata.
-     */
+
+    /** Creates an instance and sets the metadata. */
     public MBTilesFormat() {
         setInfo();
     }
 
-    /**
-     * Sets the metadata information.
-     */
+    /** Sets the metadata information. */
     private void setInfo() {
-        final HashMap<String,String> info = new HashMap<String,String> ();
+        final HashMap<String, String> info = new HashMap<String, String>();
         info.put("name", "MBTiles");
         info.put("description", "MBTiles plugin");
         info.put("vendor", "Geotools");
@@ -116,9 +129,11 @@ public class MBTilesFormat extends AbstractGridFormat {
         mInfo = info;
 
         // reading parameters
-        readParameters = new ParameterGroup(new DefaultParameterDescriptorGroup(mInfo,
-                new GeneralParameterDescriptor[]{
-                        READ_GRIDGEOMETRY2D /*,
+        readParameters =
+                new ParameterGroup(
+                        new DefaultParameterDescriptorGroup(
+                                mInfo,
+                                new GeneralParameterDescriptor[] {READ_GRIDGEOMETRY2D /*,
                        INPUT_TRANSPARENT_COLOR,
                 OUTPUT_TRANSPARENT_COLOR,
                 USE_JAI_IMAGEREAD,
@@ -132,11 +147,9 @@ public class MBTilesFormat extends AbstractGridFormat {
                 ACCURATE_RESOLUTION,
                 SORT_BY,
                 MERGE_BEHAVIOR,
-                FOOTPRINT_BEHAVIOR*/
-        }));
+                FOOTPRINT_BEHAVIOR*/}));
 
         // reading parameters
         writeParameters = null;
     }
-
 }

@@ -16,21 +16,22 @@
  */
 package org.geotools.sld.bindings;
 
-import org.picocontainer.MutablePicoContainer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
 import org.geotools.styling.ContrastEnhancement;
 import org.geotools.styling.SelectedChannelType;
 import org.geotools.styling.StyleFactory;
-import org.geotools.xml.*;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.opengis.filter.expression.Expression;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * Binding object for the type http://www.opengis.net/sld:SelectedChannelType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="SelectedChannelType"&gt;
  *      &lt;xsd:sequence&gt;
@@ -41,13 +42,8 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class SLDSelectedChannelTypeBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;
@@ -56,14 +52,13 @@ public class SLDSelectedChannelTypeBinding extends AbstractComplexBinding {
         this.styleFactory = styleFactory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return SLD.SELECTEDCHANNELTYPE;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -74,6 +69,7 @@ public class SLDSelectedChannelTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -84,24 +80,24 @@ public class SLDSelectedChannelTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {
-    }
+    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {}
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return styleFactory.createSelectedChannelType((String) node.getChildValue(
-                "SourceChannelName"),
-            (ContrastEnhancement) node.getChildValue("ContrastEnhancement"));
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        return styleFactory.createSelectedChannelType(
+                (Expression) node.getChildValue("SourceChannelName"),
+                (ContrastEnhancement) node.getChildValue("ContrastEnhancement"));
     }
 }

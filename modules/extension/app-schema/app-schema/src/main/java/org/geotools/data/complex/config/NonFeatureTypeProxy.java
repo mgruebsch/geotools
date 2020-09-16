@@ -20,10 +20,10 @@ package org.geotools.data.complex.config;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
-import org.geotools.data.complex.ComplexFeatureConstants;
 import org.geotools.data.complex.FeatureTypeMapping;
-import org.geotools.feature.type.ComplexFeatureTypeFactoryImpl;
+import org.geotools.data.complex.feature.type.ComplexFeatureTypeFactoryImpl;
+import org.geotools.data.complex.feature.type.ComplexTypeProxy;
+import org.geotools.data.complex.util.ComplexFeatureConstants;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
@@ -37,33 +37,21 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * This class represents the fake feature type needed for feature chaining for properties that are
  * not features. When a non feature is mapped separately in app schema data access, it is regarded
  * as a feature since it would have a feature source.
- * 
+ *
  * @author Rini Angreani (CSIRO Earth Science and Resource Engineering)
- * 
- *
- *
- *
- * @source $URL$
- *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/app-schema/app-schema/src/main
- *         /java/org/geotools/data/complex/config/NonFeatureTypeProxy.java $
  */
 public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType {
 
-    /**
-     * The attribute descriptors
-     */
+    /** The attribute descriptors */
     private final Collection<PropertyDescriptor> descriptors;
 
-    /**
-     * The real type
-     */
+    /** The real type */
     private final AttributeType subject;
 
     /**
      * Sole constructor
-     * 
-     * @param type
-     *            The underlying non feature type
+     *
+     * @param type The underlying non feature type
      */
     public NonFeatureTypeProxy(final AttributeType type, final FeatureTypeMapping mapping) {
         super(type.getName(), null);
@@ -79,22 +67,26 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
 
         // create a new descriptor with the wrapped type and set it to the mapping
         ComplexFeatureTypeFactoryImpl typeFactory = new ComplexFeatureTypeFactoryImpl();
-        AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(this, name,
-                minOccurs, maxOccurs, nillable, defaultValue);
+        AttributeDescriptor descriptor =
+                typeFactory.createAttributeDescriptor(
+                        this, name, minOccurs, maxOccurs, nillable, defaultValue);
         descriptor.getUserData().putAll(originalTarget.getUserData());
         mapping.setTargetFeature(descriptor);
         // smuggle FEATURE_LINK descriptor
-        descriptors = new ArrayList<PropertyDescriptor>() {
-            {
-                add(ComplexFeatureConstants.FEATURE_CHAINING_LINK);
-            }
-        };
+        descriptors =
+                new ArrayList<PropertyDescriptor>() {
+                    {
+                        add(ComplexFeatureConstants.FEATURE_CHAINING_LINK);
+                    }
+                };
         if (subject instanceof ComplexType) {
             descriptors.addAll(((ComplexType) subject).getDescriptors());
-        } 
+        }
     }
 
-    public NonFeatureTypeProxy(final AttributeType type, final FeatureTypeMapping mapping,
+    public NonFeatureTypeProxy(
+            final AttributeType type,
+            final FeatureTypeMapping mapping,
             Collection<PropertyDescriptor> schema) {
         super(type.getName(), null);
 
@@ -109,8 +101,9 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
 
         // create a new descriptor with the wrapped type and set it to the mapping
         ComplexFeatureTypeFactoryImpl typeFactory = new ComplexFeatureTypeFactoryImpl();
-        AttributeDescriptor descriptor = typeFactory.createAttributeDescriptor(this, name,
-                minOccurs, maxOccurs, nillable, defaultValue);
+        AttributeDescriptor descriptor =
+                typeFactory.createAttributeDescriptor(
+                        this, name, minOccurs, maxOccurs, nillable, defaultValue);
         descriptor.getUserData().putAll(originalTarget.getUserData());
         mapping.setTargetFeature(descriptor);
         // smuggle FEATURE_LINK descriptor
@@ -118,9 +111,7 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
         this.descriptors = schema;
     }
 
-    /**
-     * @see org.geotools.data.complex.config.ComplexTypeProxy#getSubject()
-     */
+    /** @see ComplexTypeProxy#getSubject() */
     @Override
     public AttributeType getSubject() {
         return subject;
@@ -139,11 +130,7 @@ public class NonFeatureTypeProxy extends ComplexTypeProxy implements FeatureType
         return descriptors;
     }
 
-    /**
-     * Return only the schema descriptors
-     * 
-     * @return
-     */
+    /** Return only the schema descriptors */
     public Collection<PropertyDescriptor> getTypeDescriptors() {
         if (subject instanceof ComplexType) {
             return ((ComplexType) subject).getDescriptors();

@@ -17,39 +17,29 @@
 package org.geotools.coverageio.gdal.idrisi;
 
 import it.geosolutions.imageio.plugins.arcbinarygrid.ArcBinaryGridImageReaderSpi;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.coverageio.gdal.BaseGDALGridFormat;
 import org.geotools.data.DataSourceException;
-import org.geotools.factory.Hints;
+import org.geotools.util.factory.Hints;
 import org.opengis.coverage.grid.Format;
 import org.opengis.geometry.MismatchedDimensionException;
 
 /**
  * An implementation of {@link Format} for the IDRIS (RST) format.
- * 
+ *
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
- * 
- * @source $URL:
- *         http://svn.osgeo.org/geotools/trunk/modules/plugin/imageio-ext-gdal/src/main/java/org
- *         /geotools/coverageio/gdal/idrisi/IDRISIFormat.java $
  */
 public final class IDRISIFormat extends BaseGDALGridFormat implements Format {
-    /**
-     * Logger.
-     */
-    private final static Logger LOGGER = org.geotools.util.logging.Logging
-            .getLogger(IDRISIFormat.class.toString());
+    /** Logger. */
+    private static final Logger LOGGER =
+            org.geotools.util.logging.Logging.getLogger(IDRISIFormat.class);
 
-    /**
-     * Creates an instance and sets the metadata.
-     */
+    /** Creates an instance and sets the metadata. */
     public IDRISIFormat() {
         super(new ArcBinaryGridImageReaderSpi());
 
@@ -60,9 +50,7 @@ public final class IDRISIFormat extends BaseGDALGridFormat implements Format {
         setInfo();
     }
 
-    /**
-     * Sets the metadata information.
-     */
+    /** Sets the metadata information. */
     protected void setInfo() {
         final HashMap<String, String> info = new HashMap<String, String>();
         info.put("name", "RST");
@@ -79,9 +67,7 @@ public final class IDRISIFormat extends BaseGDALGridFormat implements Format {
         readParameters = getDefaultParameterGroup(info);
     }
 
-    /**
-     * @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object, Hints)
-     */
+    /** @see org.geotools.data.coverage.grid.AbstractGridFormat#getReader(Object, Hints) */
     public IDRISIReader getReader(Object source, Hints hints) {
         try {
             return new IDRISIReader(source, hints);

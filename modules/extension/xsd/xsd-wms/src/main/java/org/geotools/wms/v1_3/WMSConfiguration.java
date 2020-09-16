@@ -15,35 +15,32 @@
  *    Lesser General Public License for more details.
  */
 package org.geotools.wms.v1_3;
-import org.geotools.xml.Configuration;
+
+import org.geotools.xlink.XLINKConfiguration;
+import org.geotools.xsd.Configuration;
 import org.picocontainer.MutablePicoContainer;
 
 /**
  * Parser configuration for the http://www.opengis.net/wms schema.
  *
  * @generated
- *
- *
- * @source $URL$
  */
 public class WMSConfiguration extends Configuration {
 
     /**
      * Creates a new configuration.
-     * 
+     *
      * @generated
-     */     
+     */
     public WMSConfiguration() {
-       super(WMS.getInstance());
-       
-       //TODO: add dependencies here
+        super(WMS.getInstance());
+        addDependency(new XLINKConfiguration());
     }
-    
+
     /**
      * Registers the bindings for the configuration.
      *
      * @generated
      */
-    protected final void registerBindings( MutablePicoContainer container ) {
-    }
-} 
+    protected final void registerBindings(MutablePicoContainer container) {}
+}

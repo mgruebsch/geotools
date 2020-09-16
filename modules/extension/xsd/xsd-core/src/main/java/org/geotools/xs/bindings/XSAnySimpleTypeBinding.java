@@ -17,16 +17,16 @@
 package org.geotools.xs.bindings;
 
 import javax.xml.namespace.QName;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.SimpleBinding;
 import org.geotools.xs.XS;
-
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.SimpleBinding;
 
 /**
  * Binding object for the type http://www.w3.org/2001/XMLSchema:anySimpleType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xs:simpleType name="anySimpleType" id="anySimpleType"&gt;
  *      &lt;xs:restriction base="xs:anyType"/&gt;
@@ -34,16 +34,12 @@ import org.geotools.xs.XS;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class XSAnySimpleTypeBinding implements SimpleBinding {
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -54,6 +50,7 @@ public class XSAnySimpleTypeBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -64,6 +61,7 @@ public class XSAnySimpleTypeBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * This binding returns object of type String.
      * <!-- end-user-doc -->
@@ -75,19 +73,20 @@ public class XSAnySimpleTypeBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
-     * This method returns the value paramter, which is the facet parsed
-     * string passed in from the framework.
+     * This method returns the value paramter, which is the facet parsed string passed in from the
+     * framework.
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(InstanceComponent instance, Object value)
-        throws Exception {
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
         return value;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *

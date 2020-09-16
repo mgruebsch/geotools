@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,29 +16,29 @@
  */
 package org.geotools.coverage.grid;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-
-import org.junit.*;
 import static org.junit.Assert.*;
 
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.net.InetAddress;
+import javax.imageio.ImageReadParam;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.*;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 /**
  * Tests the {@link GridCoverage2D} implementation.
  *
- *
- *
- * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
 public final class GridCoverageTest extends GridCoverageTestBase {
-    
+
     /** Used to avoid errors if building on a system where hostname is not defined */
     private boolean hostnameDefined;
-    
+
     @Before
     public void setup() {
         try {
@@ -49,26 +49,15 @@ public final class GridCoverageTest extends GridCoverageTestBase {
         }
     }
 
-    /**
-     * Tests a grid coverage filled with random values.
-     */
+    /** Tests a grid coverage filled with random values. */
     @Test
     public void testRandomCoverage() {
         final CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
         final GridCoverage2D coverage = getRandomCoverage(crs);
         assertRasterEquals(coverage, coverage); // Actually a test of assertEqualRasters(...).
-        assertSame(coverage.getRenderedImage(), coverage.getRenderableImage(0,1).createDefaultRendering());
-        /*
-         * Tests the creation of a "geophysics" view. This test make sure that the
-         * 'geophysics' method do not creates more grid coverage than needed.
-         */
-        GridCoverage2D geophysics= coverage.view(ViewType.GEOPHYSICS);
-        assertSame(coverage,       coverage.view(ViewType.PACKED));
-        assertSame(coverage,     geophysics.view(ViewType.PACKED));
-        assertSame(geophysics,   geophysics.view(ViewType.GEOPHYSICS));
-        assertFalse( coverage.equals(geophysics));
-        assertFalse( coverage.getSampleDimension(0).getSampleToGeophysics().isIdentity());
-        assertTrue(geophysics.getSampleDimension(0).getSampleToGeophysics().isIdentity());
+        assertSame(
+                coverage.getRenderedImage(),
+                coverage.getRenderableImage(0, 1).createDefaultRendering());
     }
 
     /**
@@ -84,12 +73,43 @@ public final class GridCoverageTest extends GridCoverageTestBase {
             GridCoverage2D serial = serialize(coverage);
             assertNotSame(coverage, serial);
             assertEquals(GridCoverage2D.class, serial.getClass());
-            // Compares the geophysics view for working around the
-            // conversions of NaN values which may be the expected ones.
-            coverage = coverage.view(ViewType.GEOPHYSICS);
-            serial = serial.view(ViewType.GEOPHYSICS);
             assertRasterEquals(coverage, serial);
         }
     }
 
+    @Test
+    public void testSubSampling() throws IllegalArgumentException, IOException, TransformException {
+
+        GridCoverage2D coverage = EXAMPLES.get(2);
+
+        MockAbstractGridCoverage2DReader reader = new MockAbstractGridCoverage2DReader();
+
+        reader.setOetOriginalGridRange(new GridEnvelope2D(new Rectangle(700, 400)));
+        reader.setHighestResolution(0.5, 0.5);
+        reader.setCRS(coverage.getCoordinateReferenceSystem());
+        ImageReadParam readP = new ImageReadParam();
+        Rectangle requestedDim = new Rectangle(700, 400);
+
+        // TEST WHEN NO SUBSAMPLING IS REQUIRED
+        GeneralEnvelope requestedEnvelope = coverage.gridGeometry.envelope;
+        // requestedEnvelope.setEnvelope(-517.2704081632651, -353.2270408163266, 697.7295918367349,
+        // 350.3571428571428);
+        reader.setReadParams("geotools_coverage", null, readP, requestedEnvelope, requestedDim);
+        assertNotNull(readP);
+        // 1 means no subsampling and no pixel skipping
+        assertTrue(readP.getSourceXSubsampling() == 1);
+        assertTrue(readP.getSourceYSubsampling() == 1);
+
+        // MOCK ZOOMOUT TO FORCE SUBSAMPLING
+        GeneralEnvelope requestedEnvelopeZoomOut = coverage.gridGeometry.envelope.clone();
+        // select much larger geographical area for same screen size
+        requestedEnvelopeZoomOut.setEnvelope(
+                -517.2704081632651, -353.2270408163266, 697.7295918367349, 350.3571428571428);
+        reader.setReadParams(
+                "geotools_coverage", null, readP, requestedEnvelopeZoomOut, requestedDim);
+        assertNotNull(readP);
+        // above 1 means do sub-sampling
+        assertTrue(readP.getSourceXSubsampling() > 1);
+        assertTrue(readP.getSourceYSubsampling() > 1);
+    }
 }

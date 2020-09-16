@@ -17,22 +17,24 @@
 
 package org.geotools.data.complex;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.FeatureSource;
-import org.geotools.feature.Types;
+import org.geotools.data.complex.feature.type.Types;
 import org.geotools.test.AppSchemaTestSupport;
 import org.junit.After;
 import org.junit.Before;
@@ -42,13 +44,8 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 
 /**
- * 
  * @author Gabriel Roldan (Axios Engineering)
  * @version $Id$
- *
- *
- *
- * @source $URL$
  * @since 2.4
  */
 public class AppSchemaDataAccessFactoryTest extends AppSchemaTestSupport {
@@ -107,10 +104,7 @@ public class AppSchemaDataAccessFactoryTest extends AppSchemaTestSupport {
         }
     }
 
-    /**
-     * 
-     * @throws IOException
-     */
+    /** @throws IOException */
     @Test
     public void testCreateDataStore() throws IOException {
         DataAccess<FeatureType, Feature> ds = factory.createDataStore(params);
@@ -121,10 +115,7 @@ public class AppSchemaDataAccessFactoryTest extends AppSchemaTestSupport {
         ds.dispose();
     }
 
-    /**
-     * 
-     * @throws IOException
-     */
+    /** @throws IOException */
     @Test
     public void testFactoryLookup() throws IOException {
         DataAccess<FeatureType, Feature> ds = DataAccessFinder.getDataStore(params);
@@ -133,7 +124,7 @@ public class AppSchemaDataAccessFactoryTest extends AppSchemaTestSupport {
 
         FeatureSource<FeatureType, Feature> mappedSource = ds.getFeatureSource(mappedTypeName);
         assertNotNull(mappedSource);
-        
+
         ds.dispose();
     }
 
@@ -163,10 +154,7 @@ public class AppSchemaDataAccessFactoryTest extends AppSchemaTestSupport {
         assertEquals(URL.class, params[1].type);
     }
 
-    /**
-     * 
-     * Test method for 'org.geotools.data.complex.AppSchemaDataAccessFactory.canProcess(Map)'
-     */
+    /** Test method for 'org.geotools.data.complex.AppSchemaDataAccessFactory.canProcess(Map)' */
     @Test
     public void testCanProcess() {
         Map params = new HashMap();
@@ -182,17 +170,13 @@ public class AppSchemaDataAccessFactoryTest extends AppSchemaTestSupport {
         assertTrue(factory.canProcess(params));
     }
 
-    /**
-     * 
-     * Test method for 'org.geotools.data.complex.AppSchemaDataAccessFactory.isAvailable()'
-     */
+    /** Test method for 'org.geotools.data.complex.AppSchemaDataAccessFactory.isAvailable()' */
     @Test
     public void testIsAvailable() {
         assertTrue(factory.isAvailable());
     }
 
     /**
-     * 
      * Test method for
      * 'org.geotools.data.complex.AppSchemaDataAccessFactory.getImplementationHints()'
      */
@@ -202,4 +186,47 @@ public class AppSchemaDataAccessFactoryTest extends AppSchemaTestSupport {
         assertEquals(0, factory.getImplementationHints().size());
     }
 
+    /** Testing class for check data store creation failure handling and resilience. */
+    public static class AppSchemaDataAccessFactoryFailureTest extends AppSchemaTestSupport {
+
+        private AppSchemaDataAccessFactory factory;
+        private Map params;
+
+        /**
+         * Checks that App-schema data store factory unregisters correctly the included mappings
+         * stores on a creation failure.
+         */
+        @Test
+        public void testUnregisterOnFailure() throws Exception {
+            factory = new AppSchemaDataAccessFactory();
+            params = new HashMap();
+            params.put("dbtype", "app-schema");
+            URL resource =
+                    getClass().getResource("/test-data/creation_failure/roadsegments_bad.xml");
+            if (resource == null) {
+                fail("Can't find resouce /test-data/creation_failure/roadsegments_bad.xml");
+            }
+            params.put("url", resource);
+
+            DataAccess<FeatureType, Feature> ds;
+            boolean exceptionCatched = false;
+            try {
+                ds = factory.createDataStore(params);
+                assertNotNull(ds);
+                FeatureSource<FeatureType, Feature> mappedSource =
+                        ds.getFeatureSource(mappedTypeName);
+                assertNull(mappedSource);
+            } catch (Exception ex) {
+                exceptionCatched = true;
+            }
+            assertTrue(exceptionCatched);
+            assertFalse(DataAccessRegistry.hasName(mappedTypeName));
+        }
+
+        @After
+        public void tearDown() throws Exception {
+            factory = null;
+            params = null;
+        }
+    }
 }

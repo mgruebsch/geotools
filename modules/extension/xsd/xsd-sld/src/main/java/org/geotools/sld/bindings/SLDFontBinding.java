@@ -16,30 +16,24 @@
  */
 package org.geotools.sld.bindings;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.sld.CssParameter;
 import org.geotools.styling.Font;
 import org.geotools.styling.StyleFactory;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
-
 
 /**
  * Binding object for the element http://www.opengis.net/sld:Font.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:element name="Font"&gt;
  *      &lt;xsd:annotation&gt;
@@ -57,13 +51,8 @@ import org.picocontainer.MutablePicoContainer;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class SLDFontBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;
@@ -74,14 +63,13 @@ public class SLDFontBinding extends AbstractComplexBinding {
         this.filterFactory = filterFactory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return SLD.FONT;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -92,6 +80,7 @@ public class SLDFontBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -102,26 +91,26 @@ public class SLDFontBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {
-    }
+    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {}
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         Font font = styleFactory.getDefaultFont();
-        
+
         boolean familyFound = false;
-        for (Iterator i = node.getChildValues(CssParameter.class).iterator(); i.hasNext();) {
+        for (Iterator i = node.getChildValues(CssParameter.class).iterator(); i.hasNext(); ) {
             CssParameter css = (CssParameter) i.next();
 
             Expression exp = css.getExpression();
@@ -130,10 +119,10 @@ public class SLDFontBinding extends AbstractComplexBinding {
             }
 
             if ("font-family".equals(css.getName())) {
-                if(!familyFound) {
+                if (!familyFound) {
                     font.getFamily().set(0, exp);
                     familyFound = true;
-                } else { 
+                } else {
                     font.getFamily().add(exp);
                 }
             }

@@ -16,25 +16,20 @@
  */
 package org.geotools.sld.v1_1.bindings;
 
-import org.geotools.data.DataStore;
-import org.geotools.data.memory.MemoryDataStore;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.sld.bindings.SLDUserLayerBinding;
-import org.geotools.sld.v1_1.SLD;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.UserLayer;
-import org.geotools.xml.*;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
-
-import javax.xml.namespace.QName;
 
 /**
  * Binding object for the element http://www.opengis.net/sld:UserLayer.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  *  <code>
  *  &lt;xsd:element name="UserLayer"&gt;
@@ -59,17 +54,12 @@ import javax.xml.namespace.QName;
  *              &lt;xsd:element maxOccurs="unbounded" ref="sld:UserStyle"/&gt;
  *          &lt;/xsd:sequence&gt;
  *      &lt;/xsd:complexType&gt;
- *  &lt;/xsd:element&gt; 
- * 	
+ *  &lt;/xsd:element&gt;
+ *
  *   </code>
  * </pre>
- * 
- * </p>
- * 
+ *
  * @generated
- *
- *
- * @source $URL$
  */
 public class UserLayerBinding extends SLDUserLayerBinding {
 
@@ -78,29 +68,27 @@ public class UserLayerBinding extends SLDUserLayerBinding {
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
-        UserLayer layer  = (UserLayer) super.parse(instance, node, value);
-        
-        //TODO: description
-        
+        UserLayer layer = (UserLayer) super.parse(instance, node, value);
+
+        // TODO: description
+
         if (node.hasChild("InlineFeature")) {
-            SimpleFeatureCollection features = (SimpleFeatureCollection) node.getChildValue("InlineFeature");
+            SimpleFeatureCollection features =
+                    (SimpleFeatureCollection) node.getChildValue("InlineFeature");
             SimpleFeatureType type = features.getSchema();
-            
+
             layer.setInlineFeatureType(type);
-            layer.setInlineFeatureDatastore(toDataStore(features));
+            layer.setInlineFeatureDatastore(DataUtilities.dataStore(features));
         }
 
-        //TODO:LayerCoverageConstraints
+        // TODO:LayerCoverageConstraints
         return layer;
     }
-
-    DataStore toDataStore(FeatureCollection features) {
-        return new MemoryDataStore(features);
-    }
-
 }

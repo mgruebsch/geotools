@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2006-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,46 +16,32 @@
  */
 package org.geotools.coverage.processing;
 
+import static org.junit.Assert.*;
+
 import java.awt.image.RenderedImage;
 import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;
-
-import org.opengis.parameter.ParameterValueGroup;
-
-import org.geotools.factory.Hints;
-import org.geotools.coverage.grid.Viewer;
 import org.geotools.coverage.grid.GridCoverage2D;
-import static org.geotools.coverage.grid.ViewType.*;
-
+import org.geotools.coverage.grid.Viewer;
 import org.junit.*;
-import static org.junit.Assert.*;
-
+import org.opengis.parameter.ParameterValueGroup;
 
 /**
  * Tests the scale operation.
  *
- *
- *
- * @source $URL$
  * @version $Id$
  * @author Simone Giannecchini (GeoSolutions)
  * @author Martin Desruisseaux (Geomatys)
- *
  * @since 2.3
  */
 public class ScaleTest extends GridProcessingTestBase {
-    /**
-     * The processor to be used for all tests.
-     */
+    /** The processor to be used for all tests. */
     private CoverageProcessor processor;
 
-    /**
-     * Set up common objects used for all tests.
-     */
+    /** Set up common objects used for all tests. */
     @Before
     public void setUp() {
-        Hints hints = new Hints(Hints.COVERAGE_PROCESSING_VIEW, PHOTOGRAPHIC);
-        processor = CoverageProcessor.getInstance(hints);
+        processor = CoverageProcessor.getInstance(null);
     }
 
     /**
@@ -65,70 +51,40 @@ public class ScaleTest extends GridProcessingTestBase {
      */
     @Test
     public void testScale() {
-        final GridCoverage2D originallyIndexedCoverage       = EXAMPLES.get(0);
-        final GridCoverage2D indexedCoverage                 = EXAMPLES.get(2);
+        final GridCoverage2D originallyIndexedCoverage = EXAMPLES.get(0);
+        final GridCoverage2D indexedCoverage = EXAMPLES.get(2);
         final GridCoverage2D indexedCoverageWithTransparency = EXAMPLES.get(3);
-        final GridCoverage2D floatCoverage                   = EXAMPLES.get(4);
+        final GridCoverage2D floatCoverage = EXAMPLES.get(4);
 
         ///////////////////////////////////////////////////////////////////////
         //
-        // Nearest neighbor interpolation and non-geophysics view.
+        // Nearest neighbor interpolation
         //
         ///////////////////////////////////////////////////////////////////////
         Interpolation interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-        scale(originallyIndexedCoverage      .view(PACKED), interp);
-        scale(indexedCoverage                .view(PACKED), interp);
-        scale(indexedCoverageWithTransparency.view(PACKED), interp);
+        scale(originallyIndexedCoverage, interp);
+        scale(indexedCoverage, interp);
+        scale(indexedCoverageWithTransparency, interp);
 
         ///////////////////////////////////////////////////////////////////////
         //
-        // Nearest neighbor interpolation and geophysics view.
-        //
-        ///////////////////////////////////////////////////////////////////////
-        scale(originallyIndexedCoverage      .view(GEOPHYSICS), interp);
-        scale(indexedCoverage                .view(GEOPHYSICS), interp);
-        scale(indexedCoverageWithTransparency.view(GEOPHYSICS), interp);
-
-        ///////////////////////////////////////////////////////////////////////
-        //
-        // Bilinear interpolation and non-geo view
+        // Bilinear interpolation
         //
         ///////////////////////////////////////////////////////////////////////
         interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
-//        scale(originallyIndexedCoverage      .view(PACKED), interp);
-        scale(indexedCoverage                .view(PACKED), interp);
-        scale(indexedCoverageWithTransparency.view(PACKED), interp);
+        scale(indexedCoverage, interp);
+        scale(indexedCoverageWithTransparency, interp);
 
         ///////////////////////////////////////////////////////////////////////
         //
-        // Bilinear interpolation and geo view
+        // Nearest neighbor  interpolation  for a float coverage
         //
         ///////////////////////////////////////////////////////////////////////
-//        scale(originallyIndexedCoverage      .view(GEOPHYSICS), interp);
-        scale(indexedCoverage                .view(GEOPHYSICS), interp);
-        scale(indexedCoverageWithTransparency.view(GEOPHYSICS), interp);
-
-        ///////////////////////////////////////////////////////////////////////
-        //
-        // Bilinear interpolation and non-geo view for a float coverage
-        //
-        ///////////////////////////////////////////////////////////////////////
-        // on this one the subsample average should NOT go back to the
-        // geophysiscs view before being applied
-//        scale(floatCoverage.view(PACKED), interp);
-
-        ///////////////////////////////////////////////////////////////////////
-        //
-        // Nearest neighbor  interpolation and non-geo view for a float coverage
-        //
-        ///////////////////////////////////////////////////////////////////////
-        // on this one the subsample average should NOT go back to the
-        // geophysiscs view before being applied
         interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-        scale(floatCoverage.view(PACKED), interp);
+        scale(floatCoverage, interp);
 
         // Play with a rotated coverage
-        scale(rotate(floatCoverage.view(GEOPHYSICS), Math.PI/4), null);
+        scale(rotate(floatCoverage, Math.PI / 4), null);
     }
 
     /**
@@ -156,7 +112,7 @@ public class ScaleTest extends GridProcessingTestBase {
         GridCoverage2D scaled = (GridCoverage2D) processor.doOperation(param);
         assertEnvelopeEquals(coverage, scaled);
         RenderedImage scaledImage = scaled.getRenderedImage();
-        assertEquals(w / 2.0, scaledImage.getWidth(),  EPS);
+        assertEquals(w / 2.0, scaledImage.getWidth(), EPS);
         assertEquals(h / 2.0, scaledImage.getHeight(), EPS);
         if (SHOW) {
             Viewer.show(coverage);
@@ -171,7 +127,7 @@ public class ScaleTest extends GridProcessingTestBase {
         scaled = (GridCoverage2D) Operations.DEFAULT.scale(scaled, 3, 3, 0, 0, interp);
         scaledImage = scaled.getRenderedImage();
         assertEnvelopeEquals(coverage, scaled);
-        assertEquals(w * 1.5, scaledImage.getWidth(),  EPS);
+        assertEquals(w * 1.5, scaledImage.getWidth(), EPS);
         assertEquals(h * 1.5, scaledImage.getHeight(), EPS);
         if (SHOW) {
             Viewer.show(scaled);

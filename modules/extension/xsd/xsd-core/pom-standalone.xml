@@ -34,8 +34,14 @@
       <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
-        <version>3.1</version>
+        <version>3.2.2</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>4.4</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -103,8 +109,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.4</version>
-      <scope>compile</scope>
-      <optional>true</optional>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -141,8 +146,8 @@
             <exclude>**/XPathPropertyAcessorTest.java</exclude>
             <exclude>**/impl/jxpath/*.java</exclude>
           </testExcludes>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
     </plugins>

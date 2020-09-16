@@ -4,7 +4,7 @@ Source Code
 The GeoTools source code is organized into the following structure:
 
 ======================== =========================================================================
-``build/``               java projects that help with our build process
+``build/``               Java projects that help with our build process
 ``docs/``                documentation and website source in rich structured text
 ``modules/library/``     the core library allowing your application to be spatial
 ``modules/extensions/``  extensions built on top of the library that do useful things
@@ -17,7 +17,7 @@ The GeoTools source code is organized into the following structure:
 Download Source Code
 ^^^^^^^^^^^^^^^^^^^^^
 
-Source code releases are made available on a monthly basis and are available on the downloads page:
+Source code is published with each release and is available on the downloads page:
 
 * http://sourceforge.net/projects/geotools/files
 
@@ -31,7 +31,7 @@ It is an advanced version management tool with a different workflow than Subvers
 CVS.
 
 You do not need any special permission to have read-only access to the source code which
-is located on `github <https://github.com/geotools/geotools/>`. You are encouraged to 
+is located on `github <https://github.com/geotools/geotools/>`_. You are encouraged to 
 clone the repository or fork it into your own account and issue pull requests.
 
 Please just check out the code and have fun. If you are interested in getting commit permission later you can look into Developers Guide Roles and Responsibilities.
@@ -52,19 +52,20 @@ Please just check out the code and have fun. If you are interested in getting co
      
      C:\java>
 
-#. Checkout geotools using git (a new directory "geotools" will be created)::
+#. Checkout GeoTools using git (a new directory :file:`geotools` will be created)::
      
      C:\java> git clone git://github.com/geotools/geotools.git
 
-#. This will create a geotools directory that contains the source code for this project
+#. This will create a file:`geotools` directory that contains the source code
+for this project
 
 Notes:
 
 * You can switch between the master and stable branches easily::
 
      C:\java\geotools> git checkout master
-     C:\java\geotools> git checkout 8.x 
-     C:\java\geotools> git checkout 2.7.x
+     C:\java\geotools> git checkout 11.x 
+     C:\java\geotools> git checkout 8.x
 
 * Take the time to read the git book before diving into git:
 
@@ -74,4 +75,7 @@ Notes:
   
     http://www.sbf5.com/~cduan/technical/git/
 
-* Although links to various IDE interfaces will be made available, no GUI will substitute for an understanding of the underlying git versioning model, and how the system is actually doing work.
+* Although links to various IDE interfaces will be made available, no GUI will 
+  substitute for an understanding of the underlying git versioning model, and how
+  the system is actually doing work.
+

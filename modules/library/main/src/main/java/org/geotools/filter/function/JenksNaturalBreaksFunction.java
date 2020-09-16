@@ -17,13 +17,13 @@
 
 package org.geotools.filter.function;
 
-import static org.geotools.filter.capability.FunctionNameImpl.*;
+import static org.geotools.filter.capability.FunctionNameImpl.parameter;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollection;
@@ -31,27 +31,25 @@ import org.geotools.filter.capability.FunctionNameImpl;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.capability.FunctionName;
-import org.opengis.filter.expression.Expression;
-
-import com.vividsolutions.jts.geom.Geometry;
+import org.opengis.filter.expression.Literal;
 
 /**
  * Calculate the Jenks' Natural Breaks classification for a featurecollection
- * 
+ *
  * @author Ian Turton
- *
- *
- * @source $URL$
  */
 public class JenksNaturalBreaksFunction extends ClassificationFunction {
     org.opengis.util.ProgressListener progress;
 
-    private static final Logger logger = Logging.getLogger("org.geotools.filter.function");
-    
-    public static FunctionName NAME = new FunctionNameImpl("Jenks",
-            RangedClassifier.class,
-            parameter("value", Double.class),
-            parameter("classes", Integer.class));
+    private static final Logger logger = Logging.getLogger(JenksNaturalBreaksFunction.class);
+
+    public static FunctionName NAME =
+            new FunctionNameImpl(
+                    "Jenks",
+                    RangedClassifier.class,
+                    parameter("value", Double.class),
+                    parameter("classes", Integer.class),
+                    parameter("percentages", Boolean.class, 0, 1));
 
     public JenksNaturalBreaksFunction() {
         super(NAME);
@@ -59,7 +57,7 @@ public class JenksNaturalBreaksFunction extends ClassificationFunction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.geotools.filter.function.ClassificationFunction#evaluate(java.lang.Object)
      */
     public Object evaluate(Object feature) {
@@ -72,33 +70,43 @@ public class JenksNaturalBreaksFunction extends ClassificationFunction {
     /**
      * This is based on James' GeoTools1 code which seems to be based on
      * http://lib.stat.cmu.edu/cmlib/src/cluster/fish.f
-     * 
-     * @param feature
+     *
      * @return a RangedClassifier
      */
     private Object calculate(SimpleFeatureCollection featureCollection) {
-        SimpleFeatureIterator features = featureCollection.features();
         ArrayList<Double> data = new ArrayList<Double>();
-        try {
-            while (features.hasNext()) {
-                SimpleFeature feature = features.next();
-                final Object result = getExpression().evaluate(feature);
-                logger.finest("importing " + result);
-                if (result != null) {
-                    final Double e = new Double(result.toString());
-                    if (!e.isInfinite() && !e.isNaN())
-                        data.add(e);
+        try (SimpleFeatureIterator features = featureCollection.features()) {
+            try {
+                while (features.hasNext()) {
+                    SimpleFeature feature = features.next();
+                    final Object result = getParameters().get(0).evaluate(feature);
+                    logger.finest("importing " + result);
+                    if (result != null) {
+                        final Double e = Double.valueOf(result.toString());
+                        if (!e.isInfinite() && !e.isNaN()) data.add(e);
+                    }
                 }
+            } catch (NumberFormatException e) {
+                return null; // if it isn't a number what should we do?
             }
-        } catch (NumberFormatException e) {
-            return null; // if it isn't a number what should we do?
         }
         Collections.sort(data);
+
+        if (data.size() == 1 || data.get(0).equals(data.get(data.size() - 1))) {
+            return new RangedClassifier(
+                    new Comparable[] {data.get(0)}, new Comparable[] {data.get(0)});
+        }
+
         final int k = getClasses();
         final int m = data.size();
         if (k == m) {
-            logger.info("Number of classes (" + k + ") is equal to number of data points (" + m
-                    + ") " + "unique classification returned");
+            logger.info(
+                    "Number of classes ("
+                            + k
+                            + ") is equal to number of data points ("
+                            + m
+                            + ") "
+                            + "unique classification returned");
             Comparable[] localMin = new Comparable[k];
             Comparable[] localMax = new Comparable[k];
 
@@ -171,7 +179,7 @@ public class JenksNaturalBreaksFunction extends ClassificationFunction {
             for (int i = 0; i < m; i++) {
                 String tmp = (i + ": " + data.get(i));
                 for (int j = 2; j <= k; j++) {
-                    tmp+=("\t" + iwork[i][j]);
+                    tmp += ("\t" + iwork[i][j]);
                 }
                 logger.finer(tmp);
             }
@@ -183,19 +191,50 @@ public class JenksNaturalBreaksFunction extends ClassificationFunction {
         Comparable[] localMax = new Comparable[k];
         localMax[k - 1] = data.get(ik);
         for (int j = k; j >= 2; j--) {
-            logger.finest("index "+ik + ", class" + j);
+            logger.finest("index " + ik + ", class" + j);
             int id = (int) iwork[ik][j] - 1; // subtract one as we want inclusive breaks on the
-                                             // left?
-            
+            // left?
+
             localMax[j - 2] = data.get(id);
             localMin[j - 1] = data.get(id);
             ik = (int) iwork[ik][j] - 1;
         }
         localMin[0] = data.get(0);
         /*
-         * for(int k1=0;k1<k;k1++) { System.out.println(k1+" "+localMin[k1]+" - "+localMax[k1]); }
+         * for(int k1=0;k1<k;k1++) { // System.out.println(k1+" "+localMin[k1]+" - "+localMax[k1]); }
          */
-        return new RangedClassifier(localMin, localMax);
+
+        RangedClassifier classifier = new RangedClassifier(localMin, localMax);
+        if (getParameters().size() > 2) {
+            Literal literal = (Literal) getParameters().get(2);
+            Boolean percentages = (Boolean) literal.getValue();
+            if (percentages.booleanValue()) {
+                setPercentages(classifier, data, m);
+            }
+        }
+        return classifier;
     }
 
+    private void setPercentages(RangedClassifier classifier, List<Double> data, double total) {
+        int classN = classifier.getSize();
+        double[] percentages = new double[classN];
+        for (int i = 0; i < classN; i++) {
+            double classMembers = getClassMembers(data, classifier, i);
+            percentages[i] = (classMembers / total) * 100;
+        }
+        classifier.setPercentages(percentages);
+    }
+
+    private double getClassMembers(List<Double> data, RangedClassifier classifier, int currentIdx) {
+        double result;
+        double max = (double) classifier.getMax(currentIdx);
+        double min = (double) classifier.getMin(currentIdx);
+        if (max == min) {
+            result = data.stream().filter(d -> d == max).count();
+        } else {
+            if (currentIdx == 0) result = data.stream().filter(d -> d >= min && d <= max).count();
+            else result = data.stream().filter(d -> d > min && d <= max).count();
+        }
+        return result;
+    }
 }

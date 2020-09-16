@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>library</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
   
 
@@ -27,17 +27,9 @@
   <artifactId>gt-xml</artifactId>
   <packaging>jar</packaging>
   <name>XML Parsing Support</name>
-  
-
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/xml/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/library/xml/</url>
-  </scm>
 
   <description>
-    XML Parser based on the XDO design.
+    GTXML Schema Driven Parser
   </description>
 
   <licenses>
@@ -78,23 +70,15 @@
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
   <dependencies>
-  
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 	
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-main</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!--  xml parser/encoder dependencies -->
     <dependency>
-      <groupId>org.geotools.xsd</groupId>
-      <artifactId>gt-xsd-wfs</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
     </dependency>
 	
 	<!--  xml schema resolver dependencies -->
@@ -109,13 +93,6 @@
 		<version>2.0.2-4</version>
 		<scope>test</scope>
 	</dependency>
-    
-    <!--  xml/xsd dependencies -->
-    <dependency>
-      <groupId>org.geotools.ogc</groupId>
-      <artifactId>net.opengis.wfs</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     
     <!--  test dependencies -->
     <dependency>
@@ -135,7 +112,24 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.core.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>xmlunit</groupId>
+      <artifactId>xmlunit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 

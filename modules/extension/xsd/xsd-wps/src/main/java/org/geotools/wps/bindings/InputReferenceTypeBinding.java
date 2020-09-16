@@ -18,23 +18,18 @@
 package org.geotools.wps.bindings;
 
 import javax.xml.namespace.QName;
-
+import net.opengis.wps10.InputReferenceType;
 import net.opengis.wps10.MethodType;
 import net.opengis.wps10.Wps10Factory;
-import net.opengis.wps10.InputReferenceType;
-
 import org.geotools.wps.WPS;
-import org.geotools.xml.Node;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.ComplexEMFBinding;
+import org.geotools.xsd.ComplexEMFBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 
 /**
  * Binding for inputReference attribute of Method element
+ *
  * @author Lucas Reed, Refractions Research Inc
- *
- *
- *
- * @source $URL$
  */
 public class InputReferenceTypeBinding extends ComplexEMFBinding {
     public InputReferenceTypeBinding(Wps10Factory factory) {
@@ -56,7 +51,7 @@ public class InputReferenceTypeBinding extends ComplexEMFBinding {
         Node attr = node.getAttribute("method");
 
         if (null != attr) {
-            attr.setValue(MethodType.get((String)attr.getValue()));
+            attr.setValue(MethodType.get((String) attr.getValue()));
         }
 
         return super.parse(instance, node, value);

@@ -22,38 +22,28 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
-
+import java.util.StringTokenizer;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import net.miginfocom.swing.MigLayout;
-
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.Parameter;
-import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.swing.wizard.JPage;
 import org.geotools.swing.wizard.ParamField;
 
 /**
  * A wizard page that will prompt the user for a file of the supplied format ask for any additional
  * information.
- * <p>
- * This page will allow the user to edit and modify the provided connectionParameters map
- * - but will only show parameters that match the indicated "level". If level is null it
- * assumed to be "user".
  *
- *
- *
- *
- * @source $URL$
+ * <p>This page will allow the user to edit and modify the provided connectionParameters map - but
+ * will only show parameters that match the indicated "level". If level is null it assumed to be
+ * "user".
  */
 public class JDataStorePage extends JPage {
-    /**
-     * Factory for which we are collection connection parameters
-     */
+    /** Factory for which we are collection connection parameters */
     protected DataStoreFactorySpi format;
 
     /** Map of user interface ParamFields displayed to the user */
@@ -76,7 +66,7 @@ public class JDataStorePage extends JPage {
         this.format = format;
         if (params == null) {
             params = new HashMap<String, Object>();
-            if( format != null ){
+            if (format != null) {
                 for (Param param : format.getParametersInfo()) {
                     params.put(param.key, (Serializable) param.sample);
                 }
@@ -88,11 +78,11 @@ public class JDataStorePage extends JPage {
     public void setLevel(String level) {
         this.level = level;
     }
-    
+
     public void setFormat(DataStoreFactorySpi format) {
-        if( this.format != format ){
-            this.format = format;            
-        }        
+        if (this.format != format) {
+            this.format = format;
+        }
     }
 
     @Override
@@ -107,22 +97,22 @@ public class JDataStorePage extends JPage {
         page.add(description, "grow, span");
 
         for (Param param : format.getParametersInfo()) {
-            if( level != null ){
-                String check = param.metadata == null ? "user" : (String) param.metadata.get(Parameter.LEVEL);
-                
-                if( check == null ){
+            if (level != null) {
+                String check =
+                        param.metadata == null
+                                ? "user"
+                                : (String) param.metadata.get(Parameter.LEVEL);
+
+                if (check == null) {
                     check = "user";
                 }
-                if (level.equals( check )){
-                    // we are good this is the one we want
-                }
-                else {
+                if (!level.equals(check)) {
                     continue; // skip since it is not the one we want
                 }
             }
             String txt = param.title.toString();
-            if( param.required ){
-                txt +="*";
+            if (param.required) {
+                txt += "*";
             }
             JLabel label = new JLabel(txt);
             page.add(label);
@@ -152,7 +142,7 @@ public class JDataStorePage extends JPage {
                 value = param.lookUp(connectionParameters);
             } catch (IOException e) {
             }
-            if( value == null && param.required ){
+            if (value == null && param.required) {
                 value = param.sample;
             }
             field.setValue(value);
@@ -183,16 +173,12 @@ public class JDataStorePage extends JPage {
     public boolean isValid() {
         // populate panel
         for (Entry<Param, ParamField> entry : fields.entrySet()) {
-            if (!entry.getValue().validate()) {                
+            if (!entry.getValue().validate()) {
                 return false; // not validate
-            }
-            if (entry.getKey().required && entry.getValue().getValue() == null) {
-
             }
         }
         return true;
     }
-
 
     private String formatDescription(String desc) {
         String prefix = "<html>";

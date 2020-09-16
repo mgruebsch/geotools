@@ -1,3 +1,20 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
+
 package org.geotools.util;
 
 import java.util.ArrayList;
@@ -6,27 +23,19 @@ import java.util.List;
 
 /**
  * A linked HashMap set up for easy construction.
- * <p>
- * Example: <code>KVP map = new KVP("foo",1,"bar,2);</code>
- * 
+ *
+ * <p>Example: <code>KVP map = new KVP("foo",1,"bar,2);</code>
+ *
  * @author jody
- *
- *
- *
- * @source $URL$
  */
 public class KVP extends LinkedHashMap<String, Object> {
-    /**
-     * 
-     */
+    /** */
     private static final long serialVersionUID = -387821381125137128L;
 
     /**
      * A linked HashMap set up for easy construction.
-     * <p>
-     * Example: <code>KVP map = new KVP("foo",1,"bar,2);</code>
-     * 
-     * @param pairs
+     *
+     * <p>Example: <code>KVP map = new KVP("foo",1,"bar,2);</code>
      */
     public KVP(Object... pairs) {
         if ((pairs.length & 1) != 0) {
@@ -38,28 +47,21 @@ public class KVP extends LinkedHashMap<String, Object> {
             add(key, value);
         }
     }
-    /**
-     * An additive version of put; will add additional values resulting
-     * in a list.
-     * @param key
-     * @param value
-     */
+    /** An additive version of put; will add additional values resulting in a list. */
     @SuppressWarnings("unchecked")
     public void add(String key, Object value) {
-        if( containsKey(key) ) {
-            Object existing = get( key );
-            if( existing instanceof List<?>){
+        if (containsKey(key)) {
+            Object existing = get(key);
+            if (existing instanceof List<?>) {
                 List<Object> list = (List<Object>) existing;
-                list.add( value );
-            }
-            else {
+                list.add(value);
+            } else {
                 List<Object> list = new ArrayList<Object>();
-                list.add( existing );
-                list.add( value );
-                put( key, list );
+                list.add(existing);
+                list.add(value);
+                put(key, list);
             }
-        }
-        else {
+        } else {
             put(key, value);
         }
     }

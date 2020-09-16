@@ -7,18 +7,13 @@
     <parent>
         <groupId>org.geotools</groupId>
         <artifactId>app-schema</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <groupId>org.geotools</groupId>
     <artifactId>app-schema-packages</artifactId>
     <packaging>pom</packaging>
     <name>Application Schema Packages</name>
-
-    <scm>
-        <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/app-schema/app-schema-packages/</connection>
-        <url>http://svn.osgeo.org/geotools/trunk/modules/extension/app-schema/app-schema-packages/</url>
-    </scm>
 
     <description>
         This is an aggregating pom used to build remote schema resources into
@@ -60,15 +55,34 @@
 
     <developers>
         <developer>
-            <name>Ben Caradoc-Davies</name>
-            <id>bencaradocdavies</id>
-            <email>Ben.Caradoc-Davies@csiro.au</email>
-            <organization>CSIRO Earth Science and Resource Engineering </organization>
+            <name>Nuno Oliveira</name>
+            <id>nmco</id>
+            <email>nuno.oliveira@geo-solutions.it</email>
+            <organization>GeoSolutions</organization>
             <roles>
                 <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Fernando Mino</name>
+            <id>fernandor777</id>
+            <email>fernando.mino@geo-solutions.it</email>
+            <organization>GeoSolutions</organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Ben Caradoc-Davies</name>
+            <id>bencaradocdavies</id>
+            <email>ben@transient.nz</email>
+            <organization>Transient Software Limited</organization>
+            <roles>
                 <role>Schema Packager</role>
             </roles>
-            <timezone>8</timezone>
+            <timezone>Pacific/Auckland</timezone>
         </developer>
     </developers>
 
@@ -79,6 +93,8 @@
         <module>filter-2.0</module>
         <module>geosciml-2.0</module>
         <module>geosciml-3.0-seegrid</module>
+        <module>geosciml-3.2</module>
+        <module>geosciml-3.2-seegrid</module>
         <module>gml-3.1</module>
         <module>gml-3.2</module>
         <module>ic-2.0</module>
@@ -90,13 +106,16 @@
         <module>ows-1.1</module>
         <module>sampling-1.0</module>
         <module>sampling-2.0</module>
+        <module>samplingSpatial-2.0</module>
         <module>samplingSpecimen-2.0</module>
         <module>sensorML-1.0</module>
         <module>sweCommon-1.0</module>
         <module>sweCommon-1.0-gml32</module>
+        <module>sweCommon-2.0</module>
         <module>wfs-1.1</module>
         <module>wfs-2.0</module>
         <module>xlink-1.0</module>
+        <module>xlink-1999</module>
         <module>xml-1.0</module>
     </modules>
 

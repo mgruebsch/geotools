@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ecore:EPackage xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="ows11"
-    nsURI="http://www.opengis.net/ows/1.1" nsPrefix="ows">
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="ows11" nsURI="http://www.opengis.net/ows/1.1" nsPrefix="ows">
   <eAnnotations source="http://www.w3.org/XML/1998/namespace">
     <details key="lang" value="en"/>
   </eAnnotations>
@@ -95,7 +93,7 @@
       <details key="documentation" value="Prioritized sequence of zero or more GetCapabilities operation response formats desired by client, with preferred formats listed first. Each response format shall be identified by its MIME type. See AcceptFormats parameter use subclause for more information."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="outputFormat" unique="false"
-        eType="#//MimeType">
+        upperBound="-1" eType="#//MimeType">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="OutputFormat"/>
@@ -112,7 +110,7 @@
       <details key="documentation" value="Prioritized sequence of one or more specification versions accepted by client, with preferred versions listed first. See Version negotiation subclause for more information."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="version" unique="false"
-        lowerBound="1" eType="#//VersionType">
+        lowerBound="1" upperBound="-1" eType="#//VersionType">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Version"/>
@@ -1371,7 +1369,7 @@
       <details key="documentation" value="An Exception element describes one detected error that a server chooses to convey to the client."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="exceptionText" unique="false"
-        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+        upperBound="-1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="ExceptionText"/>
@@ -2096,7 +2094,7 @@
       <details key="documentation" value="Unordered list of zero or more names of requested sections in complete service metadata document. Each Section value shall contain an allowed section name as specified by each OWS specification. See Sections parameter subclause for more information."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="section" unique="false"
-        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
+        upperBound="-1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="Section"/>

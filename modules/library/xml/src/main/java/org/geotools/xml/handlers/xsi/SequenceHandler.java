@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -19,7 +19,6 @@ package org.geotools.xml.handlers.xsi;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.geotools.xml.XSIElementHandler;
 import org.geotools.xml.schema.Element;
 import org.geotools.xml.schema.ElementGrouping;
@@ -27,119 +26,106 @@ import org.geotools.xml.schema.Sequence;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-
 /**
  * SequenceHandler purpose.
- * 
- * <p>
- * represents a sequence element
- * </p>
+ *
+ * <p>represents a sequence element
  *
  * @author dzwiers, Refractions Research, Inc. http://www.refractions.net
  * @author $Author:$ (last modification)
- *
- *
- * @source $URL$
  * @version $Id$
  */
 public class SequenceHandler extends ElementGroupingHandler {
     /** 'sequence' */
-    public final static String LOCALNAME = "sequence";
+    public static final String LOCALNAME = "sequence";
+
     private String id;
     private int maxOccurs;
     private int minOccurs;
     private List children; // element, group, choice, sequence or any
     private DefaultSequence cache = null;
 
-    /**
-     * @see java.lang.Object#hashCode()
-     */
+    /** @see java.lang.Object#hashCode() */
+    @SuppressWarnings("PMD.OverrideBothEqualsAndHashcode")
     public int hashCode() {
         return (LOCALNAME.hashCode() * ((id == null) ? 1 : id.hashCode()))
-        + ((children == null) ? 2 : children.hashCode());
+                + ((children == null) ? 2 : children.hashCode());
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#getHandler(java.lang.String,
-     *      java.lang.String)
-     */
-    public XSIElementHandler getHandler(String namespaceURI, String localName){
-        logger.finest("Getting Handler for " + localName + " :: "
-            + namespaceURI);
+    /** @see org.geotools.xml.XSIElementHandler#getHandler(java.lang.String, java.lang.String) */
+    public XSIElementHandler getHandler(String namespaceURI, String localName) {
+        logger.finest("Getting Handler for " + localName + " :: " + namespaceURI);
 
-        if (namespaceURI.equalsIgnoreCase(namespaceURI)) {
-            // child types
-            //
-            // any
-            if (AnyHandler.LOCALNAME.equalsIgnoreCase(localName)) {
-                if (children == null) {
-                    children = new LinkedList();
-                }
-
-                AnyHandler ah = new AnyHandler();
-                children.add(ah);
-
-                return ah;
+        // child types
+        //
+        // any
+        if (AnyHandler.LOCALNAME.equalsIgnoreCase(localName)) {
+            if (children == null) {
+                children = new LinkedList();
             }
 
-            // choice
-            if (ChoiceHandler.LOCALNAME.equalsIgnoreCase(localName)) {
-                if (children == null) {
-                    children = new LinkedList();
-                }
+            AnyHandler ah = new AnyHandler();
+            children.add(ah);
 
-                ChoiceHandler ah = new ChoiceHandler();
-                children.add(ah);
+            return ah;
+        }
 
-                return ah;
+        // choice
+        if (ChoiceHandler.LOCALNAME.equalsIgnoreCase(localName)) {
+            if (children == null) {
+                children = new LinkedList();
             }
 
-            // element
-            if (ElementTypeHandler.LOCALNAME.equalsIgnoreCase(localName)) {
-                if (children == null) {
-                    children = new LinkedList();
-                }
+            ChoiceHandler ah = new ChoiceHandler();
+            children.add(ah);
 
-                ElementTypeHandler ah = new ElementTypeHandler();
-                children.add(ah);
+            return ah;
+        }
 
-                return ah;
+        // element
+        if (ElementTypeHandler.LOCALNAME.equalsIgnoreCase(localName)) {
+            if (children == null) {
+                children = new LinkedList();
             }
 
-            // group
-            if (GroupHandler.LOCALNAME.equalsIgnoreCase(localName)) {
-                if (children == null) {
-                    children = new LinkedList();
-                }
+            ElementTypeHandler ah = new ElementTypeHandler();
+            children.add(ah);
 
-                GroupHandler ah = new GroupHandler();
-                children.add(ah);
+            return ah;
+        }
 
-                return ah;
+        // group
+        if (GroupHandler.LOCALNAME.equalsIgnoreCase(localName)) {
+            if (children == null) {
+                children = new LinkedList();
             }
 
-            // sequence
-            if (LOCALNAME.equalsIgnoreCase(localName)) {
-                if (children == null) {
-                    children = new LinkedList();
-                }
+            GroupHandler ah = new GroupHandler();
+            children.add(ah);
 
-                SequenceHandler ah = new SequenceHandler();
-                children.add(ah);
+            return ah;
+        }
 
-                return ah;
+        // sequence
+        if (LOCALNAME.equalsIgnoreCase(localName)) {
+            if (children == null) {
+                children = new LinkedList();
             }
+
+            SequenceHandler ah = new SequenceHandler();
+            children.add(ah);
+
+            return ah;
         }
 
         return null;
     }
 
     /**
-     * @see org.geotools.xml.XSIElementHandler#startElement(java.lang.String,
-     *      java.lang.String, org.xml.sax.Attributes)
+     * @see org.geotools.xml.XSIElementHandler#startElement(java.lang.String, java.lang.String,
+     *     org.xml.sax.Attributes)
      */
-    public void startElement(String namespaceURI, String localName,
-        Attributes atts){
+    public void startElement(String namespaceURI, String localName, Attributes atts) {
         // id
         id = atts.getValue("", "id");
 
@@ -178,22 +164,19 @@ public class SequenceHandler extends ElementGroupingHandler {
         }
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#getLocalName()
-     */
+    /** @see org.geotools.xml.XSIElementHandler#getLocalName() */
     public String getLocalName() {
         return LOCALNAME;
     }
 
     /**
-     * @see org.geotools.xml.XSIHandlers.ElementGroupingHandler#compress(org.geotools.xml.XSIHandlers.SchemaHandler)
+     * @see
+     *     org.geotools.xml.XSIHandlers.ElementGroupingHandler#compress(org.geotools.xml.XSIHandlers.SchemaHandler)
      */
-    protected ElementGrouping compress(SchemaHandler parent)
-        throws SAXException {
+    protected ElementGrouping compress(SchemaHandler parent) throws SAXException {
 
-        synchronized(this){
-            if (cache != null)
-            	return cache;
+        synchronized (this) {
+            if (cache != null) return cache;
             cache = new DefaultSequence();
         }
 
@@ -201,8 +184,11 @@ public class SequenceHandler extends ElementGroupingHandler {
         cache.minOccurs = minOccurs;
         cache.maxOccurs = maxOccurs;
 
-        logger.finest(id + " :: This Sequence has "
-            + ((children == null) ? 0 : children.size()) + " children");
+        logger.finest(
+                id
+                        + " :: This Sequence has "
+                        + ((children == null) ? 0 : children.size())
+                        + " children");
 
         if (children != null) {
             cache.children = new ElementGrouping[children.size()];
@@ -210,8 +196,7 @@ public class SequenceHandler extends ElementGroupingHandler {
             // TODO compress sequences here
             // sequqnces can be inlined here.
             for (int i = 0; i < cache.children.length; i++)
-                cache.children[i] = ((ElementGroupingHandler) children.get(i))
-                    .compress(parent);
+                cache.children[i] = ((ElementGroupingHandler) children.get(i)).compress(parent);
         }
 
         children = null;
@@ -220,28 +205,20 @@ public class SequenceHandler extends ElementGroupingHandler {
         return cache;
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#getHandlerType()
-     */
+    /** @see org.geotools.xml.XSIElementHandler#getHandlerType() */
     public int getHandlerType() {
         return SEQUENCE;
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#endElement(java.lang.String,
-     *      java.lang.String)
-     */
-    public void endElement(String namespaceURI, String localName){
+    /** @see org.geotools.xml.XSIElementHandler#endElement(java.lang.String, java.lang.String) */
+    public void endElement(String namespaceURI, String localName) {
         // do nothing
     }
 
     /**
-     * <p>
      * Default implementation of a sequence for a parsed xml sequence
-     * </p>
      *
      * @author dzwiers
-     *
      * @see Sequence
      */
     private static class DefaultSequence implements Sequence {
@@ -251,9 +228,7 @@ public class SequenceHandler extends ElementGroupingHandler {
         int minOccurs;
         int maxOccurs;
 
-        /**
-         * @see org.geotools.xml.xsi.ElementGrouping#findChildElement(java.lang.String)
-         */
+        /** @see org.geotools.xml.xsi.ElementGrouping#findChildElement(java.lang.String) */
         public Element findChildElement(String name) {
             if (children == null) {
                 return null;
@@ -271,43 +246,33 @@ public class SequenceHandler extends ElementGroupingHandler {
             return null;
         }
 
-        /**
-         * @see org.geotools.xml.xsi.Sequence#getChildren()
-         */
+        /** @see org.geotools.xml.xsi.Sequence#getChildren() */
         public ElementGrouping[] getChildren() {
             return children;
         }
 
-        /**
-         * @see org.geotools.xml.xsi.Sequence#getId()
-         */
+        /** @see org.geotools.xml.xsi.Sequence#getId() */
         public String getId() {
             return id;
         }
 
-        /**
-         * @see org.geotools.xml.xsi.ElementGrouping#getMaxOccurs()
-         */
+        /** @see org.geotools.xml.xsi.ElementGrouping#getMaxOccurs() */
         public int getMaxOccurs() {
             return maxOccurs;
         }
 
-        /**
-         * @see org.geotools.xml.xsi.ElementGrouping#getMinOccurs()
-         */
+        /** @see org.geotools.xml.xsi.ElementGrouping#getMinOccurs() */
         public int getMinOccurs() {
             return minOccurs;
         }
 
-        /**
-         * @see org.geotools.xml.xsi.ElementGrouping#getGrouping()
-         */
+        /** @see org.geotools.xml.xsi.ElementGrouping#getGrouping() */
         public int getGrouping() {
             return SEQUENCE;
         }
 
-		public Element findChildElement(String localName, URI namespaceURI) {
-			if (children == null) {
+        public Element findChildElement(String localName, URI namespaceURI) {
+            if (children == null) {
                 return null;
             }
 
@@ -320,7 +285,7 @@ public class SequenceHandler extends ElementGroupingHandler {
                 }
             }
 
-			return null;
-		}
+            return null;
+        }
     }
 }

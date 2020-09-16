@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -18,7 +18,6 @@
 package org.geotools.data.gen;
 
 import java.util.NoSuchElementException;
-
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
@@ -26,12 +25,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * @author Christian Muüller
- * 
- * Implementation of {@link FeatureIterator} for {@link PreGeneralizedSimpleFeature}
- *
- *
- *
- * @source $URL$
+ *     <p>Implementation of {@link FeatureIterator} for {@link PreGeneralizedSimpleFeature}
  */
 public class PreGeneralizedFeatureIterator implements SimpleFeatureIterator {
 
@@ -39,16 +33,23 @@ public class PreGeneralizedFeatureIterator implements SimpleFeatureIterator {
 
     protected SimpleFeatureType featureTyp;
 
+    protected SimpleFeatureType returnedFeatureType;
+
     protected String geomPropertyName, backendGeomPropertyName;
 
     protected int[] indexMapping;
 
-    public PreGeneralizedFeatureIterator(SimpleFeatureIterator backendIterator,
-            SimpleFeatureType featureTyp, int indexMapping[], String geomPropertyName,
+    public PreGeneralizedFeatureIterator(
+            SimpleFeatureIterator backendIterator,
+            SimpleFeatureType featureTyp,
+            SimpleFeatureType returnedFeatureType,
+            int indexMapping[],
+            String geomPropertyName,
             String backendGeomPropertyName) {
         super();
         this.backendIterator = backendIterator;
         this.featureTyp = featureTyp;
+        this.returnedFeatureType = returnedFeatureType;
         this.geomPropertyName = geomPropertyName;
         this.backendGeomPropertyName = backendGeomPropertyName;
         this.indexMapping = indexMapping;
@@ -56,7 +57,6 @@ public class PreGeneralizedFeatureIterator implements SimpleFeatureIterator {
 
     public void close() {
         backendIterator.close();
-
     }
 
     public boolean hasNext() {
@@ -65,10 +65,13 @@ public class PreGeneralizedFeatureIterator implements SimpleFeatureIterator {
 
     public SimpleFeature next() throws NoSuchElementException {
         SimpleFeature f = backendIterator.next();
-        if (f == null)
-            return null;
-        return new PreGeneralizedSimpleFeature(featureTyp, indexMapping, f, geomPropertyName,
+        if (f == null) return null;
+        return new PreGeneralizedSimpleFeature(
+                featureTyp,
+                returnedFeatureType,
+                indexMapping,
+                f,
+                geomPropertyName,
                 backendGeomPropertyName);
     }
-
 }

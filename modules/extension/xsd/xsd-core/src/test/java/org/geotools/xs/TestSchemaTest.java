@@ -16,17 +16,11 @@
  */
 package org.geotools.xs;
 
-import org.eclipse.xsd.XSDSimpleTypeDefinition;
 import java.lang.reflect.Field;
 import javax.xml.namespace.QName;
-import org.geotools.xml.ElementInstance;
+import org.eclipse.xsd.XSDSimpleTypeDefinition;
+import org.geotools.xsd.ElementInstance;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class TestSchemaTest extends TestSchema {
     public void testInitialize() {
         assertNotNull(url);
@@ -93,7 +87,7 @@ public class TestSchemaTest extends TestSchema {
             XSDSimpleTypeDefinition aXsd = xsdSimple(name.getLocalPart());
 
             if (aXsd == null) {
-                //System.out.println( "Could not find binding for " + name.getLocalPart() );
+                // System.out.println( "Could not find binding for " + name.getLocalPart() );
             }
         }
     }
@@ -101,8 +95,9 @@ public class TestSchemaTest extends TestSchema {
     public void testElement() {
         ElementInstance element = element(" hello world ", XS.ANYSIMPLETYPE);
         assertEquals(" hello world ", element.getText());
-        assertEquals(xsdSimple(XS.ANYSIMPLETYPE.getLocalPart()),
-            element.getElementDeclaration().getType());
+        assertEquals(
+                xsdSimple(XS.ANYSIMPLETYPE.getLocalPart()),
+                element.getElementDeclaration().getType());
     }
 
     protected QName getQName() {

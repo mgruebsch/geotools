@@ -19,59 +19,40 @@
  */
 package org.geotools.metadata.iso.quality;
 
-import java.util.List;
 import java.util.Arrays;
-import javax.measure.unit.Unit;
-
+import java.util.List;
+import javax.measure.Unit;
 import org.opengis.metadata.quality.QuantitativeResult;
 import org.opengis.util.InternationalString;
 import org.opengis.util.Record;
 import org.opengis.util.RecordType;
 
-
 /**
  * Information about the value (or set of values) obtained from applying a data quality measure.
  *
- *
- *
- * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  * @author Touraïvane
- *
  * @since 2.1
  */
 public class QuantitativeResultImpl extends ResultImpl implements QuantitativeResult {
-    /**
-     * Serial number for compatibility with different versions.
-     */
+    /** Serial number for compatibility with different versions. */
     private static final long serialVersionUID = 1230713599561236060L;
 
-    /**
-     * Quantitative value or values, content determined by the evaluation procedure used.
-     */
+    /** Quantitative value or values, content determined by the evaluation procedure used. */
     private List<Record> values;
 
-    /**
-     * Value type for reporting a data quality result, or {@code null} if none.
-     */
+    /** Value type for reporting a data quality result, or {@code null} if none. */
     private RecordType valueType;
 
-    /**
-     * Value unit for reporting a data quality result, or {@code null} if none.
-     */
+    /** Value unit for reporting a data quality result, or {@code null} if none. */
     private Unit valueUnit;
 
-    /**
-     * Statistical method used to determine the value, or {@code null} if none.
-     */
+    /** Statistical method used to determine the value, or {@code null} if none. */
     private InternationalString errorStatistic;
 
-    /**
-     * Constructs an initially empty quantitative result.
-     */
-    public QuantitativeResultImpl() {
-    }
+    /** Constructs an initially empty quantitative result. */
+    public QuantitativeResultImpl() {}
 
     /**
      * Constructs a metadata entity initialized with the values from the specified metadata.
@@ -82,17 +63,13 @@ public class QuantitativeResultImpl extends ResultImpl implements QuantitativeRe
         super(source);
     }
 
-    /**
-     * Constructs a quantitative result initialized to the specified value.
-     */
+    /** Constructs a quantitative result initialized to the specified value. */
     public QuantitativeResultImpl(final double[] values) {
         setValues(values);
     }
 
-    /**
-     * Quantitative value or values, content determined by the evaluation procedure used.
-     */
-    public synchronized List<Record> getValues() {
+    /** Quantitative value or values, content determined by the evaluation procedure used. */
+    public List<Record> getValues() {
         return values = nonNullList(values, Record.class);
     }
 
@@ -101,20 +78,20 @@ public class QuantitativeResultImpl extends ResultImpl implements QuantitativeRe
      *
      * @since 2.4
      */
-    public synchronized void setValues(final List<Record> newValues) {
+    public void setValues(final List<Record> newValues) {
         values = copyList(newValues, values, Record.class);
     }
 
     /**
      * Set the quantitative value or values, content determined by the evaluation procedure used.
      */
-    public synchronized void setValues(final double[] newValues) {
+    public void setValues(final double[] newValues) {
         final List<Record> records;
         if (newValues == null) {
             records = null;
         } else {
             final Record[] data = new Record[newValues.length];
-            for (int i=0; i<newValues.length; i++) {
+            for (int i = 0; i < newValues.length; i++) {
                 data[i] = new SimpleRecord(newValues[i]);
             }
             records = Arrays.asList(data);
@@ -122,17 +99,16 @@ public class QuantitativeResultImpl extends ResultImpl implements QuantitativeRe
         setValues(records);
     }
 
-    /**
-     * Temporary record implementation will we wait for a real one.
-     *
-     * @deprecated To be replaced by a better implementation as soon as we can.
-     */
+    /** Temporary record implementation will we wait for a real one. */
     private static final class SimpleRecord implements Record, java.io.Serializable {
         private final java.util.Map<org.opengis.util.MemberName, Object> map;
 
         public SimpleRecord(final double value) {
-            map = java.util.Collections.singletonMap((org.opengis.util.MemberName) null, (Object) value);
+            map =
+                    java.util.Collections.singletonMap(
+                            (org.opengis.util.MemberName) null, (Object) value);
         }
+
         public RecordType getRecordType() {
             throw new UnsupportedOperationException();
         }
@@ -163,47 +139,35 @@ public class QuantitativeResultImpl extends ResultImpl implements QuantitativeRe
         }
     }
 
-    /**
-     * Value type for reporting a data quality result, or {@code null} if none.
-     */
-    public RecordType getValueType()  {
+    /** Value type for reporting a data quality result, or {@code null} if none. */
+    public RecordType getValueType() {
         return valueType;
     }
 
-    /**
-     * Set the value type for reporting a data quality result, or {@code null} if none.
-     */
-    public synchronized void setValueType(final RecordType newValue) {
+    /** Set the value type for reporting a data quality result, or {@code null} if none. */
+    public void setValueType(final RecordType newValue) {
         checkWritePermission();
         valueType = newValue;
     }
 
-    /**
-     * Value unit for reporting a data quality result, or {@code null} if none.
-     */
-    public Unit getValueUnit()  {
+    /** Value unit for reporting a data quality result, or {@code null} if none. */
+    public Unit getValueUnit() {
         return valueUnit;
     }
 
-    /**
-     * Set the value unit for reporting a data quality result, or {@code null} if none.
-     */
-    public synchronized void setValueUnit(final Unit newValue) {
+    /** Set the value unit for reporting a data quality result, or {@code null} if none. */
+    public void setValueUnit(final Unit newValue) {
         checkWritePermission();
         valueUnit = newValue;
     }
 
-    /**
-     * Statistical method used to determine the value, or {@code null} if none.
-     */
-    public InternationalString getErrorStatistic()  {
+    /** Statistical method used to determine the value, or {@code null} if none. */
+    public InternationalString getErrorStatistic() {
         return errorStatistic;
     }
 
-    /**
-     * Set the statistical method used to determine the value, or {@code null} if none.
-     */
-    public synchronized void setErrorStatistic(final InternationalString newValue) {
+    /** Set the statistical method used to determine the value, or {@code null} if none. */
+    public void setErrorStatistic(final InternationalString newValue) {
         checkWritePermission();
         errorStatistic = newValue;
     }

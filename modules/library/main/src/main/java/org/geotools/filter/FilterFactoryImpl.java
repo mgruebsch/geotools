@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -27,8 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.geotools.factory.Hints;
-import org.geotools.factory.Hints.Key;
 import org.geotools.filter.capability.ArithmeticOperatorsImpl;
 import org.geotools.filter.capability.ComparisonOperatorsImpl;
 import org.geotools.filter.capability.FilterCapabilitiesImpl;
@@ -45,12 +43,12 @@ import org.geotools.filter.capability.TemporalOperatorImpl;
 import org.geotools.filter.expression.AddImpl;
 import org.geotools.filter.expression.DivideImpl;
 import org.geotools.filter.expression.MultiplyImpl;
-import org.geotools.filter.expression.PropertyAccessorFactory;
 import org.geotools.filter.expression.SubtractImpl;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.filter.identity.FeatureIdVersionedImpl;
 import org.geotools.filter.identity.GmlObjectIdImpl;
 import org.geotools.filter.identity.ResourceIdImpl;
+import org.geotools.filter.spatial.BBOX3DImpl;
 import org.geotools.filter.spatial.BBOXImpl;
 import org.geotools.filter.spatial.BeyondImpl;
 import org.geotools.filter.spatial.ContainsImpl;
@@ -76,16 +74,18 @@ import org.geotools.filter.temporal.OverlappedByImpl;
 import org.geotools.filter.temporal.TContainsImpl;
 import org.geotools.filter.temporal.TEqualsImpl;
 import org.geotools.filter.temporal.TOverlapsImpl;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope3D;
 import org.geotools.referencing.CRS;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
+import org.geotools.util.factory.Factory;
+import org.geotools.util.factory.Hints;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.MultiValuedFilter.MatchAction;
+import org.opengis.filter.NativeFilter;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
@@ -122,7 +122,6 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.expression.Subtract;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.identity.GmlObjectId;
-import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.identity.ResourceId;
 import org.opengis.filter.identity.Version;
 import org.opengis.filter.sort.SortBy;
@@ -156,644 +155,702 @@ import org.opengis.filter.temporal.TOverlaps;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.BoundingBox3D;
 import org.opengis.geometry.Geometry;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.parameter.Parameter;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 import org.xml.sax.helpers.NamespaceSupport;
-import org.geotools.filter.spatial.BBOX3DImpl;
-
-import com.vividsolutions.jts.geom.Envelope;
-
 
 /**
- * Implementation of the FilterFactory, generates the filter implementations in
- * defaultcore.
+ * Implementation of the FilterFactory, generates the filter implementations in defaultcore.
  *
  * @author Ian Turton, CCG
- *
- *
- * @source $URL$
  * @version $Id$
  */
-public class FilterFactoryImpl implements FilterFactory {
-        
+public class FilterFactoryImpl implements Factory, org.opengis.filter.FilterFactory2 {
+
     private FunctionFinder functionFinder;
 
-    /**
-     * Creates a new instance of FilterFactoryImpl
-     */
+    /** Creates a new instance of FilterFactoryImpl */
     public FilterFactoryImpl() {
-        this( null );
+        this(null);
     }
-    public FilterFactoryImpl( Hints hints ){
-        functionFinder = new FunctionFinder( null );
+
+    public FilterFactoryImpl(Hints hints) {
+        functionFinder = new FunctionFinder(null);
     }
 
     public FeatureId featureId(String id) {
-        return new FeatureIdImpl( id );
-    } 
-    
-    public GmlObjectId gmlObjectId(String id) {
-        return new GmlObjectIdImpl( id );
+        return new FeatureIdImpl(id);
     }
-    
+
+    public GmlObjectId gmlObjectId(String id) {
+        return new GmlObjectIdImpl(id);
+    }
+
     /** Creates a new feature id with version information */
-    public FeatureId featureId(String fid, String featureVersion){
+    public FeatureId featureId(String fid, String featureVersion) {
         return new FeatureIdVersionedImpl(fid, featureVersion);
     }
 
     /** ResouceId for identifier based query */
-    public ResourceId resourceId(String fid, String featureVersion, Version version ){
+    public ResourceId resourceId(String fid, String featureVersion, Version version) {
         return new ResourceIdImpl(fid, featureVersion, version);
     }
-    
-    /** ResourceId for time based query */
-    public ResourceId resourceId(String fid, Date startTime, Date endTime){
-        return new ResourceIdImpl(fid, startTime, endTime );
-    }
-    
-    public And and(Filter f, Filter g ) {
-        List/*<Filter>*/ list = new ArrayList/*<Filter>*/( 2 );
-        list.add( f );
-        list.add( g );
-        return new AndImpl( this, list );
-    }
-    
-    public And and(List/*<Filter>*/ filters) {
-        return new AndImpl( this, filters );
-    }
-    
-    public Or or(Filter f, Filter g) {
-        List/*<Filter>*/ list = new ArrayList/*<Filter>*/( 2 );
-        list.add( f );
-        list.add( g );
-        return new OrImpl( this, list );
-    }    
 
-    public Or or(List/*<Filter>*/ filters) {
-        return new OrImpl( this, filters );
+    /** ResourceId for time based query */
+    public ResourceId resourceId(String fid, Date startTime, Date endTime) {
+        return new ResourceIdImpl(fid, startTime, endTime);
     }
-    
+
+    public And and(Filter f, Filter g) {
+        List /*<Filter>*/ list = new ArrayList /*<Filter>*/(2);
+        list.add(f);
+        list.add(g);
+        return new AndImpl(list);
+    }
+
+    public And and(List /*<Filter>*/ filters) {
+        return new AndImpl(filters);
+    }
+
+    public Or or(Filter f, Filter g) {
+        List /*<Filter>*/ list = new ArrayList /*<Filter>*/(2);
+        list.add(f);
+        list.add(g);
+        return new OrImpl(list);
+    }
+
+    public Or or(List /*<Filter>*/ filters) {
+        return new OrImpl(filters);
+    }
+
     /** Java 5 type narrowing used to advertise explicit implementation for chaining */
     public Not /*NotImpl*/ not(Filter filter) {
-        return new NotImpl( this, filter );
+        return new NotImpl(filter);
     }
-    
-    public Id id( Set id ){
-        return new FidFilterImpl( id );
+
+    public Id id(Set id) {
+        return new FidFilterImpl(id);
     }
-    
+
     public Id id(FeatureId... fids) {
         Set<FeatureId> selection = new HashSet<FeatureId>();
-        for( FeatureId featureId : fids ){
-            if( featureId == null ) continue;
-            selection.add( featureId );
+        for (FeatureId featureId : fids) {
+            if (featureId == null) continue;
+            selection.add(featureId);
         }
-        return id( selection );
+        return id(selection);
     }
-    
+
     public PropertyName property(String name) {
         return new AttributeExpressionImpl(name);
     }
 
-    public PropertyIsBetween between(Expression expr, Expression lower,
-            Expression upper) {
-        return new IsBetweenImpl(this,lower,expr,upper);
+    public PropertyIsBetween between(Expression expr, Expression lower, Expression upper) {
+        return new IsBetweenImpl(lower, expr, upper);
     }
-    
-    public PropertyIsBetween between(Expression expr, Expression lower, Expression upper,
-            MatchAction matchAction) {
-        return new IsBetweenImpl(this,lower,expr,upper, matchAction);
-    }    
+
+    public PropertyIsBetween between(
+            Expression expr, Expression lower, Expression upper, MatchAction matchAction) {
+        return new IsBetweenImpl(lower, expr, upper, matchAction);
+    }
 
     public PropertyIsEqualTo equals(Expression expr1, Expression expr2) {
-        return equal( expr1,expr2,true);
+        return equal(expr1, expr2, true);
     }
-    
+
     public PropertyIsEqualTo equal(Expression expr1, Expression expr2, boolean matchCase) {
-        return new IsEqualsToImpl(this,expr1,expr2,matchCase); 
+        return new IsEqualsToImpl(expr1, expr2, matchCase);
     }
-    
-    public PropertyIsEqualTo equal(Expression expr1, Expression expr2, boolean matchCase,
-            MatchAction matchAction) {
-        return new IsEqualsToImpl(this,expr1,expr2,matchCase,matchAction);
+
+    public PropertyIsEqualTo equal(
+            Expression expr1, Expression expr2, boolean matchCase, MatchAction matchAction) {
+        return new IsEqualsToImpl(expr1, expr2, matchCase, matchAction);
     }
-    
+
     public PropertyIsNotEqualTo notEqual(Expression expr1, Expression expr2) {
-            return notEqual(expr1, expr2, false );
+        return notEqual(expr1, expr2, false);
     }
-    
+
     public PropertyIsNotEqualTo notEqual(Expression expr1, Expression expr2, boolean matchCase) {
-        return new IsNotEqualToImpl(this,expr1,expr2,matchCase);
+        return new IsNotEqualToImpl(expr1, expr2, matchCase);
     }
-    
-    public PropertyIsNotEqualTo notEqual(Expression expr1, Expression expr2, boolean matchCase,
-            MatchAction matchAction) {
-        return new IsNotEqualToImpl(this,expr1,expr2,matchCase,matchAction);
+
+    public PropertyIsNotEqualTo notEqual(
+            Expression expr1, Expression expr2, boolean matchCase, MatchAction matchAction) {
+        return new IsNotEqualToImpl(expr1, expr2, matchCase, matchAction);
     }
-    
+
     public PropertyIsGreaterThan greater(Expression expr1, Expression expr2) {
-        return greater(expr1,expr2,false);
+        return greater(expr1, expr2, false);
     }
-    
+
     public PropertyIsGreaterThan greater(Expression expr1, Expression expr2, boolean matchCase) {
-        return new IsGreaterThanImpl(this, expr1, expr2);
+        return new IsGreaterThanImpl(expr1, expr2);
     }
-    
-    public PropertyIsGreaterThan greater(Expression expr1, Expression expr2, boolean matchCase,
-            MatchAction matchAction) {
-        return new IsGreaterThanImpl(this, expr1, expr2, matchAction);
+
+    public PropertyIsGreaterThan greater(
+            Expression expr1, Expression expr2, boolean matchCase, MatchAction matchAction) {
+        return new IsGreaterThanImpl(expr1, expr2, matchAction);
     }
-    
-    public PropertyIsGreaterThanOrEqualTo greaterOrEqual(Expression expr1,
-            Expression expr2) {
-        return greaterOrEqual(expr1,expr2,false);
+
+    public PropertyIsGreaterThanOrEqualTo greaterOrEqual(Expression expr1, Expression expr2) {
+        return greaterOrEqual(expr1, expr2, false);
     }
-    
-    public PropertyIsGreaterThanOrEqualTo greaterOrEqual(Expression expr1,
-                        Expression expr2, boolean matchCase) {
-        return new IsGreaterThanOrEqualToImpl(this,expr1,expr2,matchCase);
+
+    public PropertyIsGreaterThanOrEqualTo greaterOrEqual(
+            Expression expr1, Expression expr2, boolean matchCase) {
+        return new IsGreaterThanOrEqualToImpl(expr1, expr2, matchCase);
     }
-    
-    public PropertyIsGreaterThanOrEqualTo greaterOrEqual(Expression expr1, Expression expr2,
-            boolean matchCase, MatchAction matchAction) {
-        return new IsGreaterThanOrEqualToImpl(this,expr1,expr2,matchCase,matchAction);
+
+    public PropertyIsGreaterThanOrEqualTo greaterOrEqual(
+            Expression expr1, Expression expr2, boolean matchCase, MatchAction matchAction) {
+        return new IsGreaterThanOrEqualToImpl(expr1, expr2, matchCase, matchAction);
     }
 
     public PropertyIsLessThan less(Expression expr1, Expression expr2) {
-        return less(expr1,expr2,false);
-    }
-    
-    public PropertyIsLessThan less(Expression expr1, Expression expr2,
-                    boolean matchCase) {
-        return new IsLessThenImpl(this,expr1,expr2,matchCase);
-    }
-    
-    public PropertyIsLessThan less(Expression expr1, Expression expr2,
-            boolean matchCase, MatchAction matchAction) {
-        return new IsLessThenImpl(this,expr1,expr2,matchCase,matchAction);
+        return less(expr1, expr2, false);
     }
 
-    public PropertyIsLessThanOrEqualTo lessOrEqual(Expression expr1,
-            Expression expr2) {
-        return lessOrEqual(expr1,expr2,false);
+    public PropertyIsLessThan less(Expression expr1, Expression expr2, boolean matchCase) {
+        return new IsLessThenImpl(expr1, expr2, matchCase);
     }
-    
-    public PropertyIsLessThanOrEqualTo lessOrEqual(Expression expr1,
-                        Expression expr2, boolean matchCase) {
-        return new IsLessThenOrEqualToImpl(this,expr1,expr2,false);
+
+    public PropertyIsLessThan less(
+            Expression expr1, Expression expr2, boolean matchCase, MatchAction matchAction) {
+        return new IsLessThenImpl(expr1, expr2, matchCase, matchAction);
     }
-    
-    public PropertyIsLessThanOrEqualTo lessOrEqual(Expression expr1, Expression expr2,
-            boolean matchCase, MatchAction matchAction) {
-        return new IsLessThenOrEqualToImpl(this,expr1,expr2,false, matchAction);        
+
+    public PropertyIsLessThanOrEqualTo lessOrEqual(Expression expr1, Expression expr2) {
+        return lessOrEqual(expr1, expr2, false);
     }
-    
+
+    public PropertyIsLessThanOrEqualTo lessOrEqual(
+            Expression expr1, Expression expr2, boolean matchCase) {
+        return new IsLessThenOrEqualToImpl(expr1, expr2, false);
+    }
+
+    public PropertyIsLessThanOrEqualTo lessOrEqual(
+            Expression expr1, Expression expr2, boolean matchCase, MatchAction matchAction) {
+        return new IsLessThenOrEqualToImpl(expr1, expr2, false, matchAction);
+    }
+
     public PropertyIsLike like(Expression expr, String pattern) {
-        return like(expr,pattern,"*","?","\\");
+        return like(expr, pattern, "*", "?", "\\");
     }
 
-    public PropertyIsLike like(Expression expr, String pattern,
-            String wildcard, String singleChar, String escape) {
-        return like( expr, pattern, wildcard, singleChar, escape, false );
+    public PropertyIsLike like(
+            Expression expr, String pattern, String wildcard, String singleChar, String escape) {
+        return like(expr, pattern, wildcard, singleChar, escape, false);
     }
-    public PropertyIsLike like(Expression expr, String pattern,
-                        String wildcard, String singleChar, String escape, boolean matchCase) {
-            LikeFilterImpl filter = new LikeFilterImpl();
+
+    public PropertyIsLike like(
+            Expression expr,
+            String pattern,
+            String wildcard,
+            String singleChar,
+            String escape,
+            boolean matchCase) {
+        LikeFilterImpl filter = new LikeFilterImpl();
         filter.setExpression(expr);
-        filter.setPattern(pattern,wildcard,singleChar,escape);
-        filter.setMatchingCase( matchCase );
-        
+
+        filter.setLiteral(pattern);
+        filter.setWildCard(wildcard);
+        filter.setSingleChar(singleChar);
+        filter.setEscape(escape);
+        filter.setMatchingCase(matchCase);
+
         return filter;
     }
-    
-    public PropertyIsLike like(Expression expr, String pattern, String wildcard, String singleChar,
-            String escape, boolean matchCase, MatchAction matchAction) {
+
+    public PropertyIsLike like(
+            Expression expr,
+            String pattern,
+            String wildcard,
+            String singleChar,
+            String escape,
+            boolean matchCase,
+            MatchAction matchAction) {
         LikeFilterImpl filter = new LikeFilterImpl(matchAction);
         filter.setExpression(expr);
-        filter.setPattern(pattern,wildcard,singleChar,escape);
-        filter.setMatchingCase( matchCase );
-        
+
+        filter.setLiteral(pattern);
+        filter.setWildCard(wildcard);
+        filter.setSingleChar(singleChar);
+        filter.setEscape(escape);
+        filter.setMatchingCase(matchCase);
+
         return filter;
     }
 
-    /**
-     * XXX Java 5 type narrowing used to make generated class explicit for chaining
-     */
+    /** XXX Java 5 type narrowing used to make generated class explicit for chaining */
     public PropertyIsNull /*IsNullImpl*/ isNull(Expression expr) {
-        return new IsNullImpl( this, expr );
+        return new IsNullImpl(expr);
     }
 
     public PropertyIsNil isNil(Expression expr, Object nilReason) {
-        return new IsNilImpl(this, expr, nilReason);
+        return new IsNilImpl(expr, nilReason);
     }
 
     /**
-     * Checks if the bounding box of the feature's geometry overlaps the
-     * specified bounding box.
-     * <p>
-     * Similar to:
-     * <code>
+     * Checks if the bounding box of the feature's geometry overlaps the specified bounding box.
+     *
+     * <p>Similar to: <code>
      * geom().disjoint( geom( bbox )).not()
      * </code>
-     * </p>
      */
-    public BBOX bbox(String propertyName, double minx, double miny,
-            double maxx, double maxy, String srs) {
-        
+    public BBOX bbox(
+            String propertyName, double minx, double miny, double maxx, double maxy, String srs) {
+
         PropertyName name = property(propertyName);
         return bbox(name, minx, miny, maxx, maxy, srs);
     }
 
-    public BBOX bbox( Expression geometry, Expression bounds ) {
-        return new BBOXImpl(this, geometry, bounds );
+    public BBOX bbox(Expression geometry, Expression bounds) {
+        return new BBOXImpl(geometry, bounds);
     }
-    
-    public BBOX bbox( Expression geometry, BoundingBox bounds ) {
-    	if (bounds instanceof BoundingBox3D) {
-    		return bbox(geometry, (BoundingBox3D) bounds);
-    	} else {
-	        return bbox2d( geometry, bounds, MatchAction.ANY );
-    	}
+
+    public BBOX bbox(Expression geometry, Expression bounds, MatchAction machAction) {
+        if (bounds instanceof Literal) {
+            Object value = ((Literal) bounds).getValue();
+            if (value instanceof BoundingBox3D) {
+                return bbox(geometry, (BoundingBox3D) value, machAction);
+            } else if (value instanceof org.locationtech.jts.geom.Geometry
+                    && geometry instanceof PropertyName) {
+                org.locationtech.jts.geom.Geometry g = (org.locationtech.jts.geom.Geometry) value;
+                if (g.getUserData() instanceof CoordinateReferenceSystem) {
+                    CoordinateReferenceSystem crs = (CoordinateReferenceSystem) g.getUserData();
+                    ReferencedEnvelope3D envelope = (ReferencedEnvelope3D) JTS.bounds(g, crs);
+                    return new BBOX3DImpl((PropertyName) geometry, envelope, this);
+                }
+            }
+        }
+        return new BBOXImpl(geometry, bounds, machAction);
     }
-    
+
+    public BBOX bbox(Expression geometry, BoundingBox bounds) {
+        if (bounds instanceof BoundingBox3D) {
+            return bbox(geometry, (BoundingBox3D) bounds);
+        } else {
+            return bbox2d(geometry, bounds, MatchAction.ANY);
+        }
+    }
+
     public BBOX bbox(Expression geometry, BoundingBox bounds, MatchAction matchAction) {
-    	if (bounds instanceof BoundingBox3D) {
-    		return bbox(geometry, (BoundingBox3D) bounds);
-    	} else {
-    		return bbox2d( geometry, bounds, matchAction );
-    	}
-                
+        if (bounds instanceof BoundingBox3D) {
+            return bbox(geometry, (BoundingBox3D) bounds);
+        } else {
+            return bbox2d(geometry, bounds, matchAction);
+        }
     }
-    
-    private BBOXImpl bbox2d (Expression e, BoundingBox bounds, MatchAction matchAction) {    	       
-    	PropertyName name = null;
-        if ( e instanceof PropertyName ) {
+
+    private BBOXImpl bbox2d(Expression e, BoundingBox bounds, MatchAction matchAction) {
+        PropertyName name = null;
+        if (e instanceof PropertyName) {
             name = (PropertyName) e;
+        } else {
+            throw new IllegalArgumentException("BBOX requires PropertyName expression");
         }
-        else {
-            throw new IllegalArgumentException();
-        }
-        
+
         Literal bbox = null;
         try {
-            bbox = createBBoxExpression (ReferencedEnvelope.reference(bounds));
-        } 
-        catch (IllegalFilterException ife) {
-            new IllegalArgumentException().initCause(ife);
+            ReferencedEnvelope env = ReferencedEnvelope.reference(bounds);
+            bbox = literal(env);
+        } catch (IllegalFilterException ife) {
+            new IllegalArgumentException("Unable to convert to Polygon:" + bounds).initCause(ife);
         }
-        
-        return new BBOXImpl(this,name,bbox, matchAction);
+
+        return new BBOXImpl(name, bbox, matchAction);
     }
-    
-    public BBOX bbox(String propertyName, double minx, double miny, double maxx, double maxy,
-            String srs, MatchAction matchAction) {
+
+    public BBOX bbox(
+            String propertyName,
+            double minx,
+            double miny,
+            double maxx,
+            double maxy,
+            String srs,
+            MatchAction matchAction) {
         PropertyName name = property(propertyName);
         return bbox(name, minx, miny, maxx, maxy, srs, matchAction);
     }
-    
-    public BBOX bbox(Expression geometry, double minx, double miny, double maxx, double maxy, String srs) {
+
+    public BBOX bbox(
+            Expression geometry, double minx, double miny, double maxx, double maxy, String srs) {
         return bbox(geometry, minx, miny, maxx, maxy, srs, MatchAction.ANY);
     }
-    
 
-    public BBOX bbox(Expression e, double minx, double miny, double maxx, double maxy, String srs, MatchAction matchAction) {
-    	
-    	BBOXImpl box = bbox2d (e, new ReferencedEnvelope(minx,maxx,miny,maxy,null), matchAction);        
-        box.setSRS(srs);
-        
+    public BBOX bbox(
+            Expression e,
+            double minx,
+            double miny,
+            double maxx,
+            double maxy,
+            String srs,
+            MatchAction matchAction) {
+
+        BBOXImpl box = null;
+        try {
+            CoordinateReferenceSystem crs;
+            if (srs == null || srs.isEmpty()) {
+                crs = null;
+            } else {
+                try {
+                    crs = CRS.decode(srs);
+                } catch (MismatchedDimensionException ex) {
+                    throw new RuntimeException(ex);
+                } catch (NoSuchAuthorityCodeException ex) {
+                    crs = CRS.parseWKT(srs);
+                }
+            }
+            box = bbox2d(e, new ReferencedEnvelope(minx, maxx, miny, maxy, crs), matchAction);
+        } catch (FactoryException e1) {
+            throw new RuntimeException("Failed to setup bbox SRS", e1);
+        }
+
         return box;
     }
-        
+
     public BBOX3D bbox(String propertyName, BoundingBox3D env) {
         return bbox(property(propertyName), env, MatchAction.ANY);
     }
-    
+
     public BBOX3D bbox(String propertyName, BoundingBox3D env, MatchAction matchAction) {
-    	return bbox(property(propertyName), env, matchAction);
+        return bbox(property(propertyName), env, matchAction);
     }
-        
+
     public BBOX3D bbox(Expression geometry, BoundingBox3D env) {
         return bbox(geometry, env, MatchAction.ANY);
     }
-           
+
     public BBOX3D bbox(Expression e, BoundingBox3D env, MatchAction matchAction) {
-    	PropertyName name = null;
-        if ( e instanceof PropertyName ) {
+        PropertyName name = null;
+        if (e instanceof PropertyName) {
             name = (PropertyName) e;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException();
         }
-        
-        return new BBOX3DImpl(name, new ReferencedEnvelope3D(env), this);  
-    }
-    
-    public Beyond beyond(String propertyName, Geometry geometry,
-            double distance, String units) {
-        
-        PropertyName name = property(propertyName);
-        Literal geom = literal(geometry);
-          
-        return beyond( name, geom, distance, units );
+
+        return new BBOX3DImpl(name, new ReferencedEnvelope3D(env), this);
     }
 
-    public Beyond beyond(String propertyName, Geometry geometry, double distance, String units,
-                MatchAction matchAction) {
+    public Beyond beyond(String propertyName, Geometry geometry, double distance, String units) {
+
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-          
-        return beyond( name, geom, distance, units, matchAction );
+
+        return beyond(name, geom, distance, units);
     }
-    
-    public Beyond beyond( 
-        Expression geometry1, Expression geometry2, double distance, String units
-    ) {
-        
-        BeyondImpl beyond = new BeyondImpl(this,geometry1,geometry2);
-        beyond.setDistance(distance);
-        beyond.setUnits(units);
-        
-        return beyond;
-    }
-    
-    public Beyond beyond(Expression geometry1, Expression geometry2, double distance, String units,
+
+    public Beyond beyond(
+            String propertyName,
+            Geometry geometry,
+            double distance,
+            String units,
             MatchAction matchAction) {
-        BeyondImpl beyond = new BeyondImpl(this,geometry1,geometry2,matchAction);
+        PropertyName name = property(propertyName);
+        Literal geom = literal(geometry);
+
+        return beyond(name, geom, distance, units, matchAction);
+    }
+
+    public Beyond beyond(
+            Expression geometry1, Expression geometry2, double distance, String units) {
+
+        BeyondImpl beyond = new BeyondImpl(geometry1, geometry2);
         beyond.setDistance(distance);
         beyond.setUnits(units);
-        
+
         return beyond;
     }
-    
+
+    public Beyond beyond(
+            Expression geometry1,
+            Expression geometry2,
+            double distance,
+            String units,
+            MatchAction matchAction) {
+        BeyondImpl beyond = new BeyondImpl(geometry1, geometry2, matchAction);
+        beyond.setDistance(distance);
+        beyond.setUnits(units);
+
+        return beyond;
+    }
+
     public Contains contains(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return contains( name, geom );
+
+        return contains(name, geom);
     }
-    
+
     public Contains contains(Expression geometry1, Expression geometry2) {
-        return new ContainsImpl( this, geometry1, geometry2 );
+        return new ContainsImpl(geometry1, geometry2);
     }
-    
+
     public Contains contains(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new ContainsImpl( this, geometry1, geometry2, matchAction );
+        return new ContainsImpl(geometry1, geometry2, matchAction);
     }
-    
+
     public Contains contains(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return contains( name, geom, matchAction );
+
+        return contains(name, geom, matchAction);
     }
 
     public Crosses crosses(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return crosses( name, geom );
+
+        return crosses(name, geom);
     }
-    
+
     public Crosses crosses(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return crosses( name, geom, matchAction );
+
+        return crosses(name, geom, matchAction);
     }
-    
+
     public Crosses crosses(Expression geometry1, Expression geometry2) {
-        return new CrossesImpl( this, geometry1, geometry2 );
+        return new CrossesImpl(geometry1, geometry2);
     }
-    
+
     public Crosses crosses(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new CrossesImpl( this, geometry1, geometry2 , matchAction );
+        return new CrossesImpl(geometry1, geometry2, matchAction);
     }
 
     public Disjoint disjoint(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return disjoint( name, geom );
+
+        return disjoint(name, geom);
     }
-    
+
     public Disjoint disjoint(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return disjoint( name, geom, matchAction );
+
+        return disjoint(name, geom, matchAction);
     }
-    
+
     public Disjoint disjoint(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new DisjointImpl( this, geometry1, geometry2, matchAction );
+        return new DisjointImpl(geometry1, geometry2, matchAction);
     }
-    
+
     public Disjoint disjoint(Expression geometry1, Expression geometry2) {
-        return new DisjointImpl( this, geometry1, geometry2 );
+        return new DisjointImpl(geometry1, geometry2);
     }
-    
-    public DWithin dwithin(String propertyName, Geometry geometry,
-            double distance, String units) {
+
+    public DWithin dwithin(String propertyName, Geometry geometry, double distance, String units) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return dwithin( name, geom, distance, units );
+
+        return dwithin(name, geom, distance, units);
     }
-    
-    public DWithin dwithin(String propertyName, Geometry geometry, double distance, String units,
+
+    public DWithin dwithin(
+            String propertyName,
+            Geometry geometry,
+            double distance,
+            String units,
             MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return dwithin( name, geom, distance, units, matchAction );
+
+        return dwithin(name, geom, distance, units, matchAction);
     }
-    
-    public DWithin dwithin(Expression geometry1, Expression geometry2, double distance,
-            String units, MatchAction matchAction) {
-        DWithinImpl dwithin =  new DWithinImpl( this, geometry1, geometry2, matchAction );
-        dwithin.setDistance( distance );
-        dwithin.setUnits( units );
-        
+
+    public DWithin dwithin(
+            Expression geometry1,
+            Expression geometry2,
+            double distance,
+            String units,
+            MatchAction matchAction) {
+        DWithinImpl dwithin = new DWithinImpl(geometry1, geometry2, matchAction);
+        dwithin.setDistance(distance);
+        dwithin.setUnits(units);
+
         return dwithin;
     }
 
-    public DWithin dwithin(Expression geometry1, Expression geometry2, double distance, String units) {
-        DWithinImpl dwithin =  new DWithinImpl( this, geometry1, geometry2 );
-        dwithin.setDistance( distance );
-        dwithin.setUnits( units );
-        
+    public DWithin dwithin(
+            Expression geometry1, Expression geometry2, double distance, String units) {
+        DWithinImpl dwithin = new DWithinImpl(geometry1, geometry2);
+        dwithin.setDistance(distance);
+        dwithin.setUnits(units);
+
         return dwithin;
     }
-    
+
     public Equals equals(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return equal( name, geom );
+
+        return equal(name, geom);
     }
-    
+
     public Equals equals(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return equal( name, geom, matchAction );
+
+        return equal(name, geom, matchAction);
     }
-    
+
     public Equals equal(Expression geometry1, Expression geometry2) {
-        return new EqualsImpl( this, geometry1, geometry2 );
+        return new EqualsImpl(geometry1, geometry2);
     }
-    
+
     public Equals equal(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new EqualsImpl( this, geometry1, geometry2, matchAction );
+        return new EqualsImpl(geometry1, geometry2, matchAction);
     }
 
     public Intersects intersects(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return intersects( name, geom );
+
+        return intersects(name, geom);
     }
-    
+
     public Intersects intersects(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return intersects( name, geom, matchAction );
+
+        return intersects(name, geom, matchAction);
     }
 
     public Intersects intersects(Expression geometry1, Expression geometry2) {
-        return new IntersectsImpl( this, geometry1, geometry2 );
+        return new IntersectsImpl(geometry1, geometry2);
     }
-    
-    public Intersects intersects(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new IntersectsImpl( this, geometry1, geometry2, matchAction );
+
+    public Intersects intersects(
+            Expression geometry1, Expression geometry2, MatchAction matchAction) {
+        return new IntersectsImpl(geometry1, geometry2, matchAction);
     }
-    
+
     public Overlaps overlaps(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return overlaps( name, geom );
+
+        return overlaps(name, geom);
     }
-    
+
     public Overlaps overlaps(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return overlaps( name, geom, matchAction );
+
+        return overlaps(name, geom, matchAction);
     }
 
     public Overlaps overlaps(Expression geometry1, Expression geometry2) {
-        return new OverlapsImpl( this, geometry1, geometry2 );
+        return new OverlapsImpl(geometry1, geometry2);
     }
-    
+
     public Overlaps overlaps(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new OverlapsImpl( this, geometry1, geometry2, matchAction );
+        return new OverlapsImpl(geometry1, geometry2, matchAction);
     }
-    
+
     public Touches touches(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return touches( name, geom );
+
+        return touches(name, geom);
     }
-    
+
     public Touches touches(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return touches( name, geom, matchAction );
+
+        return touches(name, geom, matchAction);
     }
 
     public Touches touches(Expression geometry1, Expression geometry2) {
-        return new TouchesImpl(this,geometry1,geometry2);
+        return new TouchesImpl(geometry1, geometry2);
     }
-    
+
     public Touches touches(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new TouchesImpl(this,geometry1,geometry2, matchAction);
+        return new TouchesImpl(geometry1, geometry2, matchAction);
     }
-    
+
     public Within within(String propertyName, Geometry geometry) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return within( name, geom );
+
+        return within(name, geom);
     }
-    
+
     public Within within(String propertyName, Geometry geometry, MatchAction matchAction) {
         PropertyName name = property(propertyName);
         Literal geom = literal(geometry);
-        
-        return within( name, geom, matchAction );
+
+        return within(name, geom, matchAction);
     }
 
     public Within within(Expression geometry1, Expression geometry2) {
-        return new WithinImpl( this, geometry1, geometry2 );
+        return new WithinImpl(geometry1, geometry2);
     }
-    
+
     public Within within(Expression geometry1, Expression geometry2, MatchAction matchAction) {
-        return new WithinImpl( this, geometry1, geometry2, matchAction );
+        return new WithinImpl(geometry1, geometry2, matchAction);
     }
-    
+
     public Add add(Expression expr1, Expression expr2) {
-        return new AddImpl(expr1,expr2);
+        return new AddImpl(expr1, expr2);
     }
 
     public Divide divide(Expression expr1, Expression expr2) {
-        return new DivideImpl(expr1,expr2);
+        return new DivideImpl(expr1, expr2);
     }
 
     public Multiply multiply(Expression expr1, Expression expr2) {
-        return new MultiplyImpl(expr1,expr2);
+        return new MultiplyImpl(expr1, expr2);
     }
 
     public Subtract subtract(Expression expr1, Expression expr2) {
-        return new SubtractImpl(expr1,expr2);
+        return new SubtractImpl(expr1, expr2);
     }
 
     public Function function(String name, Expression[] args) {
-        Function function = functionFinder.findFunction( name, Arrays.asList(args) );
+        Function function = functionFinder.findFunction(name, Arrays.asList(args));
         return function;
     }
 
     public Function function(Name name, Expression... args) {
-        Function function = functionFinder.findFunction( name, Arrays.asList(args) );
+        Function function = functionFinder.findFunction(name, Arrays.asList(args));
         return function;
     }
 
     public Function function(String name, Expression arg1) {
-        Function function = functionFinder.findFunction( name, Arrays.asList( new Expression[]{ arg1 } ) );
+        Function function =
+                functionFinder.findFunction(name, Arrays.asList(new Expression[] {arg1}));
         return function;
     }
 
     public Function function(String name, Expression arg1, Expression arg2) {
-        Function function = 
-                functionFinder.findFunction( name, Arrays.asList( new Expression[]{ arg1, arg2 }) );
+        Function function =
+                functionFinder.findFunction(name, Arrays.asList(new Expression[] {arg1, arg2}));
         return function;
     }
 
-    /** @deprecated Pending see org.opengis.filter.Factory2 */
-    public Function function(String name, List<org.opengis.filter.expression.Expression> parameters, Literal fallback ){
-        Function function = 
-                functionFinder.findFunction( name, parameters, fallback );
-        
-        return function;        
+    public Function function(String name, Expression arg1, Expression arg2, Expression arg3) {
+        Function function =
+                functionFinder.findFunction(
+                        name, Arrays.asList(new Expression[] {arg1, arg2, arg3}));
+
+        return function;
     }
-    public Function function(String name, Expression arg1, Expression arg2,
-            Expression arg3) {
-        Function function = 
-                functionFinder.findFunction( name, Arrays.asList( new Expression[]{ arg1, arg2, arg3 }) );
-        
-        return function;        
-    }
-    
+
     public Literal literal(Object obj) {
         try {
             return new LiteralExpressionImpl(obj);
-        } 
-        catch (IllegalFilterException e) {
+        } catch (IllegalFilterException e) {
             new IllegalArgumentException().initCause(e);
         }
-        
+
         return null;
     }
 
@@ -826,452 +883,18 @@ public class FilterFactoryImpl implements FilterFactory {
     }
 
     public Literal literal(boolean b) {
-        return b ? new LiteralExpressionImpl( Boolean.TRUE ) : new LiteralExpressionImpl( Boolean.FALSE );
+        return b
+                ? new LiteralExpressionImpl(Boolean.TRUE)
+                : new LiteralExpressionImpl(Boolean.FALSE);
     }
 
-    
-    /**
-     * Creates an AttributeExpression using the supplied xpath.
-     * <p>
-     * The supplied xpath can be used to query a varity of
-     * content - most notably Features.
-     * </p>
-     * @return The new Attribtue Expression
-     */
-    public AttributeExpression createAttributeExpression( String xpath){
-        return new AttributeExpressionImpl( xpath );
-    }
-    /**
-     * Creates a Attribute Expression with an initial schema.
-     *
-     * @param schema the schema to create with.
-     *
-     * @return The new Attribute Expression.
-     */
-    public AttributeExpression createAttributeExpression(SimpleFeatureType schema) {
-        return new AttributeExpressionImpl(schema);
+    public Map getImplementationHints() {
+        return Collections.EMPTY_MAP;
     }
 
-    /**
-     * Creates a Attribute Expression given a schema and attribute path.
-     *
-     * @param schema the schema to get the attribute from.
-     * @param path the xPath of the attribute to compare.
-     *
-     * @return The new Attribute Expression.
-     *
-     * @throws IllegalFilterException if there were creation problems.
-     */
-    public AttributeExpression createAttributeExpression(SimpleFeatureType schema,
-            String path) throws IllegalFilterException {
-            return new AttributeExpressionImpl(schema, path);
-        }
-    public AttributeExpression createAttributeExpression(AttributeDescriptor at) throws IllegalFilterException {
-            return new AttributeExpressionImpl2(at);
-        }
-
-    /**
-     * Creates a BBox Expression from an envelope.
-     *
-     * @param env the envelope to use for this bounding box.
-     *
-     * @return The newly created BBoxExpression.
-     *
-     * @throws IllegalFilterException if there were creation problems.
-     */
-    public BBoxExpression createBBoxExpression(Envelope env)
-        throws IllegalFilterException {
-        return new BBoxExpressionImpl(env);
+    public SortBy sort(String propertyName, SortOrder order) {
+        return new SortByImpl(property(propertyName), order);
     }
-    
-    /**
-     * Creates an empty Between Filter.
-     *
-     * @return The new Between Filter.
-     *
-     * @throws IllegalFilterException if there were creation problems.
-     */
-    public BetweenFilter createBetweenFilter() throws IllegalFilterException {
-        return new BetweenFilterImpl();
-    }
-
-    /**
-     * Creates a new compare filter of the given type.
-     *
-     * @param type the type of comparison - must be a compare type.
-     *
-     * @return The new compare filter.
-     *
-     * @throws IllegalFilterException if there were creation problems.
-     * 
-     * @deprecated @see org.geotools.filter.FilterFactory#createCompareFilter(short)
-     */
-    public CompareFilter createCompareFilter(short type)
-        throws IllegalFilterException {
-        
-        switch(type) {
-                case FilterType.COMPARE_EQUALS:
-                        return new IsEqualsToImpl(this);
-                        
-                case FilterType.COMPARE_NOT_EQUALS:
-                        return new IsNotEqualToImpl(this);
-                        
-                case FilterType.COMPARE_GREATER_THAN:
-                        return new IsGreaterThanImpl(this);
-                        
-                case FilterType.COMPARE_GREATER_THAN_EQUAL:
-                        return new IsGreaterThanOrEqualToImpl(this);
-                        
-                case FilterType.COMPARE_LESS_THAN:
-                        return new IsLessThenImpl(this);
-                        
-                case FilterType.COMPARE_LESS_THAN_EQUAL:
-                        return new IsLessThenOrEqualToImpl(this);
-                        
-                case FilterType.BETWEEN:
-                        return new BetweenFilterImpl(this);
-        }
-        
-        throw new IllegalFilterException("Must be one of <,<=,==,>,>=,<>");
-    }
-
-    /**
-     * Creates a new Fid Filter with no initial fids.
-     *
-     * @return The new Fid Filter.
-     */
-    public FidFilter createFidFilter() {
-        return new FidFilterImpl();
-    }
-
-    /**
-     * Creates a Fid Filter with an initial fid.
-     *
-     * @param fid the feature ID to create with.
-     *
-     * @return The new FidFilter.
-     */
-    public FidFilter createFidFilter(String fid) {
-        return new FidFilterImpl(fid);
-    }
-
-    /**
-     * Creates a Geometry Filter.
-     *
-     * @param filterType the type to create, must be a geometry type.
-     *
-     * @return The new Geometry Filter.
-     *
-     * @throws IllegalFilterException if the filterType is not a geometry.
-     */
-    public GeometryFilter createGeometryFilter(short filterType)
-        throws IllegalFilterException {
-        switch(filterType) {
-                case FilterType.GEOMETRY_EQUALS:
-                        return new EqualsImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_DISJOINT:
-                        return new DisjointImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_DWITHIN:
-                        return new DWithinImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_INTERSECTS:
-                        return new IntersectsImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_CROSSES:
-                        return new CrossesImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_WITHIN:
-                        return new WithinImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_CONTAINS:
-                        return new ContainsImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_OVERLAPS:
-                        return new OverlapsImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_BEYOND:
-                        return new BeyondImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_BBOX:
-                        return new BBOXImpl(this,null,null);
-                        
-                case FilterType.GEOMETRY_TOUCHES:
-                        return new TouchesImpl(this,null,null);
-        }
-       
-        throw new IllegalFilterException("Not one of the accepted spatial filter types.");
-    }
-
-    /**
-     * Creates a Geometry Distance Filter
-     *
-     * @param filterType the type to create, must be beyond or dwithin.
-     *
-     * @return The new  Expression
-     *
-     * @throws IllegalFilterException if the filterType is not a geometry
-     *         distance type.
-     */
-    public GeometryDistanceFilter createGeometryDistanceFilter(short filterType)
-        throws IllegalFilterException {
-        
-        switch(filterType) {
-                        case FilterType.GEOMETRY_BEYOND:
-                                return new BeyondImpl(this,null,null);
-                                
-                        case FilterType.GEOMETRY_DWITHIN:
-                                return new DWithinImpl(this,null,null);
-                        
-        }
-   
-        throw new IllegalFilterException("Not one of the accepted spatial filter types.");
-        
-    }
-
-    /**
-     * Creates a Like Filter.
-     *
-     * @return The new Like Filter.
-     */
-    public LikeFilter createLikeFilter() {
-        return new LikeFilterImpl();
-    }
-
-    /**
-     * Creates an empty Literal Expression
-     *
-     * @return The new Literal Expression.
-     */
-    public LiteralExpression createLiteralExpression() {
-        return new LiteralExpressionImpl();
-    }
-
-    /**
-     * Creates a Literal Expression from an Object.
-     *
-     * @param o the object to serve as the literal.
-     *
-     * @return The new Literal Expression
-     *
-     * @throws IllegalFilterException if there were creation problems.
-     */
-    public LiteralExpression createLiteralExpression(Object o)
-        throws IllegalFilterException {
-        return new LiteralExpressionImpl(o);
-    }
-
-    /**
-     * Creates an Integer Literal Expression.
-     *
-     * @param i the int to serve as literal.
-     *
-     * @return The new Literal Expression
-     */
-    public LiteralExpression createLiteralExpression(int i) {
-        return new LiteralExpressionImpl(i);
-    }
-
-    /**
-     * Creates a Double Literal Expression
-     *
-     * @param d the double to serve as the literal.
-     *
-     * @return The new Literal Expression
-     */
-    public LiteralExpression createLiteralExpression(double d) {
-        return new LiteralExpressionImpl(d);
-    }
-
-    /**
-     * Creates a String Literal Expression
-     *
-     * @param s the string to serve as the literal.
-     *
-     * @return The new Literal Expression
-     */
-    public LiteralExpression createLiteralExpression(String s) {
-        return new LiteralExpressionImpl(s);
-    }
-
-    /**
-     * Creates an empty logic filter from a type.
-     *
-     * @param filterType must be a logic type.
-     *
-     * @return the newly constructed logic filter.
-     *
-     * @throws IllegalFilterException If there were any problems creating the
-     *         filter, including wrong type.
-     *         
-     * @deprecated use one of {@link org.opengis.filter.FilterFactory#and(Filter, Filter)}
-     *  {@link org.opengis.filter.FilterFactory#or(Filter, Filter)}
-     *  {@link org.opengis.filter.FilterFactory#not(Filter)}
-     */
-    public LogicFilter createLogicFilter(short filterType)
-        throws IllegalFilterException {
-        
-        List children = new ArrayList();
-        switch (filterType) {
-                case FilterType.LOGIC_AND:
-                        return new AndImpl(this,children);
-                case FilterType.LOGIC_OR:
-                        return new OrImpl(this,children);
-                case FilterType.LOGIC_NOT:
-                        return new NotImpl(this);
-        }       
-        throw new IllegalFilterException("Must be one of AND,OR,NOT.");
-    }
-
-    /**
-     * Creates a logic filter with an initial filter.
-     *
-     * @param filter the initial filter to set.
-     * @param filterType Must be a logic type.
-     *
-     * @return the newly constructed logic filter.
-     *
-     * @throws IllegalFilterException If there were any problems creating the
-     *         filter, including wrong type.
-     *         
-     * @deprecated use one of {@link org.opengis.filter.FilterFactory#and(Filter, Filter)}
-     *  {@link org.opengis.filter.FilterFactory#or(Filter, Filter)}
-     *  {@link org.opengis.filter.FilterFactory#not(Filter)}
-     */
-    public LogicFilter createLogicFilter(org.geotools.filter.Filter filter, short filterType)
-        throws IllegalFilterException {
-        
-        List children = new ArrayList();
-        children.add(filter);
-        
-        switch (filterType) {
-                case FilterType.LOGIC_AND:
-                        return new AndImpl(this,children);
-                case FilterType.LOGIC_OR:
-                        return new OrImpl(this,children);
-                case FilterType.LOGIC_NOT:
-                        return new NotImpl(this,filter);
-        }
-        
-        throw new IllegalFilterException("Must be one of AND,OR,NOT.");
-    }
-
-    
-    /**
-     * Creates a logic filter from two filters and a type.
-     *
-     * @param filter1 the first filter to join.
-     * @param filter2 the second filter to join.
-     * @param filterType must be a logic type.
-     *
-     * @return the newly constructed logic filter.
-     *
-     * @throws IllegalFilterException If there were any problems creating the
-     *         filter, including wrong type.
-     *         
-     * @deprecated use one of {@link org.opengis.filter.FilterFactory#and(Filter, Filter)}
-     *  {@link org.opengis.filter.FilterFactory#or(Filter, Filter)}
-     *  {@link org.opengis.filter.FilterFactory#not(Filter)}
-     */
-    public LogicFilter createLogicFilter(org.geotools.filter.Filter  filter1, org.geotools.filter.Filter filter2,
-        short filterType) throws IllegalFilterException {
-        
-        List children = new ArrayList();
-        children.add(filter1);
-        children.add(filter2);
-        
-        switch (filterType) {
-                case FilterType.LOGIC_AND:
-                        return new AndImpl(this,children);
-                case FilterType.LOGIC_OR:
-                        return new OrImpl(this,children);
-                case FilterType.LOGIC_NOT:
-                        //TODO: perhaps throw an exception here?
-                        return new NotImpl(this,filter1);
-        }
-        
-        throw new IllegalFilterException("Must be one of AND,OR,NOT.");
-    }
-    
-    
-
-    /**
-     * Creates a Math Expression
-     *
-     * @return The new Math Expression
-     * 
-     * @deprecated use one of
-     *  {@link org.opengis.filter.FilterFactory#add(Expression, Expression)}
-     *  {@link org.opengis.filter.FilterFactory#subtract(Expression, Expression)}
-     *  {@link org.opengis.filter.FilterFactory#multiply(Expression, Expression)}
-     *  {@link org.opengis.filter.FilterFactory#divide(Expression, Expression)}
-     * 
-     */
-    public MathExpression createMathExpression() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Creates a Math Expression of the given type.
-     *
-     * @param expressionType must be a math expression type.
-     *
-     * @return The new Math Expression.
-     *
-     * @throws IllegalFilterException if there were creation problems.
-     */
-    public MathExpression createMathExpression(short expressionType)
-        throws IllegalFilterException {
-        
-        switch(expressionType) {
-                case ExpressionType.MATH_ADD:
-                        return new AddImpl(null,null);
-                case ExpressionType.MATH_SUBTRACT:
-                        return new SubtractImpl(null,null);
-                case ExpressionType.MATH_MULTIPLY:
-                        return new MultiplyImpl(null,null);
-                case ExpressionType.MATH_DIVIDE:
-                        return new DivideImpl(null,null);
-        }       
-        
-        throw new IllegalFilterException("Unsupported math expression");
-    }
-
-    /**
-     * Creates a Function Expression.
-     *
-     * @param name the function name.
-     *
-     * @return The new Function Expression.
-     */
-    public FunctionExpression createFunctionExpression(String name) {
-        return (FunctionExpression) functionFinder.findFunction( name );
-    }
-
-    /**
-     * Creates an empty Null Filter.
-     *
-     * @return The new Null Filter.
-     */
-    public NullFilter createNullFilter() {
-        return new NullFilterImpl();
-    }
-    
-    public EnvironmentVariable createEnvironmentVariable(String name){
-        if(name.equalsIgnoreCase("MapScaleDenominator")){
-            return new MapScaleDenominatorImpl();
-        }
-         throw new RuntimeException("Unknown environment variable:" + name);
-    }
-
-        public Map getImplementationHints() {
-                return Collections.EMPTY_MAP;
-        }
-        
-        public SortBy sort(String propertyName, SortOrder order) {
-                return new SortByImpl( property( propertyName ), order );
-        }
 
     public After after(Expression expr1, Expression expr2) {
         return new AfterImpl(expr1, expr2);
@@ -1385,124 +1008,145 @@ public class FilterFactoryImpl implements FilterFactory {
         return new TOverlapsImpl(expr1, expr2, matchAction);
     }
 
-    public org.geotools.filter.Filter and( org.geotools.filter.Filter filter1, org.geotools.filter.Filter filter2 ) {
-        return (org.geotools.filter.Filter) and( (Filter) filter1, (Filter) filter2 );         
-    } 
+    //    public org.geotools.filter.Filter and( org.geotools.filter.Filter filter1,
+    // org.geotools.filter.Filter filter2 ) {
+    //        return (org.geotools.filter.Filter) and( (Filter) filter1, (Filter) filter2 );
+    //    }
+    //
+    //    public org.geotools.filter.Filter not( org.geotools.filter.Filter filter ) {
+    //        return (org.geotools.filter.Filter) not( (Filter) filter );
+    //    }
+    //
+    //    public org.geotools.filter.Filter or( org.geotools.filter.Filter filter1,
+    // org.geotools.filter.Filter filter2 ) {
+    //        return (org.geotools.filter.Filter) or( (Filter) filter1, (Filter) filter2 );
+    //    }
 
-    public org.geotools.filter.Filter not( org.geotools.filter.Filter filter ) {
-        return (org.geotools.filter.Filter) not( (Filter) filter );
+    public Beyond beyond(Expression geometry1, Geometry geometry2, double distance, String units) {
+        return beyond(geometry1, literal(geometry2), distance, units);
     }
 
-    public org.geotools.filter.Filter or( org.geotools.filter.Filter filter1, org.geotools.filter.Filter filter2 ) {
-        return (org.geotools.filter.Filter) or( (Filter) filter1, (Filter) filter2 );
+    public PropertyName property(Name name) {
+        return new AttributeExpressionImpl(name);
     }
-    
-    public Beyond beyond( Expression geometry1, Geometry geometry2, double distance, String units ) {
-        return beyond( geometry1, literal( geometry2), distance, units );        
-    }
-    public PropertyName property( Name name ) {
-        return new AttributeExpressionImpl( name );
-    }
-    public PropertyName property( String name, NamespaceSupport namespaceContext ) {
+
+    public PropertyName property(String name, NamespaceSupport namespaceContext) {
         if (namespaceContext == null) {
             return property(name);
         }
-        return new AttributeExpressionImpl(name, namespaceContext );
-    }
-    public Within within( Expression geometry1, Geometry geometry2 ) {
-        return within( geometry1, literal( geometry2 ));
-    }
-    
-    public Operator operator(String name) {
-        return new OperatorImpl( name );
-    }
-    
-    public SpatialOperator spatialOperator(
-            String name, GeometryOperand[] geometryOperands) {
-        return new SpatialOperatorImpl( name, geometryOperands );
-    }
-    
-    public TemporalOperator temporalOperator(String name) {
-        return new TemporalOperatorImpl(name); 
+        return new AttributeExpressionImpl(name, namespaceContext);
     }
 
-    public <T> Parameter<T> parameter(String name, Class<T> type, InternationalString title, 
-        InternationalString description, boolean required, int minOccurs, int maxOccurs, T defaultValue) {
-        return new org.geotools.data.Parameter<T>(name, type, title, description, required, 
-            minOccurs, maxOccurs, defaultValue, null);
+    public Within within(Expression geometry1, Geometry geometry2) {
+        return within(geometry1, literal(geometry2));
+    }
+
+    public Operator operator(String name) {
+        return new OperatorImpl(name);
+    }
+
+    public SpatialOperator spatialOperator(String name, GeometryOperand[] geometryOperands) {
+        return new SpatialOperatorImpl(name, geometryOperands);
+    }
+
+    public TemporalOperator temporalOperator(String name) {
+        return new TemporalOperatorImpl(name);
+    }
+
+    public <T> Parameter<T> parameter(
+            String name,
+            Class<T> type,
+            InternationalString title,
+            InternationalString description,
+            boolean required,
+            int minOccurs,
+            int maxOccurs,
+            T defaultValue) {
+        return new org.geotools.data.Parameter<T>(
+                name, type, title, description, required, minOccurs, maxOccurs, defaultValue, null);
     };
 
     public FunctionName functionName(String name, int nargs) {
-        return new FunctionNameImpl( name, nargs );
+        return new FunctionNameImpl(name, nargs);
     }
 
     @Override
     public FunctionName functionName(Name name, int nargs) {
-        return new FunctionNameImpl( name, nargs );
+        return new FunctionNameImpl(name, nargs);
     }
 
-    public FunctionName functionName(String name, int nargs, List<String> argNames ){
-        return new FunctionNameImpl( name, nargs, argNames );
+    public FunctionName functionName(String name, int nargs, List<String> argNames) {
+        return new FunctionNameImpl(name, nargs, argNames);
     }
 
     @Override
     public FunctionName functionName(Name name, int nargs, List<String> argNames) {
-        return new FunctionNameImpl( name, nargs, argNames );
+        return new FunctionNameImpl(name, nargs, argNames);
     }
-    
+
     public FunctionName functionName(String name, List<Parameter<?>> args, Parameter<?> ret) {
-        return new FunctionNameImpl( name, ret, args );
+        return new FunctionNameImpl(name, ret, args);
     }
 
     @Override
     public FunctionName functionName(Name name, List<Parameter<?>> args, Parameter<?> ret) {
-        return new FunctionNameImpl( name, ret, args );
+        return new FunctionNameImpl(name, ret, args);
     }
 
     public Functions functions(FunctionName[] functionNames) {
-        return new FunctionsImpl( functionNames );
-    }
-    
-    public SpatialOperators spatialOperators(SpatialOperator[] spatialOperators) {
-        return new SpatialOperatorsImpl( spatialOperators );
-    }
-    
-    public ArithmeticOperators arithmeticOperators(boolean simple, Functions functions ) {
-        return new ArithmeticOperatorsImpl( simple, functions );
-    }
-    
-    public ComparisonOperators comparisonOperators(Operator[] comparisonOperators) {
-        return new ComparisonOperatorsImpl( comparisonOperators );
-    }
-    
-    public FilterCapabilities capabilities(String version,
-            ScalarCapabilities scalar, SpatialCapabilities spatial,
-            IdCapabilities id) {
-        return new FilterCapabilitiesImpl( version, scalar, spatial, id );
+        return new FunctionsImpl(functionNames);
     }
 
-    public FilterCapabilities capabilities(String version, ScalarCapabilities scalar,
-            SpatialCapabilities spatial, IdCapabilities id, TemporalCapabilities temporal) {
+    public SpatialOperators spatialOperators(SpatialOperator[] spatialOperators) {
+        return new SpatialOperatorsImpl(spatialOperators);
+    }
+
+    public ArithmeticOperators arithmeticOperators(boolean simple, Functions functions) {
+        return new ArithmeticOperatorsImpl(simple, functions);
+    }
+
+    public ComparisonOperators comparisonOperators(Operator[] comparisonOperators) {
+        return new ComparisonOperatorsImpl(comparisonOperators);
+    }
+
+    public FilterCapabilities capabilities(
+            String version,
+            ScalarCapabilities scalar,
+            SpatialCapabilities spatial,
+            IdCapabilities id) {
+        return new FilterCapabilitiesImpl(version, scalar, spatial, id);
+    }
+
+    public FilterCapabilities capabilities(
+            String version,
+            ScalarCapabilities scalar,
+            SpatialCapabilities spatial,
+            IdCapabilities id,
+            TemporalCapabilities temporal) {
         return new FilterCapabilitiesImpl(version, scalar, spatial, id, temporal);
     }
-    
+
     public ScalarCapabilities scalarCapabilities(
-            ComparisonOperators comparison, ArithmeticOperators arithmetic,
+            ComparisonOperators comparison,
+            ArithmeticOperators arithmetic,
             boolean logicalOperators) {
-        return new ScalarCapabilitiesImpl( comparison, arithmetic, logicalOperators );
+        return new ScalarCapabilitiesImpl(comparison, arithmetic, logicalOperators);
     }
-    
+
     public SpatialCapabilities spatialCapabilities(
-            GeometryOperand[] geometryOperands,
-            SpatialOperators spatial) {
-        return new SpatialCapabiltiesImpl( geometryOperands, spatial );
+            GeometryOperand[] geometryOperands, SpatialOperators spatial) {
+        return new SpatialCapabiltiesImpl(geometryOperands, spatial);
     }
-    
+
     public IdCapabilities idCapabilities(boolean eid, boolean fid) {
-        return new IdCapabilitiesImpl( eid, fid );
+        return new IdCapabilitiesImpl(eid, fid);
     }
 
     public TemporalCapabilities temporalCapabilities(TemporalOperator[] temporalOperators) {
         return new TemporalCapabilitiesImpl(Arrays.asList(temporalOperators));
+    }
+
+    public NativeFilter nativeFilter(String nativeFilter) {
+        return new NativeFilterImpl(nativeFilter);
     }
 }

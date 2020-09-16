@@ -16,18 +16,11 @@
  */
 package org.geotools.filter.v1_0.capabilities;
 
-import org.w3c.dom.Document;
 import javax.xml.namespace.QName;
-import org.opengis.filter.capability.ScalarCapabilities;
+import org.geotools.xsd.Binding;
 import org.opengis.filter.capability.SpatialOperators;
-import org.geotools.xml.Binding;
+import org.w3c.dom.Document;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class Spatial_OperatorsTypeBindingTest extends FilterCapabilitiesTestSupport {
     public void testType() {
         assertEquals(SpatialOperators.class, binding(OGC.Spatial_OperatorsType).getType());
@@ -56,8 +49,11 @@ public class Spatial_OperatorsTypeBindingTest extends FilterCapabilitiesTestSupp
     }
 
     public void testEncode() throws Exception {
-        Document dom = encode(FilterMockData.spatial(),
-                new QName(OGC.NAMESPACE, "Spatial_Operators"), OGC.Spatial_OperatorsType);
+        Document dom =
+                encode(
+                        FilterMockData.spatial(),
+                        new QName(OGC.NAMESPACE, "Spatial_Operators"),
+                        OGC.Spatial_OperatorsType);
 
         assertNotNull(getElementByQName(dom, OGC.BBOX));
         assertNotNull(getElementByQName(dom, OGC.Equals));

@@ -19,23 +19,21 @@ package org.geotools.sld.bindings;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-import org.geotools.xml.Text;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.geotools.xsd.Text;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.picocontainer.MutablePicoContainer;
-
 
 /**
  * Binding object for the type http://www.opengis.net/sld:ParameterValueType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="ParameterValueType" mixed="true"&gt;
  *      &lt;xsd:annotation&gt;
@@ -51,13 +49,8 @@ import org.picocontainer.MutablePicoContainer;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class SLDParameterValueTypeBinding extends AbstractComplexBinding {
     FilterFactory filterFactory;
@@ -66,14 +59,13 @@ public class SLDParameterValueTypeBinding extends AbstractComplexBinding {
         this.filterFactory = filterFactory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return SLD.PARAMETERVALUETYPE;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -84,6 +76,7 @@ public class SLDParameterValueTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -94,47 +87,45 @@ public class SLDParameterValueTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {
-    }
+    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {}
 
     /**
+     *
      * <!-- begin-user-doc -->
-     * Even though the spec allows an instance of ParamterValueType to have
-     * multiple expressions as children, it is more often that there is only
-     * one. Therefore this binding returns the first expression it finds or
-     * null. If a subtype needs multiple expressions they should ovveride.
+     * Even though the spec allows an instance of ParamterValueType to have multiple expressions as
+     * children, it is more often that there is only one. Therefore this binding returns the first
+     * expression it finds or null. If a subtype needs multiple expressions they should ovveride.
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
 
         List<Expression> expressions = new ArrayList();
-        for (Iterator itr = node.getChildren().iterator(); itr.hasNext();) {
+        for (Iterator itr = node.getChildren().iterator(); itr.hasNext(); ) {
             Node child = (Node) itr.next();
 
             if (child.getValue() instanceof Expression) {
                 expressions.add((Expression) child.getValue());
-            }
-            else if (child.getValue() instanceof Text) {
-                expressions.add(filterFactory.literal(((Text)child.getValue()).getValue()));
+            } else if (child.getValue() instanceof Text) {
+                expressions.add(filterFactory.literal(((Text) child.getValue()).getValue()));
             }
         }
-        
+
         if (expressions.isEmpty()) {
             return null;
         }
         if (expressions.size() == 1) return (Expression) expressions.get(0);
-      
+
         Expression e = expressions.get(0);
         for (int i = 1; i < expressions.size(); i++) {
-              e = filterFactory.function("strConcat", new Expression[]{e, expressions.get(i)});
+            e = filterFactory.function("strConcat", new Expression[] {e, expressions.get(i)});
         }
 
         return e;

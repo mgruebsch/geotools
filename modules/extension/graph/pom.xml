@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>extension</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
 
 
@@ -29,12 +29,6 @@
   <name>Feature Based Graphs and Networks</name>
   
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/graph/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/extension/graph/</url>
-  </scm>
 
   <description>
     Graph classes that builds and walk networks based on Feature relationships.
@@ -74,6 +68,16 @@
       <id>jdeolive</id>
       <email>jdeolive@users.sourceforge.net</email>
       <organization>Refractions Research</organization>
+      <roles>
+        <role>Java Developer</role>
+        <role>Module Maintainer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>Astun Technology</organization>
       <roles>
         <role>Java Developer</role>
         <role>Module Maintainer</role>

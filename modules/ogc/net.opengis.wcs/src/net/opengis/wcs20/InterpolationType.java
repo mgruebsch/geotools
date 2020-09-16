@@ -19,31 +19,30 @@ public interface InterpolationType extends EObject {
     public InterpolationMethodType getInterpolationMethod();
     
     /**
-     * Sets the value of the '{@link net.opengis.wcs20.InterpolationType#getInterpolationMethod <em>Interpolation Method</em>}' reference.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.wcs20.InterpolationType#getInterpolationMethod <em>Interpolation Method</em>}' reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Interpolation Method</em>' reference.
-     * @see #getInterpolationMethod()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Interpolation Method</em>' reference.
+	 * @see #getInterpolationMethod()
+	 * @generated
+	 */
     void setInterpolationMethod(InterpolationMethodType value);
 
     /**
      * Interpolation method on a per axis basis
      * 
      * @model
-     * @return
      */
     public InterpolationAxesType getInterpolationAxes();
 
     /**
-     * Sets the value of the '{@link net.opengis.wcs20.InterpolationType#getInterpolationAxes <em>Interpolation Axes</em>}' reference.
-     * <!-- begin-user-doc -->
+	 * Sets the value of the '{@link net.opengis.wcs20.InterpolationType#getInterpolationAxes <em>Interpolation Axes</em>}' reference.
+	 * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Interpolation Axes</em>' reference.
-     * @see #getInterpolationAxes()
-     * @generated
-     */
+	 * @param value the new value of the '<em>Interpolation Axes</em>' reference.
+	 * @see #getInterpolationAxes()
+	 * @generated
+	 */
     void setInterpolationAxes(InterpolationAxesType value);
 
    

@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2005-2013, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2005-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,8 @@ package org.geotools.image.palette;
 
 import static org.junit.Assert.*;
 
+import it.geosolutions.jaiext.colorindexer.ColorIndexer;
+import it.geosolutions.jaiext.colorindexer.Quantizer;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -25,17 +27,12 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
-
 import javax.media.jai.PlanarImage;
-
+import org.geotools.image.ImageWorker;
 import org.geotools.image.test.ImageAssert;
 import org.junit.Test;
 
 public class QuantizerTest {
-
-    static {
-        ColorIndexerDescriptor.register();
-    }
 
     @Test
     public void testThreeColors() {
@@ -56,7 +53,7 @@ public class QuantizerTest {
         assertEquals(3, icm.getNumComponents());
 
         // quantize and check
-        RenderedImage indexed = ColorIndexerDescriptor.create(bi, indexer, null);
+        RenderedImage indexed = new ImageWorker(bi).colorIndex(indexer).getRenderedImage();
         IndexColorModel icm2 = (IndexColorModel) indexed.getColorModel();
         assertEquals(icm, icm2);
 
@@ -80,7 +77,7 @@ public class QuantizerTest {
         assertEquals(3, icm.getNumComponents());
 
         // quantize and check
-        RenderedImage indexed = ColorIndexerDescriptor.create(bi, indexer, null);
+        RenderedImage indexed = new ImageWorker(bi).colorIndex(indexer).getRenderedImage();
         IndexColorModel icm2 = (IndexColorModel) indexed.getColorModel();
         assertEquals(icm, icm2);
         assertImagesSimilar(bi, indexed, 0);
@@ -103,7 +100,7 @@ public class QuantizerTest {
         assertEquals(3, icm.getNumComponents());
 
         // quantize and check
-        RenderedImage indexed = ColorIndexerDescriptor.create(bi, indexer, null);
+        RenderedImage indexed = new ImageWorker(bi).colorIndex(indexer).getRenderedImage();
         IndexColorModel icm2 = (IndexColorModel) indexed.getColorModel();
         assertEquals(icm, icm2);
         assertImagesSimilar(bi, indexed, 2); // allow a very small color difference
@@ -135,7 +132,7 @@ public class QuantizerTest {
         assertEquals(4, icm.getNumComponents());
 
         // quantize and check
-        RenderedImage indexed = ColorIndexerDescriptor.create(bi, indexer, null);
+        RenderedImage indexed = new ImageWorker(bi).colorIndex(indexer).getRenderedImage();
         IndexColorModel icm2 = (IndexColorModel) indexed.getColorModel();
         assertEquals(icm, icm2);
 
@@ -150,8 +147,9 @@ public class QuantizerTest {
         final int SIZE = 100;
         BufferedImage bi = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D gr = bi.createGraphics();
-        gr.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON));
+        gr.setRenderingHints(
+                new RenderingHints(
+                        RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
         for (int s = 0; s < SIZE; s++) {
             int arcw = SIZE * s / SIZE;
             int arch = SIZE * s / SIZE;
@@ -173,7 +171,7 @@ public class QuantizerTest {
         assertEquals(4, icm.getNumComponents());
 
         // quantize and check
-        RenderedImage indexed = ColorIndexerDescriptor.create(bi, indexer, null);
+        RenderedImage indexed = new ImageWorker(bi).colorIndex(indexer).getRenderedImage();
         IndexColorModel icm2 = (IndexColorModel) indexed.getColorModel();
         assertEquals(icm, icm2);
 
@@ -182,16 +180,12 @@ public class QuantizerTest {
     }
 
     /**
-     * Checks two images are visually equal given a certain maximum color distance. For a
-     * better tool you might want to check out {@link ImageAssert}, but that works only with RGB
-     * images, this one is color model independent
-     * 
-     * @param image1
-     * @param image2
-     * @param maxColorDistance
+     * Checks two images are visually equal given a certain maximum color distance. For a better
+     * tool you might want to check out {@link ImageAssert}, but that works only with RGB images,
+     * this one is color model independent
      */
-    private void assertImagesSimilar(RenderedImage image1, RenderedImage image2,
-            int maxColorDistance) {
+    private void assertImagesSimilar(
+            RenderedImage image1, RenderedImage image2, int maxColorDistance) {
         assertEquals(image1.getWidth(), image2.getWidth());
         assertEquals(image1.getHeight(), image2.getHeight());
 
@@ -218,12 +212,15 @@ public class QuantizerTest {
                 int dg = g1 - g2;
                 int db = b1 - b2;
                 int da = a1 - a2;
-                double d = Math.sqrt((1.5 * dr * dr + 2 * dg * dg + db * db + 2 * da * da) / (1.5 + 2 + 1 + 2));
-                assertTrue("Color distance " + d + " excessive for pixels " + i + "," + j,
+                double d =
+                        Math.sqrt(
+                                (1.5 * dr * dr + 2 * dg * dg + db * db + 2 * da * da)
+                                        / (1.5 + 2 + 1 + 2));
+                assertTrue(
+                        "Color distance " + d + " excessive for pixels " + i + "," + j,
                         d <= maxColorDistance);
             }
         }
-
     }
 
     private BufferedImage toBufferedImage(RenderedImage ri) {
@@ -233,5 +230,4 @@ public class QuantizerTest {
             return PlanarImage.wrapRenderedImage(ri).getAsBufferedImage();
         }
     }
-
 }

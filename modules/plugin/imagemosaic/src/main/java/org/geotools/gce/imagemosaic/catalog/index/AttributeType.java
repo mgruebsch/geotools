@@ -22,12 +22,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for attributeType complex type.
- * 
+ * Java class for attributeType complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="attributeType">
  *   &lt;complexContent>
@@ -40,27 +39,23 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "attributeType", propOrder = {
-    "attribute"
-})
+@XmlType(
+    name = "attributeType",
+    propOrder = {"attribute"}
+)
 public class AttributeType {
 
     @XmlElement(required = true)
     protected String attribute;
-    @XmlAttribute
-    protected String collectorRef;
+
+    @XmlAttribute protected String collectorRef;
 
     /**
      * Gets the value of the attribute property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
      */
     public String getAttribute() {
         return attribute;
@@ -68,11 +63,8 @@ public class AttributeType {
 
     /**
      * Sets the value of the attribute property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setAttribute(String value) {
         this.attribute = value;
@@ -80,11 +72,8 @@ public class AttributeType {
 
     /**
      * Gets the value of the collectorRef property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
      */
     public String getCollectorRef() {
         return collectorRef;
@@ -92,14 +81,10 @@ public class AttributeType {
 
     /**
      * Sets the value of the collectorRef property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setCollectorRef(String value) {
         this.collectorRef = value;
     }
-
 }

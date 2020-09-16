@@ -17,16 +17,16 @@
 package org.geotools.xs.bindings;
 
 import javax.xml.namespace.QName;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.SimpleBinding;
 import org.geotools.xs.XS;
-
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.SimpleBinding;
 
 /**
  * Binding object for the type http://www.w3.org/2001/XMLSchema:negativeInteger.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xs:simpleType name="negativeInteger" id="negativeInteger"&gt;
  *      &lt;xs:annotation&gt;
@@ -39,23 +39,17 @@ import org.geotools.xs.XS;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class XSNegativeIntegerBinding implements SimpleBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return XS.NEGATIVEINTEGER;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -66,6 +60,7 @@ public class XSNegativeIntegerBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * This method returns objects of type {@link Number}.
      * <!-- end-user-doc -->
@@ -79,32 +74,31 @@ public class XSNegativeIntegerBinding implements SimpleBinding {
     /**
      *
      * <!-- begin-user-doc -->
-     * This method returns objects of type {@link Number}. The value returned
-     * is negative.
+     * This method returns objects of type {@link Number}. The value returned is negative.
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(InstanceComponent instance, Object value)
-        throws Exception {
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
         Number number = (Number) value;
 
         if (number.longValue() == 0) {
-            throw new IllegalArgumentException("negativeInteger value '" + number
-                + "' required to be negative");
+            throw new IllegalArgumentException(
+                    "negativeInteger value '" + number + "' required to be negative");
         }
 
         return number;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
     public String encode(Object object, String value) {
-        //TODO: implement
+        // TODO: implement
         return null;
     }
 }

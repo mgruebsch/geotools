@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
@@ -15,11 +15,6 @@ import org.geotools.data.shapefile.ShapefileDirectoryFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * 
- *
- * @source $URL$
- */
 public class DirectoryDataStoreFactoryTest extends DirectoryTestSupport {
     private static final String DESTDIR = "dir with spaces";
 
@@ -29,10 +24,10 @@ public class DirectoryDataStoreFactoryTest extends DirectoryTestSupport {
         copyShapefiles("shapes/archsites.shp", DESTDIR);
         tempDir = f.getParentFile();
     }
-    
+
     @Test
     public void testSpi() throws Exception {
-        Map params = new HashMap();
+        Map<String, Serializable> params = new HashMap<>();
         params.put(ShapefileDataStoreFactory.URLP.key, tempDir.toURI().toURL());
         params.put(ShapefileDataStoreFactory.NAMESPACEP.key, "http://www.geotools.org");
         DataStore store = DataStoreFinder.getDataStore(params);
@@ -40,10 +35,10 @@ public class DirectoryDataStoreFactoryTest extends DirectoryTestSupport {
         assertEquals(2, store.getNames().size());
         store.dispose();
     }
-    
+
     @Test
     public void testSpaces() throws Exception {
-        Map params = new HashMap();
+        Map<String, Serializable> params = new HashMap<>();
         params.put(ShapefileDataStoreFactory.URLP.key, tempDir.toURI().toURL());
         params.put(ShapefileDataStoreFactory.NAMESPACEP.key, "http://www.geotools.org");
         ShapefileDirectoryFactory factory = new ShapefileDirectoryFactory();
@@ -53,16 +48,16 @@ public class DirectoryDataStoreFactoryTest extends DirectoryTestSupport {
         assertEquals(2, store.getNames().size());
         store.dispose();
     }
-    
+
     @Test
     public void testSpacesPlainToURL() throws Exception {
-        Map params = new HashMap();
+        Map<String, Serializable> params = new HashMap<>();
         params.put(ShapefileDataStoreFactory.URLP.key, tempDir.toURI().toURL());
         params.put(ShapefileDataStoreFactory.NAMESPACEP.key, "http://www.geotools.org");
         ShapefileDirectoryFactory factory = new ShapefileDirectoryFactory();
         assertTrue(factory.canProcess(params));
         DataStore store = factory.createDataStore(params);
-		assertNotNull(store);
-		store.dispose();
+        assertNotNull(store);
+        store.dispose();
     }
 }

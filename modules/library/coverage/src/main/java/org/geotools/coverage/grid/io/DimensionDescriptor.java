@@ -16,51 +16,33 @@
  */
 package org.geotools.coverage.grid.io;
 
-
 /**
- * Describes a "dimension" exposed by a structured grid coverage reader. 
- * 
+ * Describes a "dimension" exposed by a structured grid coverage reader.
+ *
  * @author Simone Giannecchini, GeoSolutions SAS
  * @author Andrea Aime, GeoSolutions SAS
  * @author Daniele Romagnoli, GeoSolutions SAS
- * 
  */
 public interface DimensionDescriptor {
 
-    /**
-    * The dimension name
-    *
-    * @return
-    */
-   String getName();
+    public static final String TIME = "time";
+    public static final String CRS = "crs";
+    public static final String RESOLUTION = "resolution";
+    public static final String RESOLUTION_X = "resolution_x";
+    public static final String RESOLUTION_Y = "resolution_y";
 
-   /**
-    * The dimension unit symbol
-    *
-    * @return
-    */
-   String getUnitSymbol();
+    /** The dimension name */
+    String getName();
 
-   /**
-    * The dimension units
-    *
-    * @return
-    */
-   String getUnits();
+    /** The dimension unit symbol */
+    String getUnitSymbol();
 
-   /**
-    * The start attribute 
-    *
-    * @return
-    */
-   String getStartAttribute();
+    /** The dimension units */
+    String getUnits();
 
-   /**
-    * The end attribute (In case of dimensions with ranges) 
-    *
-    * @return
-    */
-   String getEndAttribute();
+    /** The start attribute */
+    String getStartAttribute();
 
+    /** The end attribute (In case of dimensions with ranges) */
+    String getEndAttribute();
 }
-

@@ -17,34 +17,26 @@
 package org.geotools.data.joining;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
 import org.geotools.data.Query;
+import org.geotools.data.complex.FeatureTypeMapping;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.sort.SortBy;
 
 /**
- * 
  * Special Query that includes joining information
- * 
+ *
  * @author Niels Charlier (Curtin University of Technology)
- *
- *
- * @source $URL$
  */
 public class JoiningQuery extends Query {
-    
-    // true if idExpression has been mapped to a database column
-    // false if it's a string constant or has been omitted, and PK should be used if available
-    private boolean hasIdColumn;
-    
-    public static class QueryJoin {
-        protected String joiningTypeName;    
-        protected Expression foreignKeyName;    
+
+    public static class QueryJoin extends JoiningQuery {
+        protected String joiningTypeName;
+        protected Expression foreignKeyName;
         protected Expression joiningKeyName;
         protected SortBy[] sortBy;
-        protected List<String> ids = new ArrayList<String>(); 
-                
+
         public String getJoiningTypeName() {
             return joiningTypeName;
         }
@@ -55,10 +47,6 @@ public class JoiningQuery extends Query {
 
         public Expression getForeignKeyName() {
             return foreignKeyName;
-        }
-        
-        public SortBy[] getSortBy() {
-            return sortBy;
         }
 
         public void setForeignKeyName(Expression foreignKeyName) {
@@ -72,62 +60,84 @@ public class JoiningQuery extends Query {
         public void setJoiningKeyName(Expression joiningKeyName) {
             this.joiningKeyName = joiningKeyName;
         }
-        
-        public void setSortBy(SortBy[] sortBy){
-            this.sortBy = sortBy;
-        }
-        
-        public void addId(String pn) {
-            this.ids.add(pn);
-        }
-        
-        public List<String> getIds() {
-            return ids;
-        }
     }
-    
+
     protected List<QueryJoin> queryJoins;
-    
+
     /*
      * True if the query shouldn't join to the table to find other rows with same id. This is in
      * case of there's a filter for multi-valued properties for timeseries. This is a requirement
      * for timeseries to return a subset instead of full features.
      */
     private boolean isSubset;
-    
+
+    private boolean isDenormalised;
+
+    protected List<String> ids;
+
+    FeatureTypeMapping rootMapping;
+
     public JoiningQuery(JoiningQuery query) {
         super(query);
-        this.hasIdColumn = query.hasIdColumn;
         setQueryJoins(query.getQueryJoins());
         setSubset(query.isSubset);
+        isDenormalised = query.isDenormalised;
+        ids = query.ids;
     }
-    
-    public JoiningQuery(Query query, boolean hasIdColumn){
+
+    public JoiningQuery(Query query) {
         super(query);
-        this.hasIdColumn = hasIdColumn;
+        ids = new ArrayList<String>();
     }
-    
+
     public JoiningQuery() {
-    }   
-    
-    public void setQueryJoins(List<QueryJoin> queryJoins){
+        ids = new ArrayList<String>();
+    }
+
+    public void setQueryJoins(List<QueryJoin> queryJoins) {
         this.queryJoins = queryJoins;
     }
-    
-    public List<QueryJoin> getQueryJoins(){
+
+    public List<QueryJoin> getQueryJoins() {
+        if (queryJoins == null) {
+            return Collections.EMPTY_LIST;
+        }
         return queryJoins;
     }
-    
+
     public void setSubset(boolean isSubset) {
         this.isSubset = isSubset;
     }
-    
+
     public boolean isSubset() {
         return isSubset;
     }
-    
+
     public boolean hasIdColumn() {
-        return hasIdColumn;
+        return !ids.isEmpty();
     }
 
+    public void addId(String pn) {
+        this.ids.add(pn);
+    }
+
+    public List<String> getIds() {
+        return ids;
+    }
+
+    public boolean isDenormalised() {
+        return isDenormalised;
+    }
+
+    public void setDenormalised(boolean isDenormalised) {
+        this.isDenormalised = isDenormalised;
+    }
+
+    public FeatureTypeMapping getRootMapping() {
+        return rootMapping;
+    }
+
+    public void setRootMapping(FeatureTypeMapping rootMapping) {
+        this.rootMapping = rootMapping;
+    }
 }

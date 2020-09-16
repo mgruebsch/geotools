@@ -17,21 +17,14 @@
 package org.geotools.gml3.bindings;
 
 import org.geotools.gml3.GMLConfiguration;
-import org.geotools.xml.Configuration;
+import org.geotools.xsd.Configuration;
 import org.picocontainer.MutablePicoContainer;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class TestConfiguration extends Configuration {
     public TestConfiguration() {
         super(TEST.getInstance());
         addDependency(new GMLConfiguration());
     }
 
-    protected void registerBindings(MutablePicoContainer container) {
-    }
+    protected void registerBindings(MutablePicoContainer container) {}
 }

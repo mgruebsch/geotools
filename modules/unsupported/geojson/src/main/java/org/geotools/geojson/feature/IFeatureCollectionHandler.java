@@ -19,12 +19,7 @@ package org.geotools.geojson.feature;
 import org.geotools.geojson.IContentHandler;
 import org.opengis.feature.simple.SimpleFeature;
 
-/**
- * 
- *
- * @source $URL$
- */
 public interface IFeatureCollectionHandler extends IContentHandler<SimpleFeature> {
 
-    //boolean hasMoreFeatures();
+    // boolean hasMoreFeatures();
 }

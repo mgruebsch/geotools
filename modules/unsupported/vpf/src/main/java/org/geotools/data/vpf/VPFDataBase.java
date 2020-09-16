@@ -23,36 +23,27 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
 import org.geotools.data.vpf.file.VPFFile;
 import org.geotools.data.vpf.file.VPFFileFactory;
 import org.geotools.feature.SchemaException;
 import org.opengis.feature.simple.SimpleFeature;
 
-
 /**
- * This class is not completely implemented due to a decision that the 
- * VPFDataStore shall correspond to the VPFLibrary class, not this class
+ * This class is not completely implemented due to a decision that the VPFDataStore shall correspond
+ * to the VPFLibrary class, not this class
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @author <a href="mailto:knuterik@onemap.org">Knut-Erik Johnsen</a>, Project
- *         OneMap
- *
- *
- *
+ * @author <a href="mailto:knuterik@onemap.org">Knut-Erik Johnsen</a>, Project OneMap
  * @source $URL$
  * @version $Id$
  */
 public class VPFDataBase {
-    /**
-     * The libraries in the database
-     */
+    /** The libraries in the database */
     private final List libraries = new Vector();
     /**
      * Constructor
+     *
      * @param directory A <code>File</code> representing the base directory of the database
-     * @throws IOException
-     * @throws SchemaException
      */
     public VPFDataBase(File directory) throws IOException, SchemaException {
         VPFFile vpfTable;
@@ -70,10 +61,9 @@ public class VPFDataBase {
             feature = (SimpleFeature) iter.next();
 
             try {
-              library = new VPFLibrary(feature, directory);
-              libraries.add(library);
-            }
-            catch ( java.io.FileNotFoundException ex ) {
+                library = new VPFLibrary(feature, directory, null);
+                libraries.add(library);
+            } catch (java.io.FileNotFoundException ex) {
                 // This must be a partial data set - the library wasn't found so just ignore it
             }
         }
@@ -92,7 +82,7 @@ public class VPFDataBase {
         //
         //        Iterator iter = vpfTable.readAllRows().iterator();
         //        while(iter.hasNext()){
-        //            
+        //
         //        }
         ////        vpfTable.close();
         //
@@ -105,6 +95,7 @@ public class VPFDataBase {
     }
     /**
      * Returns the libraries that are in the database
+     *
      * @return a <code>List</code> containing <code>VPFLibrary</code> objects
      */
     public List getLibraries() {
@@ -112,6 +103,7 @@ public class VPFDataBase {
     }
     /**
      * Returns the minimum X value of the database
+     *
      * @return a <code>double</code> value
      */
     public double getMinX() {
@@ -134,6 +126,7 @@ public class VPFDataBase {
 
     /**
      * Returns the minimum X value of the database
+     *
      * @return a <code>double</code> value
      */
     public double getMinY() {
@@ -156,6 +149,7 @@ public class VPFDataBase {
 
     /**
      * Returns the minimum X value of the database
+     *
      * @return a <code>double</code> value
      */
     public double getMaxX() {
@@ -178,6 +172,7 @@ public class VPFDataBase {
 
     /**
      * Returns the minimum X value of the database
+     *
      * @return a <code>double</code> value
      */
     public double getMaxY() {
@@ -202,8 +197,15 @@ public class VPFDataBase {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return "VPF database with the following extents: \n" + getMinX() + " "
-        + getMinY() + " - " + getMaxX() + " " + getMinY() + "\n";
+        return "VPF database with the following extents: \n"
+                + getMinX()
+                + " "
+                + getMinY()
+                + " - "
+                + getMaxX()
+                + " "
+                + getMinY()
+                + "\n";
     }
 
     //    public VPFFeatureClass getFeatureClass(String typename) {

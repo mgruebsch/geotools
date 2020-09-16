@@ -18,16 +18,11 @@
 package org.geotools.data.h2;
 
 import org.geotools.jdbc.JDBCDataStoreFactory;
-import org.geotools.jdbc.JDBCJNDIDataSourceTest;
+import org.geotools.jdbc.JDBCJNDIDataSourceOnlineTest;
 import org.geotools.jdbc.JDBCJNDIDataStoreFactory;
 import org.geotools.jdbc.JDBCJNDITestSetup;
 
-/**
- * 
- *
- * @source $URL$
- */
-public class H2JNDIDataSourceTest extends JDBCJNDIDataSourceTest {
+public class H2JNDIDataSourceTest extends JDBCJNDIDataSourceOnlineTest {
 
     protected JDBCJNDITestSetup createTestSetup() {
         return new JDBCJNDITestSetup(new H2TestSetup());
@@ -42,5 +37,4 @@ public class H2JNDIDataSourceTest extends JDBCJNDIDataSourceTest {
     protected JDBCDataStoreFactory getDataStoreFactory() {
         return new H2DataStoreFactory();
     }
-
 }

@@ -27,10 +27,6 @@ import org.junit.Test;
  *
  * @author mbedward
  * @since 2.7
- *
- *
- *
- * @source $URL$
  * @version $Id$
  */
 public class EnvelopesTest {
@@ -60,5 +56,4 @@ public class EnvelopesTest {
         ReferencedEnvelope expected = new ReferencedEnvelope(2.0, 10.0, -2.0, -10.0, null);
         assertTrue(expected.boundsEquals2D(result, TOL));
     }
-
 }

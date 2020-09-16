@@ -7,31 +7,45 @@
     <parent>
         <groupId>org.geotools</groupId>
         <artifactId>app-schema</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <groupId>org.geotools</groupId>
     <artifactId>gt-app-schema</artifactId>
     <name>Application Schema DataAccess</name>
 
-    <scm>
-        <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/app-schema/app-schema</connection>
-        <url>http://svn.osgeo.org/geotools/trunk/modules/extension/app-schema/app-schema</url>
-    </scm>
-
     <description>DataAccess to create complex feature types defined in a GML application schema.</description>
 
     <developers>
         <developer>
-            <name>Ben Caradoc-Davies</name>
-            <id>bencaradocdavies</id>
-            <email>Ben.Caradoc-Davies@csiro.au</email>
-            <organization>CSIRO Earth Science and Resource Engineering</organization>
+            <name>Nuno Oliveira</name>
+            <id>nmco</id>
+            <email>nuno.oliveira@geo-solutions.it</email>
+            <organization>GeoSolutions</organization>
             <roles>
                 <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
-            <timezone>8</timezone>
+        </developer>
+        <developer>
+            <name>Fernando Mino</name>
+            <id>fernandor777</id>
+            <email>fernando.mino@geo-solutions.it</email>
+            <organization>GeoSolutions</organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Ben Caradoc-Davies</name>
+            <id>bencaradocdavies</id>
+            <email>ben@transient.nz</email>
+            <organization>Transient Software Limited</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+            <timezone>Pacific/Auckland</timezone>
         </developer>
         <developer>
             <name>Rini Angreani</name>
@@ -39,34 +53,34 @@
             <email>Rini.Angreani@csiro.au</email>
             <organization>CSIRO Earth Science and Resource Engineering</organization>
             <roles>
-                <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
             <timezone>8</timezone>
         </developer>
     </developers>
 
-    <dependencies>      
-	<dependency>
+    <dependencies>
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-complex</artifactId>
             <version>${project.version}</version>
-        </dependency> 
-	<dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-complex</artifactId>
-            <version>${project.version}</version>
-	    <classifier>tests</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-complex</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+       <dependency>
+           <groupId>org.jdom</groupId>
+           <artifactId>jdom2</artifactId>
+       </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>1.7</version>
+            <version>1.8.1</version>
             <exclusions>
-                <exclusion>
-                    <groupId>commons-collections</groupId>
-                    <artifactId>commons-collections</artifactId>
-                </exclusion>
                 <exclusion>
                     <groupId>commons-beanutils</groupId>
                     <artifactId>commons-beanutils</artifactId>
@@ -74,27 +88,18 @@
             </exclusions>
         </dependency>
         <dependency>
-    <!-- override transitive dependency from commons-digester 1.7 which depends on commons-collections 
-        2.1, since xml (SchemaIndexImpl) depends on commons-collections 3.1 -->
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.1</version>
-        </dependency>
-        <dependency>
-            <!-- override transitive dependency from commons-digester 1.7 which depends on commons-collections 
+            <!-- override transitive dependency from commons-digester 1.7 which depends on commons-collections
                 2.1, since xml (SchemaIndexImpl) depends on commons-collections 3.1 -->
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.7.0</version>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
-		
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-data</artifactId>
+            <artifactId>gt-main</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -105,11 +110,6 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-render</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -125,12 +125,12 @@
         <dependency>
             <groupId>xpp3</groupId>
             <artifactId>xpp3_min</artifactId>
-        </dependency>	
-	<dependency>
-	  <groupId>org.geotools.ogc</groupId>
-	  <artifactId>net.opengis.wfs</artifactId>
-	  <version>${project.version}</version>
-	</dependency>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.ogc</groupId>
+            <artifactId>net.opengis.wfs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <!-- for FilenameUtils -->
             <groupId>commons-io</groupId>
@@ -191,23 +191,37 @@
             <artifactId>geosciml-3.0-seegrid</artifactId>
             <version>3.0.0-1</version>
             <scope>test</scope>
-	    </dependency>
-	    <dependency>
+        </dependency>
+        <dependency>
             <groupId>org.geotools.schemas</groupId>
             <artifactId>geosciml-3.2</artifactId>
             <version>3.2.0-1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.4.12.v20180830</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.xsd</groupId>
+            <artifactId>gt-xsd-wfs</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
-
     <build>
+
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-            <!-- build test jar so that app-schema tests in GeoServer can use classes in GeoTools app-schema 
+
+            <!-- build test jar so that app-schema tests in GeoServer can use classes in GeoTools app-schema
                 tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -221,6 +235,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -233,7 +248,9 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
+
         <testResources>
             <testResource>
                 <directory>src/test/resources</directory>
@@ -245,5 +262,7 @@
                 </includes>
             </testResource>
         </testResources>
+
     </build>
+
 </project>

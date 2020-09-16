@@ -17,23 +17,21 @@
 package org.geotools.wfs.bindings;
 
 import javax.xml.namespace.QName;
-
 import net.opengis.wfs.WfsFactory;
 import net.opengis.wfs.XlinkPropertyNameType;
-
 import org.geotools.wfs.WFS;
-import org.geotools.xml.AbstractComplexEMFBinding;
-import org.geotools.xml.ComplexBinding;
+import org.geotools.xsd.AbstractComplexEMFBinding;
+import org.geotools.xsd.ComplexBinding;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
-
 
 /**
  * Binding object for the type http://www.opengis.net/wfs:_XlinkPropertyName.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="_XlinkPropertyName"&gt;
  *      &lt;xsd:simpleContent&gt;
@@ -72,36 +70,27 @@ import org.w3c.dom.Text;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class _XlinkPropertyNameBinding extends AbstractComplexEMFBinding {
     public _XlinkPropertyNameBinding(WfsFactory factory) {
         super(factory);
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return WFS._XlinkPropertyName;
     }
 
     /**
-     * Explicit implementation of
-     * {@link ComplexBinding#encode(Object, Document, Element)} as
-     * {@link AbstractComplexEMFBinding#encode(Object, Document, Element)} does
-     * not set the value.
+     * Explicit implementation of {@link ComplexBinding#encode(Object, Document, Element)} as {@link
+     * AbstractComplexEMFBinding#encode(Object, Document, Element)} does not set the value.
      *
      * @see ComplexBinding#encode(Object, Document, Element).
      */
     public Element encode(final Object object, final Document document, Element value)
-        throws Exception {
+            throws Exception {
         final XlinkPropertyNameType xlink = (XlinkPropertyNameType) object;
         final String textValue = xlink.getValue();
         final Text textNode = document.createTextNode(textValue);

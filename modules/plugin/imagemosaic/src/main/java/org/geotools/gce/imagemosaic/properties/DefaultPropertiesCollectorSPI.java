@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2007-2013, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2007 - 2016, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -24,36 +24,30 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.geotools.coverage.util.CoverageUtilities;
+import org.geotools.util.URLs;
 
-import org.geotools.data.DataUtilities;
-import org.geotools.gce.imagemosaic.Utils;
-
-/**
- * 
- *
- * @source $URL$
- */
 public abstract class DefaultPropertiesCollectorSPI implements PropertiesCollectorSPI {
 
-	private final String name;
-	
-	public String getName() {
-		return name;
-	}
+    private final String name;
 
-	public DefaultPropertiesCollectorSPI(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public boolean isAvailable() {
-		return true;
-	}
+    public DefaultPropertiesCollectorSPI(String name) {
+        this.name = name;
+    }
 
-	public Map<Key, ?> getImplementationHints() {
-		return Collections.emptyMap();
-	}
-	
-    public final static String REGEX_PREFIX = "regex=";
+    public boolean isAvailable() {
+        return true;
+    }
+
+    public Map<Key, ?> getImplementationHints() {
+        return Collections.emptyMap();
+    }
+
+    public static final String REGEX_PREFIX = "regex=";
 
     public PropertiesCollector create(final Object o, final List<String> propertyNames) {
         URL source = null;
@@ -61,7 +55,7 @@ public abstract class DefaultPropertiesCollectorSPI implements PropertiesCollect
         if (o instanceof URL) {
             source = (URL) o;
         } else if (o instanceof File) {
-            source = DataUtilities.fileToURL((File) o);
+            source = URLs.fileToUrl((File) o);
         } else if (o instanceof String) {
             try {
                 source = new URL((String) o);
@@ -80,7 +74,7 @@ public abstract class DefaultPropertiesCollectorSPI implements PropertiesCollect
 
         // it is a url
         if (source != null) {
-            final Properties properties = Utils.loadPropertiesFromURL(source);
+            final Properties properties = CoverageUtilities.loadPropertiesFromURL(source);
             if (properties.containsKey("regex")) {
                 property = properties.getProperty("regex");
             }
@@ -90,9 +84,8 @@ public abstract class DefaultPropertiesCollectorSPI implements PropertiesCollect
         }
 
         return null;
-
     }
 
-        abstract protected PropertiesCollector createInternal(PropertiesCollectorSPI fileNameExtractorSPI, List<String> propertyNames, String string);	
-
+    protected abstract PropertiesCollector createInternal(
+            PropertiesCollectorSPI fileNameExtractorSPI, List<String> propertyNames, String string);
 }

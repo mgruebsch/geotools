@@ -1,5 +1,6 @@
 /*
- *    Geotools - OpenSource mapping toolkit
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
  *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
@@ -19,14 +20,14 @@
 package org.geotools.data.shapefile.dbf;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.util.TimeZone;
-
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.shapefile.files.ShpFiles;
-import org.geotools.resources.NIOUtilities;
+import org.geotools.util.NIOUtilities;
 
 /**
  * A DbaseFileReader is used to read a dbase III format file. <br>
@@ -57,58 +58,59 @@ import org.geotools.resources.NIOUtilities;
  * }
  * r.close();
  * </PRE></CODE>
- * 
+ *
  * @author Ian Schneider
  * @author Tommaso Nolli
- * 
- * 
- * @source $URL$
  */
 public class IndexedDbaseFileReader extends DbaseFileReader {
 
-    /**
-     * Like calling DbaseFileReader(ReadableByteChannel, true);
-     * 
-     * @param channel
-     * @throws IOException
-     */
+    /** Like calling DbaseFileReader(ReadableByteChannel, true); */
     public IndexedDbaseFileReader(ShpFiles shpFiles) throws IOException {
         this(shpFiles, false);
     }
 
     /**
      * Creates a new instance of DBaseFileReader
-     * 
-     * @param channel The readable channel to use.
+     *
      * @param useMemoryMappedBuffer Wether or not map the file in memory
      * @throws IOException If an error occurs while initializing.
      */
     public IndexedDbaseFileReader(ShpFiles shpFiles, boolean useMemoryMappedBuffer)
             throws IOException {
-        super(shpFiles, useMemoryMappedBuffer, (Charset) ShapefileDataStoreFactory.DBFCHARSET
-                .getDefaultValue(), TimeZone.getDefault());
+        super(
+                shpFiles,
+                useMemoryMappedBuffer,
+                (Charset) ShapefileDataStoreFactory.DBFCHARSET.getDefaultValue(),
+                TimeZone.getDefault());
     }
 
-    public IndexedDbaseFileReader(ShpFiles shpFiles, boolean useMemoryMappedBuffer,
-            Charset stringCharset) throws IOException {
+    public IndexedDbaseFileReader(
+            ShpFiles shpFiles, boolean useMemoryMappedBuffer, Charset stringCharset)
+            throws IOException {
         super(shpFiles, useMemoryMappedBuffer, stringCharset, TimeZone.getDefault());
     }
 
-    public IndexedDbaseFileReader(ShpFiles shpFiles, boolean useMemoryMappedBuffer,
-            Charset stringCharset, TimeZone timeZone) throws IOException {
+    public IndexedDbaseFileReader(
+            ShpFiles shpFiles,
+            boolean useMemoryMappedBuffer,
+            Charset stringCharset,
+            TimeZone timeZone)
+            throws IOException {
         super(shpFiles, useMemoryMappedBuffer, stringCharset, timeZone);
     }
-    
+
+    @SuppressWarnings("PMD.CloseResource") // this.channel is managed as a field
     public void goTo(int recno) throws IOException, UnsupportedOperationException {
 
         if (this.randomAccessEnabled) {
-            long newPosition = this.header.getHeaderLength() + this.header.getRecordLength()
-                    * (long) (recno - 1);
+            long newPosition =
+                    this.header.getHeaderLength()
+                            + this.header.getRecordLength() * (long) (recno - 1);
 
             if (this.useMemoryMappedBuffer) {
                 if (newPosition < this.currentOffset
-                        || (this.currentOffset + buffer.limit()) < (newPosition + header
-                                .getRecordLength())) {
+                        || (this.currentOffset + buffer.limit())
+                                < (newPosition + header.getRecordLength())) {
                     NIOUtilities.clean(buffer);
                     FileChannel fc = (FileChannel) channel;
                     if (fc.size() > newPosition + Integer.MAX_VALUE) {
@@ -117,44 +119,44 @@ public class IndexedDbaseFileReader extends DbaseFileReader {
                         currentOffset = fc.size() - Integer.MAX_VALUE;
                     }
                     buffer = fc.map(MapMode.READ_ONLY, currentOffset, Integer.MAX_VALUE);
-                    buffer.position((int) (newPosition - currentOffset));
+                    ((Buffer) buffer).position((int) (newPosition - currentOffset));
                 } else {
-                    buffer.position((int) (newPosition - currentOffset));
+                    ((Buffer) buffer).position((int) (newPosition - currentOffset));
                 }
             } else {
                 if (this.currentOffset <= newPosition
                         && this.currentOffset + buffer.limit() >= newPosition) {
-                    buffer.position((int) (newPosition - this.currentOffset));
+                    ((Buffer) buffer).position((int) (newPosition - this.currentOffset));
                     // System.out.println("Hit");
                 } else {
                     // System.out.println("Jump");
                     FileChannel fc = (FileChannel) this.channel;
                     fc.position(newPosition);
                     this.currentOffset = newPosition;
-                    buffer.limit(buffer.capacity());
-                    buffer.position(0);
+                    ((Buffer) buffer).limit(buffer.capacity());
+                    ((Buffer) buffer).position(0);
                     fill(buffer, fc);
-                    buffer.position(0);
+                    ((Buffer) buffer).position(0);
                 }
             }
         } else {
             throw new UnsupportedOperationException("Random access not enabled!");
         }
-
     }
 
     public boolean IsRandomAccessEnabled() {
         return this.randomAccessEnabled;
     }
 
+    @SuppressWarnings("PMD.SystemPrintln")
     public static void main(String[] args) throws Exception {
-        IndexedDbaseFileReader reader = new IndexedDbaseFileReader(new ShpFiles(args[0]), false);
-        System.out.println(reader.getHeader());
-        int r = 0;
-        while (reader.hasNext()) {
-            System.out.println(++r + "," + java.util.Arrays.asList(reader.readEntry()));
+        try (IndexedDbaseFileReader reader =
+                new IndexedDbaseFileReader(new ShpFiles(args[0]), false)) {
+            System.out.println(reader.getHeader());
+            int r = 0;
+            while (reader.hasNext()) {
+                System.out.println(++r + "," + java.util.Arrays.asList(reader.readEntry()));
+            }
         }
-        reader.close();
     }
-
 }

@@ -18,16 +18,16 @@ package org.geotools.xs.bindings;
 
 import java.math.BigInteger;
 import javax.xml.namespace.QName;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.SimpleBinding;
 import org.geotools.xs.XS;
-
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.SimpleBinding;
 
 /**
  * Binding object for the type http://www.w3.org/2001/XMLSchema:nonPositiveInteger.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xs:simpleType name="nonPositiveInteger" id="nonPositiveInteger"&gt;
  *      &lt;xs:annotation&gt;
@@ -40,26 +40,20 @@ import org.geotools.xs.XS;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class XSNonPositiveIntegerBinding implements SimpleBinding {
     final BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
     final BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return XS.NONPOSITIVEINTEGER;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -70,6 +64,7 @@ public class XSNonPositiveIntegerBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * This binding returns objects of type {@link BigInteger}.
      * <!-- end-user-doc -->
@@ -81,35 +76,35 @@ public class XSNonPositiveIntegerBinding implements SimpleBinding {
     }
 
     /**
-     * <!-- begin-user-doc -->
-     * @param instance
-     * @param value    a BigInteger (after processing by parent)
-     * @return a Number that is not positive
-     * <!-- end-user-doc -->
      *
+     * <!-- begin-user-doc -->
+     *
+     * @param value a BigInteger (after processing by parent)
+     * @return a Number that is not positive
+     *     <!-- end-user-doc -->
      * @generated modifiable
      */
-    public Object parse(InstanceComponent instance, Object value)
-        throws Exception {
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
         BigInteger number = (BigInteger) value;
 
         if (BigInteger.ZERO.compareTo(number) < 0) {
-            throw new IllegalArgumentException("Value '" + number
-                + "' must be non-positive (0 or below).");
+            throw new IllegalArgumentException(
+                    "Value '" + number + "' must be non-positive (0 or below).");
         }
 
         if (MIN_INTEGER.compareTo(number) <= 0) {
-            return new Integer(number.intValue());
+            return Integer.valueOf(number.intValue());
         }
 
         if (MIN_LONG.compareTo(number) <= 0) {
-            return new Long(number.longValue());
+            return Long.valueOf(number.longValue());
         }
 
         return number;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -119,8 +114,8 @@ public class XSNonPositiveIntegerBinding implements SimpleBinding {
         Number number = (Number) object;
 
         if (number.longValue() > 0) {
-            throw new IllegalArgumentException("Value '" + number
-                + "' must be non-positive (0 or below).");
+            throw new IllegalArgumentException(
+                    "Value '" + number + "' must be non-positive (0 or below).");
         }
 
         return value;

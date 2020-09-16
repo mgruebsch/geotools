@@ -16,17 +16,15 @@
  */
 package org.geotools.filter.v1_0;
 
-import org.w3c.dom.Document;
-import org.opengis.filter.spatial.BBOX;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gml2.GML;
-import org.geotools.xml.Binding;
+import org.geotools.referencing.CRS;
+import org.geotools.xsd.Binding;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.spatial.BBOX;
+import org.w3c.dom.Document;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class OGCBBoxTypeBindingTest extends FilterTestSupport {
     public void testType() {
         assertEquals(BBOX.class, binding(OGC.BBOXType).getType());
@@ -41,20 +39,22 @@ public class OGCBBoxTypeBindingTest extends FilterTestSupport {
 
         BBOX box = (BBOX) parse();
 
-        assertEquals("foo", box.getPropertyName());
-        assertEquals(0, box.getMinX(), 0.0);
-        assertEquals(0, box.getMinY(), 0.0);
-        assertEquals(1, box.getMaxX(), 0.0);
-        assertEquals(1, box.getMaxY(), 0.0);
-        assertEquals("EPSG:4326", box.getSRS());
+        assertEquals("foo", ((PropertyName) box.getExpression1()).getPropertyName());
+        assertTrue(
+                JTS.equals(
+                        new ReferencedEnvelope(0, 1, 0, 1, CRS.decode("EPSG:4326")),
+                        box.getBounds(),
+                        1e-6));
     }
 
     public void testEncode() throws Exception {
         Document doc = encode(FilterMockData.bbox(), OGC.BBOX);
 
-        assertEquals(1,
-            doc.getElementsByTagNameNS(OGC.NAMESPACE, OGC.PropertyName.getLocalPart()).getLength());
-        assertEquals(1,
-            doc.getElementsByTagNameNS(GML.NAMESPACE, GML.Box.getLocalPart()).getLength());
+        assertEquals(
+                1,
+                doc.getElementsByTagNameNS(OGC.NAMESPACE, OGC.PropertyName.getLocalPart())
+                        .getLength());
+        assertEquals(
+                1, doc.getElementsByTagNameNS(GML.NAMESPACE, GML.Box.getLocalPart()).getLength());
     }
 }

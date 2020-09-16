@@ -16,7 +16,7 @@
  */
 package org.geotools.data.wfs.internal.parsers;
 
-import static org.geotools.data.wfs.impl.WFSTestData.*;
+import static org.geotools.data.wfs.WFSTestData.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -25,15 +25,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
-import org.geotools.data.wfs.impl.WFSTestData;
-import org.geotools.data.wfs.internal.parsers.EmfAppSchemaParser;
+import org.geotools.data.wfs.WFSTestData;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.test.TestData;
 import org.geotools.wfs.v1_1.WFSConfiguration;
-import org.geotools.xml.Configuration;
+import org.geotools.xsd.Configuration;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -41,21 +37,15 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Unit test suite for {@link EmfAppSchemaParser}
- * 
+ *
  * @author Gabriel Roldan
  * @version $Id$
  * @since 2.5.x
- * 
- * 
- * 
- * @source $URL$
  */
 public class EmfAppSchemaParserTest {
 
     /**
      * Test method for {@link EmfAppSchemaParser#parse(javax.xml.namespace.QName, java.net.URL)}.
-     * 
-     * @throws IOException
      */
     @Test
     public void testParseGeoServerSimpleFeatureType() throws IOException {
@@ -65,8 +55,9 @@ public class EmfAppSchemaParserTest {
 
         final int expectedAttributeCount = 23;
 
-        SimpleFeatureType ftype = testParseDescribeSimpleFeatureType(featureTypeName,
-                schemaLocation, expectedAttributeCount);
+        SimpleFeatureType ftype =
+                testParseDescribeSimpleFeatureType(
+                        featureTypeName, schemaLocation, expectedAttributeCount);
         assertNotNull(ftype);
         assertNotNull(ftype.getGeometryDescriptor());
         assertEquals("the_geom", ftype.getGeometryDescriptor().getLocalName());
@@ -74,11 +65,11 @@ public class EmfAppSchemaParserTest {
 
     @Test
     public void testParseCubeWerx_GML_Level1_FeatureType() throws IOException {
-        final QName featureTypeName = new QName("http://www.fgdc.gov/framework/073004/gubs",
-                "GovernmentalUnitCE");
+        final QName featureTypeName =
+                new QName("http://www.fgdc.gov/framework/073004/gubs", "GovernmentalUnitCE");
         new WFSTestData();
-        final URL schemaLocation = WFSTestData
-                .url("CubeWerx_nsdi/1.1.0/DescribeFeatureType_GovernmentalUnitCE.xsd");
+        final URL schemaLocation =
+                WFSTestData.url("CubeWerx_nsdi/1.1.0/DescribeFeatureType_GovernmentalUnitCE.xsd");
 
         // Expect only the subset of simple attributes:
         // {typeAbbreviation:String,instanceName:String,officialDescription:String,
@@ -96,38 +87,43 @@ public class EmfAppSchemaParserTest {
         // setting expectedAttributeCount back to 10
         final int expectedAttributeCount = 10;
 
-        SimpleFeatureType ftype = testParseDescribeSimpleFeatureType(featureTypeName,
-                schemaLocation, expectedAttributeCount);
+        SimpleFeatureType ftype =
+                testParseDescribeSimpleFeatureType(
+                        featureTypeName, schemaLocation, expectedAttributeCount);
+        /*
         for (AttributeDescriptor descriptor : ftype.getAttributeDescriptors()) {
-            System.out.print(descriptor.getName().getNamespaceURI());
-            System.out.print("#");
-            System.out.print(descriptor.getName().getLocalPart());
-            System.out.print("[" + descriptor.getMinOccurs() + ":" + descriptor.getMaxOccurs()
-                    + "]");
-            System.out.print(" (" + descriptor.getType().getName() + ": "
-                    + descriptor.getType().getBinding() + ")");
-            System.out.println("");
+             System.out.print(descriptor.getName().getNamespaceURI());
+             System.out.print("#");
+             System.out.print(descriptor.getName().getLocalPart());
+             System.out.print(
+                    "[" + descriptor.getMinOccurs() + ":" + descriptor.getMaxOccurs() + "]");
+             System.out.print(
+                    " ("
+                            + descriptor.getType().getName()
+                            + ": "
+                            + descriptor.getType().getBinding()
+                            + ")");
+             System.out.println("");
         }
+        */
     }
 
     /**
-     * @param featureTypeName
-     * @param schemaLocation
-     * @param expectedAttributeCount
-     * @return
-     * @throws IOException
-     * @see {@link EmfAppSchemaParser#parseSimpleFeatureType(Configuration, QName, URL, CoordinateReferenceSystem)}
+     * @see {@link EmfAppSchemaParser#parseSimpleFeatureType(Configuration, QName, URL,
+     *     CoordinateReferenceSystem)}
      */
-    private SimpleFeatureType testParseDescribeSimpleFeatureType(final QName featureTypeName,
-            final URL schemaLocation, int expectedAttributeCount) throws IOException {
+    private SimpleFeatureType testParseDescribeSimpleFeatureType(
+            final QName featureTypeName, final URL schemaLocation, int expectedAttributeCount)
+            throws IOException {
         assertNotNull(schemaLocation);
         final CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
 
         Configuration configuration = new WFSConfiguration();
 
         SimpleFeatureType featureType;
-        featureType = EmfAppSchemaParser.parseSimpleFeatureType(configuration, featureTypeName,
-                schemaLocation, crs);
+        featureType =
+                EmfAppSchemaParser.parseSimpleFeatureType(
+                        configuration, featureTypeName, schemaLocation, crs);
 
         assertNotNull(featureType);
         assertSame(crs, featureType.getCoordinateReferenceSystem());

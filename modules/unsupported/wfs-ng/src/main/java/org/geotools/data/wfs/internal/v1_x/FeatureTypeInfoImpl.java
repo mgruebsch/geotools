@@ -1,3 +1,19 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2008-2016, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.data.wfs.internal.v1_x;
 
 import java.net.URI;
@@ -7,15 +23,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
-
 import javax.xml.XMLConstants;
-
+import net.opengis.ows10.KeywordsType;
 import net.opengis.ows10.WGS84BoundingBoxType;
 import net.opengis.wfs.FeatureTypeType;
 import net.opengis.wfs.OutputFormatListType;
-
 import org.geotools.data.wfs.internal.FeatureTypeInfo;
 import org.geotools.data.wfs.internal.Loggers;
+import org.geotools.data.wfs.internal.WFSConfig;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -27,8 +42,11 @@ public class FeatureTypeInfoImpl implements FeatureTypeInfo {
 
     private final FeatureTypeType eType;
 
-    public FeatureTypeInfoImpl(FeatureTypeType eType) {
+    private final WFSConfig config;
+
+    public FeatureTypeInfoImpl(FeatureTypeType eType, WFSConfig config) {
         this.eType = eType;
+        this.config = config;
     }
 
     @Override
@@ -39,12 +57,15 @@ public class FeatureTypeInfoImpl implements FeatureTypeInfo {
     @Override
     public Set<String> getKeywords() {
         @SuppressWarnings("unchecked")
-        List<String> keywords = eType.getKeywords();
+        List<KeywordsType> keywords = eType.getKeywords();
         Set<String> ret;
         if (keywords == null) {
             ret = Collections.emptySet();
         } else {
-            ret = new HashSet<String>(keywords);
+            ret = new HashSet<String>();
+            for (KeywordsType k : keywords) {
+                ret.addAll(k.getKeyword());
+            }
             ret.remove(null);
         }
         return ret;
@@ -57,7 +78,7 @@ public class FeatureTypeInfoImpl implements FeatureTypeInfo {
 
     @Override
     public String getName() {
-        return eType.getName().getLocalPart();
+        return config.localTypeName(eType.getName());
     }
 
     @Override
@@ -82,12 +103,16 @@ public class FeatureTypeInfoImpl implements FeatureTypeInfo {
         try {
             nativeBounds = wgs84Bounds.transform(crs, true);
         } catch (TransformException e) {
-            Loggers.MODULE.log(Level.WARNING, "Can't transform bounds of " + getName() + " to "
-                    + getDefaultSRS(), e);
+            Loggers.MODULE.log(
+                    Level.WARNING,
+                    "Can't transform bounds of " + getName() + " to " + getDefaultSRS(),
+                    e);
             nativeBounds = new ReferencedEnvelope(crs);
         } catch (FactoryException e) {
-            Loggers.MODULE.log(Level.WARNING, "Can't transform bounds of " + getName() + " to "
-                    + getDefaultSRS(), e);
+            Loggers.MODULE.log(
+                    Level.WARNING,
+                    "Can't transform bounds of " + getName() + " to " + getDefaultSRS(),
+                    e);
             nativeBounds = new ReferencedEnvelope(crs);
         }
         return nativeBounds;
@@ -129,8 +154,9 @@ public class FeatureTypeInfoImpl implements FeatureTypeInfo {
             double maxLon = (Double) upperCorner.get(0);
             double maxLat = (Double) upperCorner.get(1);
 
-            ReferencedEnvelope latLonBounds = new ReferencedEnvelope(minLon, maxLon, minLat,
-                    maxLat, DefaultGeographicCRS.WGS84);
+            ReferencedEnvelope latLonBounds =
+                    new ReferencedEnvelope(
+                            minLon, maxLon, minLat, maxLat, DefaultGeographicCRS.WGS84);
 
             return latLonBounds;
         }
@@ -159,4 +185,8 @@ public class FeatureTypeInfoImpl implements FeatureTypeInfo {
         return new HashSet<String>(ftypeDeclaredFormats);
     }
 
+    @Override
+    public String getAbstract() {
+        return eType.getAbstract();
+    }
 }

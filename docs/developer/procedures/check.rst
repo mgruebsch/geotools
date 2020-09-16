@@ -1,9 +1,9 @@
 Gold Star Quality Assurance Check
 ==================================
 
-The GeoTools Module Matrix makes use of a gold star system, 3 stars or more is great, an X is used to indicate non working modules.
+GeoTools Modules makes use of a gold star system, 3 stars or more is great, an X is used to indicate non working modules.
 
-* http://docs.codehaus.org/display/GEOTOOLS/Module+Matrix
+Check each module for a README.md for developer notes.
 
 This test is something quick, accessible and visible to end users.
 
@@ -25,7 +25,7 @@ Here is how a plugin (aka hooks into the geotools library) may earn a star:
 
 * Passes IP check, basically has correct headers
 * Releasable - has no non blocking bugs in jira
-* Used in anger - Used by GeoServer or uDig or Geomajas (ie some kind of large real world datasets)
+* Used in anger - Used by GeoServer or uDig or Geomajas (i.e. some kind of large real world datasets)
 * Optimised - has been tuned to meet hard performance requirements (example shapefile)
 * Supported - user docs, module maintainer watches user list, answers email etc.. (example referencing)
 

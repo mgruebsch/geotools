@@ -19,18 +19,13 @@ package org.geotools.gce.grassraster;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-import org.geotools.data.DataUtilities;
-import org.geotools.gce.grassraster.JGrassRegion;
 import junit.framework.TestCase;
+import org.geotools.util.URLs;
 
 /**
  * Test the {@link JGrassMapEnvironment} class and the created paths.
- * 
+ *
  * @author Andrea Antonello (www.hydrologis.com)
- *
- *
- * @source $URL$
  */
 @SuppressWarnings("nls")
 public class JGrassRegionTest extends TestCase {
@@ -39,7 +34,7 @@ public class JGrassRegionTest extends TestCase {
 
     public void testJGrassMapEnvironment() throws IOException {
         URL theUrl = this.getClass().getClassLoader().getResource("exampleWIND1");
-        File regionFile = DataUtilities.urlToFile(theUrl);
+        File regionFile = URLs.urlToFile(theUrl);
         JGrassRegion tmpRegion = new JGrassRegion(regionFile.getAbsolutePath());
         assertEquals(tmpRegion.getNorth(), 5052484.11852058);
         assertEquals(tmpRegion.getSouth(), 5041259.917339253);
@@ -51,7 +46,7 @@ public class JGrassRegionTest extends TestCase {
         assertEquals(tmpRegion.getCols(), 2298);
 
         theUrl = this.getClass().getClassLoader().getResource("exampleWINDLatLong");
-        regionFile = DataUtilities.urlToFile(theUrl);
+        regionFile = URLs.urlToFile(theUrl);
         tmpRegion = new JGrassRegion(regionFile.getAbsolutePath());
         assertEquals(tmpRegion.getNorth(), -3.742082752222222);
         assertEquals(tmpRegion.getSouth(), -3.9554160855555556);
@@ -63,7 +58,7 @@ public class JGrassRegionTest extends TestCase {
         assertEquals(tmpRegion.getCols(), 373);
 
         theUrl = this.getClass().getClassLoader().getResource("exampleCELLHD1");
-        File cellhdFile = DataUtilities.urlToFile(theUrl);
+        File cellhdFile = URLs.urlToFile(theUrl);
         tmpRegion = new JGrassRegion(cellhdFile.getAbsolutePath());
         assertEquals(tmpRegion.getNorth(), 5052484.11852058);
         assertEquals(tmpRegion.getSouth(), 5041259.917339253);
@@ -75,7 +70,7 @@ public class JGrassRegionTest extends TestCase {
         assertEquals(tmpRegion.getCols(), 2298);
 
         theUrl = this.getClass().getClassLoader().getResource("exampleCELLHDLatLong");
-        cellhdFile = DataUtilities.urlToFile(theUrl);
+        cellhdFile = URLs.urlToFile(theUrl);
         tmpRegion = new JGrassRegion(cellhdFile.getAbsolutePath());
         assertTrue(tmpRegion.getNorth() - 0.0004 < EPSI);
         assertTrue(tmpRegion.getSouth() - (-5.0004) < EPSI);
@@ -85,7 +80,5 @@ public class JGrassRegionTest extends TestCase {
         assertTrue(tmpRegion.getWEResolution() - 8.333332929894731E-4 < EPSI);
         assertEquals(tmpRegion.getRows(), 6001);
         assertEquals(tmpRegion.getCols(), 12001);
-
     }
-
 }

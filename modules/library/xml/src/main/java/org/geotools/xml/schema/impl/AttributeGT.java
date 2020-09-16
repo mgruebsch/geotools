@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -17,21 +17,10 @@
 package org.geotools.xml.schema.impl;
 
 import java.net.URI;
-
 import org.geotools.xml.schema.Attribute;
 import org.geotools.xml.schema.SimpleType;
 
-
-/**
- * <p>
- * DOCUMENT ME!
- * </p>
- *
- * @author dzwiers
- *
- *
- * @source $URL$
- */
+/** @author dzwiers */
 public class AttributeGT implements Attribute {
     private String defualT;
     private String fixed;
@@ -46,20 +35,16 @@ public class AttributeGT implements Attribute {
         // do nothing
     }
 
-    /**
-     * Creates a new AttributeGT object.
-     *
-     * @param id DOCUMENT ME!
-     * @param name DOCUMENT ME!
-     * @param namespace DOCUMENT ME!
-     * @param type DOCUMENT ME!
-     * @param use DOCUMENT ME!
-     * @param defaulT DOCUMENT ME!
-     * @param fixed DOCUMENT ME!
-     * @param form DOCUMENT ME!
-     */
-    public AttributeGT(String id, String name, URI namespace,
-        SimpleType type, int use, String defaulT, String fixed, boolean form) {
+    /** Creates a new AttributeGT object. */
+    public AttributeGT(
+            String id,
+            String name,
+            URI namespace,
+            SimpleType type,
+            int use,
+            String defaulT,
+            String fixed,
+            boolean form) {
         this.id = id;
         this.name = name;
         this.namespace = namespace;
@@ -70,58 +55,42 @@ public class AttributeGT implements Attribute {
         this.form = form;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#getDefault()
-     */
+    /** @see org.geotools.xml.schema.Attribute#getDefault() */
     public String getDefault() {
         return defualT;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#getFixed()
-     */
+    /** @see org.geotools.xml.schema.Attribute#getFixed() */
     public String getFixed() {
         return fixed;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#isForm()
-     */
+    /** @see org.geotools.xml.schema.Attribute#isForm() */
     public boolean isForm() {
         return form;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#getId()
-     */
+    /** @see org.geotools.xml.schema.Attribute#getId() */
     public String getId() {
         return id;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#getName()
-     */
+    /** @see org.geotools.xml.schema.Attribute#getName() */
     public String getName() {
         return name;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#getUse()
-     */
+    /** @see org.geotools.xml.schema.Attribute#getUse() */
     public int getUse() {
         return use;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#getSimpleType()
-     */
+    /** @see org.geotools.xml.schema.Attribute#getSimpleType() */
     public SimpleType getSimpleType() {
         return type;
     }
 
-    /**
-     * @see org.geotools.xml.schema.Attribute#getNamespace()
-     */
+    /** @see org.geotools.xml.schema.Attribute#getNamespace() */
     public URI getNamespace() {
         return namespace;
     }

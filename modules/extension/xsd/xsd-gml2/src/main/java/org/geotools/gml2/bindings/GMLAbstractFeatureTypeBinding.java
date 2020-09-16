@@ -19,28 +19,26 @@ package org.geotools.gml2.bindings;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.gml2.FeatureTypeCache;
 import org.geotools.gml2.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.BindingWalkerFactory;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-import org.geotools.xml.SchemaIndex;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.BindingWalkerFactory;
+import org.geotools.xsd.Configuration;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.geotools.xsd.SchemaIndex;
 import org.opengis.feature.simple.SimpleFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:AbstractFeatureType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType name="AbstractFeatureType" abstract="true"&gt;
  *      &lt;annotation&gt;
@@ -62,13 +60,8 @@ import org.w3c.dom.Element;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class GMLAbstractFeatureTypeBinding extends AbstractComplexBinding {
     /** Cache of feature types */
@@ -76,28 +69,31 @@ public class GMLAbstractFeatureTypeBinding extends AbstractComplexBinding {
 
     /** factory for loading bindings */
     BindingWalkerFactory bwFactory;
-    
+
     /** schema index for looking up types */
     SchemaIndex schemaIndex;
 
     /** configuration */
     Configuration configuration;
 
-    public GMLAbstractFeatureTypeBinding(FeatureTypeCache ftCache, BindingWalkerFactory bwFactory, SchemaIndex schemaIndex, Configuration configuration) {
+    public GMLAbstractFeatureTypeBinding(
+            FeatureTypeCache ftCache,
+            BindingWalkerFactory bwFactory,
+            SchemaIndex schemaIndex,
+            Configuration configuration) {
         this.ftCache = ftCache;
         this.bwFactory = bwFactory;
         this.schemaIndex = schemaIndex;
         this.configuration = configuration;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return GML.AbstractFeatureType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -108,25 +104,27 @@ public class GMLAbstractFeatureTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         return GML2ParsingUtils.parseFeature(instance, node, value, ftCache, bwFactory);
     }
-    
+
     @Override
-    public Element encode(Object object, Document document, Element value)
-            throws Exception {
+    public Element encode(Object object, Document document, Element value) throws Exception {
         return GML2EncodingUtils.AbstractFeatureType_encode(object, document, value);
     }
-    
+
     @Override
     public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
-        return GML2EncodingUtils.AbstractFeatureType_getProperties(object, element, schemaIndex,
+        return GML2EncodingUtils.AbstractFeatureType_getProperties(
+                object,
+                element,
+                schemaIndex,
                 new HashSet<String>(Arrays.asList("name", "description", "boundedBy")),
                 configuration);
     }

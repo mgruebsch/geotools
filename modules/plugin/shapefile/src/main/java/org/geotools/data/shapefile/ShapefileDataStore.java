@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@ import static org.geotools.data.shapefile.files.ShpFileType.PRJ;
 import static org.geotools.data.shapefile.files.ShpFileType.SHP;
 import static org.geotools.data.shapefile.files.ShpFileType.SHX;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -33,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
-
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
@@ -42,6 +42,7 @@ import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.dbf.DbaseFileException;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
+import org.geotools.data.shapefile.files.ShpFileType;
 import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.data.shapefile.files.StorageFile;
 import org.geotools.data.shapefile.shp.ShapeType;
@@ -52,21 +53,20 @@ import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.NameImpl;
 import org.geotools.referencing.wkt.Formattable;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 public class ShapefileDataStore extends ContentDataStore implements FileDataStore {
 
@@ -77,22 +77,20 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
 
     public static final String ORIGINAL_FIELD_DUPLICITY_COUNT = "count";
 
-    public static final Charset DEFAULT_STRING_CHARSET = (Charset) ShapefileDataStoreFactory.DBFCHARSET
-            .getDefaultValue();
+    public static final Charset DEFAULT_STRING_CHARSET =
+            (Charset) ShapefileDataStoreFactory.DBFCHARSET.getDefaultValue();
 
-    public static final TimeZone DEFAULT_TIMEZONE = (TimeZone) ShapefileDataStoreFactory.DBFTIMEZONE
-            .getDefaultValue();
+    public static final TimeZone DEFAULT_TIMEZONE =
+            (TimeZone) ShapefileDataStoreFactory.DBFTIMEZONE.getDefaultValue();
 
     /**
      * When true, the stack trace that got a lock that wasn't released is recorded and then printed
      * out when warning the user about this.
      */
-    protected static final Boolean TRACE_ENABLED = "true".equalsIgnoreCase(System
-            .getProperty("gt2.shapefile.trace"));
+    protected static final Boolean TRACE_ENABLED =
+            "true".equalsIgnoreCase(System.getProperty("gt2.shapefile.trace"));
 
-    /**
-     * The stack trace used to track code that grabs the data store without disposing it
-     */
+    /** The stack trace used to track code that grabs the data store without disposing it */
     Exception trace;
 
     ShpFiles shpFiles;
@@ -106,7 +104,7 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     boolean bufferCachingEnabled = true;
 
     boolean indexed = true;
-    
+
     boolean indexCreationEnabled = true;
 
     boolean fidIndexed = true;
@@ -114,6 +112,10 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     IndexManager indexManager;
 
     ShapefileSetManager shpManager;
+
+    long maxShpSize = ShapefileFeatureWriter.DEFAULT_MAX_SHAPE_SIZE;
+
+    long maxDbfSize = ShapefileFeatureWriter.DEFAULT_MAX_DBF_SIZE;
 
     public ShapefileDataStore(URL url) {
         shpFiles = new ShpFiles(url);
@@ -131,7 +133,11 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     }
 
     Name getTypeName() {
-        return new NameImpl(namespaceURI, shpFiles.getTypeName());
+        String typeName = "Null";
+        if (shpFiles != null) {
+            typeName = shpFiles.getTypeName();
+        }
+        return new NameImpl(namespaceURI, typeName);
     }
 
     @Override
@@ -186,11 +192,30 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
 
     /**
      * When set to true, will use the spatial index if available (but will not create it if missing,
-     * unless also indexCreationEnabled is true) 
-     * @param indexed
+     * unless also indexCreationEnabled is true)
      */
     public void setIndexed(boolean indexed) {
         this.indexed = indexed;
+    }
+
+    /** The current max shapefile size */
+    long getMaxShpSize() {
+        return maxShpSize;
+    }
+
+    /** Allows to set the maximum shapefile size (the natural limit of 2GB is used by default) */
+    void setMaxShpSize(long maxShapeSize) {
+        this.maxShpSize = maxShapeSize;
+    }
+
+    /** The current max dbf file size */
+    long getMaxDbfSize() {
+        return maxDbfSize;
+    }
+
+    /** Allows to set the maximum DBF size (the natural limit of 4GB is used by default) */
+    void setMaxDbfSize(long maxDbfSize) {
+        this.maxDbfSize = maxDbfSize;
     }
 
     public SimpleFeatureType getSchema() throws IOException {
@@ -198,8 +223,8 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     }
 
     public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() throws IOException {
-        return super.getFeatureReader(new Query(getTypeName().getLocalPart()),
-                Transaction.AUTO_COMMIT);
+        return super.getFeatureReader(
+                new Query(getTypeName().getLocalPart()), Transaction.AUTO_COMMIT);
     }
 
     public long getCount(Query query) throws IOException {
@@ -209,9 +234,8 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     /**
      * Set the FeatureType of this DataStore. This method will delete any existing local resources
      * or throw an IOException if the DataStore is remote.
-     * 
+     *
      * @param featureType The desired FeatureType.
-     * 
      * @throws IOException If the DataStore is remote.
      */
     public void createSchema(SimpleFeatureType featureType) throws IOException {
@@ -221,8 +245,8 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
 
         shpFiles.delete();
 
-        CoordinateReferenceSystem crs = featureType.getGeometryDescriptor()
-                .getCoordinateReferenceSystem();
+        CoordinateReferenceSystem crs =
+                featureType.getGeometryDescriptor().getCoordinateReferenceSystem();
         final Class<?> geomType = featureType.getGeometryDescriptor().getType().getBinding();
         final ShapeType shapeType;
 
@@ -237,8 +261,8 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
                 || MultiPolygon.class.isAssignableFrom(geomType)) {
             shapeType = ShapeType.POLYGON;
         } else {
-            throw new DataSourceException("Cannot create a shapefile whose geometry type is "
-                    + geomType);
+            throw new DataSourceException(
+                    "Cannot create a shapefile whose geometry type is " + geomType);
         }
 
         StorageFile shpStoragefile = shpFiles.getStorageFile(SHP);
@@ -246,29 +270,19 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
         StorageFile dbfStoragefile = shpFiles.getStorageFile(DBF);
         StorageFile prjStoragefile = shpFiles.getStorageFile(PRJ);
 
-        FileChannel shpChannel = shpStoragefile.getWriteChannel();
-        FileChannel shxChannel = shxStoragefile.getWriteChannel();
-
-        ShapefileWriter writer = new ShapefileWriter(shpChannel, shxChannel);
-        try {
+        try (FileChannel shpChannel = shpStoragefile.getWriteChannel();
+                FileChannel shxChannel = shxStoragefile.getWriteChannel();
+                ShapefileWriter writer = new ShapefileWriter(shpChannel, shxChannel)) {
             // by spec, if the file is empty, the shape envelope should be ignored
             writer.writeHeaders(new Envelope(), shapeType, 0, 100);
-        } finally {
-            writer.close();
-            assert !shpChannel.isOpen();
-            assert !shxChannel.isOpen();
         }
 
-        DbaseFileHeader dbfheader = createDbaseHeader(featureType);
+        DbaseFileHeader dbfheader = createDbaseHeader(featureType, charset);
 
         dbfheader.setNumRecords(0);
 
-        WritableByteChannel dbfChannel = dbfStoragefile.getWriteChannel();
-
-        try {
+        try (WritableByteChannel dbfChannel = dbfStoragefile.getWriteChannel()) {
             dbfheader.writeHeader(dbfChannel);
-        } finally {
-            dbfChannel.close();
         }
 
         if (crs != null) {
@@ -281,27 +295,23 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
                 prjWriter.close();
             }
         } else {
-            LOGGER.warning("PRJ file not generated for null CoordinateReferenceSystem");
+            LOGGER.fine("PRJ file not generated for null CoordinateReferenceSystem");
         }
-        StorageFile
-                .replaceOriginals(shpStoragefile, shxStoragefile, dbfStoragefile, prjStoragefile);
+        StorageFile.replaceOriginals(
+                shpStoragefile, shxStoragefile, dbfStoragefile, prjStoragefile);
     }
-    
-    /**
-     * Turns the CRS into a single line WKT, more compatible with ESRI software
-     * @param crs
-     * @return
-     */
+
+    /** Turns the CRS into a single line WKT, more compatible with ESRI software */
     String toSingleLineWKT(CoordinateReferenceSystem crs) {
         String wkt = null;
         try {
             // this is a lenient transformation, works with polar stereographics too
             Formattable formattable = (Formattable) crs;
             wkt = formattable.toWKT(0, false);
-        } catch(ClassCastException e) {
+        } catch (ClassCastException e) {
             wkt = crs.toWKT();
         }
-        
+
         wkt = wkt.replaceAll("\n", "").replaceAll("  ", "");
         return wkt;
     }
@@ -309,18 +319,11 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     /**
      * Attempt to create a DbaseFileHeader for the FeatureType. Note, we cannot set the number of
      * records until the write has completed.
-     * 
-     * @param featureType DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
-     * 
-     * @throws IOException DOCUMENT ME!
-     * @throws DbaseFileException DOCUMENT ME!
      */
-    protected static DbaseFileHeader createDbaseHeader(SimpleFeatureType featureType)
-            throws IOException, DbaseFileException {
+    protected static DbaseFileHeader createDbaseHeader(
+            SimpleFeatureType featureType, Charset charset) throws IOException, DbaseFileException {
 
-        DbaseFileHeader header = new DbaseFileHeader();
+        DbaseFileHeader header = new DbaseFileHeader(charset);
 
         for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
             AttributeDescriptor type = featureType.getDescriptor(i);
@@ -329,14 +332,23 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
             String colName = type.getLocalName();
 
             int fieldLen = FeatureTypes.getFieldLength(type);
-            if (fieldLen == FeatureTypes.ANY_LENGTH)
-                fieldLen = 255;
+            if (fieldLen == FeatureTypes.ANY_LENGTH) fieldLen = 255;
             if ((colType == Integer.class) || (colType == Short.class) || (colType == Byte.class)) {
                 header.addColumn(colName, 'N', Math.min(fieldLen, 9), 0);
             } else if (colType == Long.class) {
                 header.addColumn(colName, 'N', Math.min(fieldLen, 19), 0);
             } else if (colType == BigInteger.class) {
                 header.addColumn(colName, 'N', Math.min(fieldLen, 33), 0);
+            } else if (colType == Float.class) {
+                int l = Math.min(fieldLen, 24);
+                // GDAL format default is 15 decimal places of precision
+                // http://www.gdal.org/drv_shapefile.html
+                int d = Math.min(Math.max(l - 2, 0), 15);
+                header.addColumn(colName, 'N', l, d);
+            } else if (colType == Double.class) {
+                int l = Math.min(fieldLen, 33);
+                int d = Math.min(Math.max(l - 2, 0), 15);
+                header.addColumn(colName, 'N', l, d);
             } else if (Number.class.isAssignableFrom(colType)) {
                 int l = Math.min(fieldLen, 33);
                 int d = Math.max(l - 2, 0);
@@ -352,17 +364,19 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
                 header.addColumn(colName, 'D', fieldLen, 0);
             } else if (colType == Boolean.class) {
                 header.addColumn(colName, 'L', 1, 0);
-            } else if (CharSequence.class.isAssignableFrom(colType) || colType == java.util.UUID.class) {
+            } else if (CharSequence.class.isAssignableFrom(colType)
+                    || colType == java.util.UUID.class) {
                 // Possible fix for GEOT-42 : ArcExplorer doesn't like 0 length
                 // ensure that maxLength is at least 1
                 header.addColumn(colName, 'C', Math.min(254, fieldLen), 0);
             } else if (Geometry.class.isAssignableFrom(colType)) {
                 continue;
-            //skip binary data types
+                // skip binary data types
             } else if (colType == byte[].class) {
                 continue;
             } else {
-                throw new IOException("Unable to write column " +colName + " : " + colType.getName());
+                // Fallback to char columns
+                header.addColumn(colName, 'C', Math.min(254, fieldLen), 0);
             }
         }
 
@@ -371,17 +385,15 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
 
     /**
      * This method is used to force the creation of a .prj file.
+     *
+     * <p>The internally cached FeatureType will be removed, so the next call to getSchema() will
+     * read in the created file. This method is not thread safe and will have dire consequences for
+     * any other thread making use of the shapefile.
+     *
      * <p>
-     * The internally cached FeatureType will be removed, so the next call to getSchema() will read
-     * in the created file. This method is not thread safe and will have dire consequences for any
-     * other thread making use of the shapefile.
-     * <p>
-     * 
-     * @param crs
      */
     public void forceSchemaCRS(CoordinateReferenceSystem crs) throws IOException {
-        if (crs == null)
-            throw new NullPointerException("CRS required for .prj file");
+        if (crs == null) throw new NullPointerException("CRS required for .prj file");
 
         String s = toSingleLineWKT(crs);
         StorageFile storageFile = shpFiles.getStorageFile(PRJ);
@@ -406,10 +418,12 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     }
 
     @Override
+    @SuppressWarnings("deprecation") // finalize is deprecated in Java 9
     protected void finalize() throws Throwable {
         super.finalize();
         if (shpFiles != null && trace != null) {
-            LOGGER.log(Level.SEVERE,
+            LOGGER.log(
+                    Level.SEVERE,
                     "Undisposed of shapefile, you should call dispose() on all shapefile stores",
                     trace);
         }
@@ -421,26 +435,32 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
      * filters by feature id and allows for stable ids in face of feature removals, without it the
      * feature id is simply the position of the feature in the shapefile, something which changes
      * when data is removed
-     * 
-     * @return
      */
     public boolean isFidIndexed() {
         return fidIndexed;
     }
 
-    /**
-     * Enables/disables the feature id index. The index is enabled by default
-     * @param fidIndexed
-     */
+    /** Enables/disables the feature id index. The index is enabled by default */
     public void setFidIndexed(boolean fidIndexed) {
         this.fidIndexed = fidIndexed;
     }
 
     @Override
     public String toString() {
-        return "ShapefileDataStore [file=" + shpFiles.get(SHP) + ", charset=" + charset + ", timeZone=" + timeZone
-                + ", memoryMapped=" + memoryMapped + ", bufferCachingEnabled="
-                + bufferCachingEnabled + ", indexed=" + indexed + ", fidIndexed=" + fidIndexed
+        return "ShapefileDataStore [file="
+                + shpFiles.get(SHP)
+                + ", charset="
+                + charset
+                + ", timeZone="
+                + timeZone
+                + ", memoryMapped="
+                + memoryMapped
+                + ", bufferCachingEnabled="
+                + bufferCachingEnabled
+                + ", indexed="
+                + indexed
+                + ", fidIndexed="
+                + fidIndexed
                 + "]";
     }
 
@@ -450,8 +470,8 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
     }
 
     @Override
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(Filter filter,
-            Transaction transaction) throws IOException {
+    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(
+            Filter filter, Transaction transaction) throws IOException {
         return getFeatureWriter(getTypeName().getLocalPart(), filter, transaction);
     }
 
@@ -471,14 +491,40 @@ public class ShapefileDataStore extends ContentDataStore implements FileDataStor
         return indexCreationEnabled;
     }
 
-    /**
-     * If true (default) the index file will be created on demand if missing
-     * @param indexCreationEnabled
-     */
+    /** If true (default) the index file will be created on demand if missing */
     public void setIndexCreationEnabled(boolean indexCreationEnabled) {
         this.indexCreationEnabled = indexCreationEnabled;
     }
-    
-    
 
+    @Override
+    public void removeSchema(String typeName) throws IOException {
+        removeSchema(new NameImpl(null, typeName));
+    }
+
+    @Override
+    public void removeSchema(Name typeName) throws IOException {
+        // check file
+        ContentEntry entry = ensureEntry(typeName);
+        org.geotools.data.shapefile.files.FileWriter writer =
+                new org.geotools.data.shapefile.files.FileWriter() {
+
+                    @Override
+                    public String id() {
+                        return "TheShapefileRemover";
+                    }
+                };
+        for (ShpFileType type : ShpFileType.values()) {
+            File file = shpFiles.acquireWriteFile(type, writer);
+            try {
+                if (file.exists()) {
+                    if (!file.delete()) {
+                        throw new IOException("Failed to delete " + file.getAbsolutePath());
+                    }
+                }
+            } finally {
+                shpFiles.unlockWrite(file, writer);
+            }
+        }
+        removeEntry(entry.getName());
+    }
 }

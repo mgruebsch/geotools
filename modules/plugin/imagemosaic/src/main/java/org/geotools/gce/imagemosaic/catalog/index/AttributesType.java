@@ -23,12 +23,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for attributesType complex type.
- * 
+ * Java class for attributesType complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="attributesType">
  *   &lt;complexContent>
@@ -40,13 +39,12 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "attributesType", propOrder = {
-    "attribute"
-})
+@XmlType(
+    name = "attributesType",
+    propOrder = {"attribute"}
+)
 public class AttributesType {
 
     @XmlElement(required = true)
@@ -54,25 +52,18 @@ public class AttributesType {
 
     /**
      * Gets the value of the attribute property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the attribute property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
+     *
+     * <p>This accessor method returns a reference to the live list, not a snapshot. Therefore any
+     * modification you make to the returned list will be present inside the JAXB object. This is
+     * why there is not a <CODE>set</CODE> method for the attribute property.
+     *
+     * <p>For example, to add a new item, do as follows:
+     *
      * <pre>
-     *    getAttribute().add(newItem);
+     * getAttribute().add(newItem);
      * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link AttributeType }
-     * 
-     * 
+     *
+     * <p>Objects of the following type(s) are allowed in the list {@link AttributeType }
      */
     public List<AttributeType> getAttribute() {
         if (attribute == null) {
@@ -80,5 +71,4 @@ public class AttributesType {
         }
         return this.attribute;
     }
-
 }

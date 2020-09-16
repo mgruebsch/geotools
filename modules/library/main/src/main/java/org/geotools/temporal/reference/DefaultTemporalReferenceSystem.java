@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,31 +25,19 @@ import org.opengis.temporal.TemporalReferenceSystem;
 import org.opengis.util.GenericName;
 import org.opengis.util.InternationalString;
 
-/**
- *
- * @author Mehdi Sidhoum (Geomatys)
- *
- *
- *
- * @source $URL$
- */
+/** @author Mehdi Sidhoum (Geomatys) */
 public class DefaultTemporalReferenceSystem implements TemporalReferenceSystem {
 
-    /**
-     * This is a name that uniquely identifies the temporal reference system.
-     */
+    /** This is a name that uniquely identifies the temporal reference system. */
     private ReferenceIdentifier name;
+
     private Extent domainOfValidity;
     private Extent validArea;
     private InternationalString scope;
-    private Collection<GenericName> alias;
-    private Set<ReferenceIdentifier> identifiers;
-    private InternationalString remarks;
 
     /**
-     * Creates a new instance of TemporalReferenceSystem by passing a ReferenceIdentifier name and a domain of validity.
-     * @param name
-     * @param domainOfValidity
+     * Creates a new instance of TemporalReferenceSystem by passing a ReferenceIdentifier name and a
+     * domain of validity.
      */
     public DefaultTemporalReferenceSystem(ReferenceIdentifier name, Extent domainOfValidity) {
         this.name = name;
@@ -64,38 +52,27 @@ public class DefaultTemporalReferenceSystem implements TemporalReferenceSystem {
         return domainOfValidity;
     }
 
-    /**
-     * This method is deprecated, please use getDomainOfValidity() method.
-     * @return
-     */
-    @Deprecated
-    public Extent getValidArea() {
-        return validArea;
-    }
-
     public InternationalString getScope() {
         return scope;
     }
 
     public Collection<GenericName> getAlias() {
-        return alias;
+        return null;
     }
 
     public Set<ReferenceIdentifier> getIdentifiers() {
-        return identifiers;
+        return null;
     }
 
     public InternationalString getRemarks() {
-        return remarks;
+        return null;
     }
 
     public String toWKT() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    /**
-     * This is a name that uniquely identifies the temporal reference system.
-     */
+    /** This is a name that uniquely identifies the temporal reference system. */
     public void setName(ReferenceIdentifier name) {
         this.name = name;
     }
@@ -117,13 +94,10 @@ public class DefaultTemporalReferenceSystem implements TemporalReferenceSystem {
         if (object instanceof DefaultTemporalReferenceSystem) {
             final DefaultTemporalReferenceSystem that = (DefaultTemporalReferenceSystem) object;
 
-            return Utilities.equals(this.alias, that.alias) &&
-                    Utilities.equals(this.domainOfValidity, that.domainOfValidity) &&
-                    Utilities.equals(this.identifiers, that.identifiers) &&
-                    Utilities.equals(this.name, that.name) &&
-                    Utilities.equals(this.scope, that.scope) &&
-                    Utilities.equals(this.validArea, that.validArea) &&
-                    Utilities.equals(this.remarks, that.remarks);
+            return Utilities.equals(this.domainOfValidity, that.domainOfValidity)
+                    && Utilities.equals(this.name, that.name)
+                    && Utilities.equals(this.scope, that.scope)
+                    && Utilities.equals(this.validArea, that.validArea);
         }
         return false;
     }
@@ -131,11 +105,8 @@ public class DefaultTemporalReferenceSystem implements TemporalReferenceSystem {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 37 * hash + (this.alias != null ? this.alias.hashCode() : 0);
         hash = 37 * hash + (this.domainOfValidity != null ? this.domainOfValidity.hashCode() : 0);
-        hash = 37 * hash + (this.identifiers != null ? this.identifiers.hashCode() : 0);
         hash = 37 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 37 * hash + (this.remarks != null ? this.remarks.hashCode() : 0);
         hash = 37 * hash + (this.scope != null ? this.scope.hashCode() : 0);
         hash = 37 * hash + (this.validArea != null ? this.validArea.hashCode() : 0);
         return hash;

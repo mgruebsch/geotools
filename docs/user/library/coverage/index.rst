@@ -11,9 +11,9 @@ The gt-coverage module is responsible for:
 
 * implementation of the coverage interfaces from :doc:`gt-opengis <../opengis/index>` such as GridCoverage2D and Format
 * Bridging between Java Advanced Imaging, JAI Image IO and Java Image facilities and the geospatial idea of a GridCoverage
-* Recognising additional formats available on the CLASSPATH using **GridFormatFinder**
+* Recognizing additional formats available on the CLASSPATH using **GridFormatFinder**
   
-The module supports the use of coverage information (ie raster) from a range of sources.
+The module supports the use of coverage information (i.e. raster) from a range of sources.
 
 **Tutorial**
    
@@ -54,14 +54,12 @@ Format plugins:
    arcsde
    geotiff
    grassraster
-   gtopo30
    image
    imageio
-   jdbc/index
-   oracle
-   pgraster
    mosaic
    pyramid
+   multidim
+   ../data/geopackage
 
 Unsupported plugins:
    
@@ -69,9 +67,7 @@ Unsupported plugins:
    :maxdepth: 1
    
    coverageio
-   experiment
    geotiff_new
-   image-collection
    jp2k
    netCDF
    matlab      

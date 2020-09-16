@@ -17,29 +17,22 @@
 package org.geotools.wfs.bindings;
 
 import java.net.URL;
-
 import javax.xml.namespace.QName;
-
 import net.opengis.wfs.DescribeFeatureTypeType;
-
 import org.geotools.test.TestData;
 import org.geotools.wfs.WFS;
 import org.geotools.wfs.WFSTestSupport;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  * Unit test suite for {@link DescribeFeatureTypeTypeBinding}
- * 
+ *
  * @author Justin Deoliveira
  * @author Gabriel Roldan
- * @version $Id: DescribeFeatureTypeTypeBindingTest.java 27759 2007-11-05
- *          19:46:45Z groldan $
+ * @version $Id: DescribeFeatureTypeTypeBindingTest.java 27759 2007-11-05 19:46:45Z groldan $
  * @since 2.5.x
- *
- *
- * @source $URL$
  */
 public class DescribeFeatureTypeTypeBindingTest extends WFSTestSupport {
     public DescribeFeatureTypeTypeBindingTest() {

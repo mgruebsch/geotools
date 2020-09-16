@@ -16,22 +16,17 @@
  */
 package org.geotools.gml3;
 
-import org.geotools.xml.XSDParserDelegate;
+import org.geotools.xsd.XSDParserDelegate;
 
 /**
  * Parser delegate for GML 3.
- * 
+ *
  * @author Justin Deoliveira, OpenGEO
  * @since 2.6
- *
- *
- *
- * @source $URL$
  */
 public class GMLParserDelegate extends XSDParserDelegate {
 
     public GMLParserDelegate() {
         super(new GMLConfiguration());
     }
-
 }

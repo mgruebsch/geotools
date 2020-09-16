@@ -21,26 +21,16 @@ import javax.xml.namespace.QName;
 import org.geotools.xs.TestSchema;
 import org.geotools.xs.XS;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class XSNonPositiveIntegerStrategyTest extends TestSchema {
     /**
-     * nonPositiveInteger has a lexical representation consisting of an
-     * optional preceding sign followed by a finite-length sequence of
-     * decimal digits (#x30-#x39). The sign may be "+" or may be omitted
-     * only for lexical forms denoting zero; in all other lexical forms,
-     * the negative sign ("-") must be present.
+     * nonPositiveInteger has a lexical representation consisting of an optional preceding sign
+     * followed by a finite-length sequence of decimal digits (#x30-#x39). The sign may be "+" or
+     * may be omitted only for lexical forms denoting zero; in all other lexical forms, the negative
+     * sign ("-") must be present.
      *
-     * For example: -1, 0, -12678967543233, -100000.
-     * @throws Exception
-     *
+     * <p>For example: -1, 0, -12678967543233, -100000.
      */
-    public void validateValues(String text, Number expected)
-        throws Exception {
+    public void validateValues(String text, Number expected) throws Exception {
         Object value = new BigInteger(text.trim());
 
         Object result = strategy.parse(element(text, qname), value);
@@ -53,8 +43,9 @@ public class XSNonPositiveIntegerStrategyTest extends TestSchema {
     }
 
     public BigInteger integer(Object value) {
-        return (value instanceof BigInteger) ? ((BigInteger) value)
-                                             : BigInteger.valueOf(((Number) value).longValue());
+        return (value instanceof BigInteger)
+                ? ((BigInteger) value)
+                : BigInteger.valueOf(((Number) value).longValue());
     }
 
     public Number number(String number) {
@@ -81,7 +72,7 @@ public class XSNonPositiveIntegerStrategyTest extends TestSchema {
     }
 
     public void testNegativeNumber() throws Exception {
-        validateValues("-100000", new Integer("-100000"));
+        validateValues("-100000", Integer.valueOf("-100000"));
     }
 
     protected QName getQName() {

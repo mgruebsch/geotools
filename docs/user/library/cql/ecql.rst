@@ -5,8 +5,14 @@ The ECQL language is intended as an extension of CQL, thus you can write all pre
 
 References
 
-* `ECQL Parser Design <http://docs.codehaus.org/display/GEOTOOLS/ECQL+Parser+Design>`_ (wiki with BNF)
-* `GeoServer CQL Examples <http://docs.geoserver.org/latest/en/user/tutorials/cql/cql_tutorial.html>`_ (geoserver)
+* `ECQL Parser Design <http://old.geotools.org/ECQL-Parser-Design_110493908.html>`__ (design doc with BNF, note, in addition to WKT syntax for geometries 
+  GeoTools now supports also Extended WKT, same as PostGIS, see example below)
+* `GeoServer CQL Examples <http://docs.geoserver.org/latest/en/user/tutorials/cql/cql_tutorial.html>`_ (GeoServer)
+
+.. note::
+
+  Starting with GeoTools 19.0 Geometry objects carrying a CoordinateReferenceSystem among user data get encoded as EWKT.
+  If you do not desire so, set the ``Hints.ENCODE_EWKT`` system hint to false (e..g, ``Hints.putSystemDefault(Hints.ENCODE_EWKT, false);``).
 
 ECQL Utility Class
 ^^^^^^^^^^^^^^^^^^
@@ -23,7 +29,7 @@ As you can see above the ECQL class can be run on the command line.
 It allows you to try out the ECQL examples on this page; and produces the XML Filter representation of the result.::
     
     ECQL Filter Tester
-    "Seperate with \";\" or \"quit\" to finish)
+    "Separate with \";\" or \"quit\" to finish)
     >attr > 10
     <?xml version="1.0" encoding="UTF-8"?>
     <ogc:PropertyIsGreaterThan xmlns="http://www.opengis.net/ogc" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml">
@@ -39,7 +45,7 @@ Examples
 
 * Filter by Comparing Values
   
-  The CQL language limited us to referencing a propertyName against
+  The CQL language limited us to referencing a ``propertyName`` against
   a more general expression.
 
   ECQL allows you to use full expressions everywhere:
@@ -127,12 +133,21 @@ Examples
         Filter filter = ECQL.toFilter(
                 "DWITHIN(buffer(the_geom,5), POINT(1 2), 10, kilometers)");
 
-  The followning example shows how to make a filter using the RELATE geooperation. In this case, the DE-9IM pattern corresponds to the **contains** spatial relation, It will be true if the first geometry contains the second.
+  The following example shows how to make a filter using the RELATE operation. In this case, the DE-9IM pattern corresponds to the **contains** spatial relation, It will be true if the first geometry contains the second.
 
   .. literalinclude:: /../src/main/java/org/geotools/cql/ECQLExamples.java
      :language: java
      :start-after: ecql relatePattern start
      :end-before: ecql relatePattern end
+     
+  The following variant shows the same, but giving the geometry a coordinate reference system using the EWKT convention of 
+  preceding it with "SRID=epsgCode;":
+
+  .. literalinclude:: /../src/main/java/org/geotools/cql/ECQLExamples.java
+     :language: java
+     :start-after: ecql referencedRelatePattern start
+     :end-before: ecql referencedRelatePattern end
+
 
 
 * Filter by temporal relation:

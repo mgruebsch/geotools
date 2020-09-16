@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>library</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
 
 
@@ -26,18 +26,15 @@
   <groupId>org.geotools</groupId>
   <artifactId>gt-metadata</artifactId>
   <packaging>jar</packaging>
+
   <name>Metadata</name>
-  
-
-  <scm>
-    <connection>scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/metadata/</connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/library/metadata/</url>
-  </scm>
-
   <description>
     Contains implementations of metadata and some core utilities classes.
   </description>
-
+  <properties>
+    <moduleIdentifier>org.geotools.metadata</moduleIdentifier>
+  </properties>
+  
   <licenses>
     <license>
       <name>Lesser General Public License (LGPL)</name>
@@ -111,10 +108,21 @@
       (in which case he should put this dependency explicitly on the classpath).
     -->
     <dependency>
+      <groupId>javax.media</groupId>
+      <artifactId>jai_core</artifactId>
+      <!-- The version number is specified in the parent POM. -->
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <!-- The version number is specified in the parent POM. -->
       <scope>provided</scope>  <!-- Not required for default execution. -->
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.locationtech.jts</groupId>
+      <artifactId>jts-core</artifactId>
+      <!-- The version number is specified in the parent POM. -->
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -123,6 +131,16 @@
       <scope>provided</scope>  <!-- Not required for default execution. -->
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+      <dependency>
+          <groupId>org.geotools.ogc</groupId>
+          <artifactId>net.opengis.ows</artifactId>
+          <version>${project.version}</version>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
 
   <build>

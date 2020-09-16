@@ -16,20 +16,20 @@
  */
 package org.geotools.filter.v1_0;
 
+import javax.xml.namespace.QName;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.picocontainer.MutablePicoContainer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import javax.xml.namespace.QName;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
 
 /**
  * Binding object for the type http://www.opengis.net/ogc:DistanceType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType mixed="true" name="DistanceType"&gt;
  *      &lt;xsd:attribute name="units" type="xsd:string" use="required"/&gt;
@@ -37,23 +37,17 @@ import org.geotools.xml.Node;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class OGCDistanceTypeBinding extends AbstractComplexBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return OGC.DistanceType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -64,40 +58,41 @@ public class OGCDistanceTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
     public Class getType() {
-        return Double.class;
+        return DistanceUnits.class;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {
-    }
+    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {}
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //TODO: return some object capable of representing units
-        return Double.valueOf((String) value);
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        String units = node.getAttributeValue("units").toString();
+        return DistanceUnits.of(Double.parseDouble((String) value), units);
     }
 
-    public Element encode(Object object, Document document, Element value)
-        throws Exception {
-        Double distance = (Double) object;
-        value.appendChild(document.createTextNode(distance.toString()));
+    public Element encode(Object object, Document document, Element value) throws Exception {
+        DistanceUnits distance = (DistanceUnits) object;
+        value.appendChild(document.createTextNode(Double.toString(distance.getDistance())));
+        value.setAttribute("units", distance.getUnits());
 
         return value;
     }

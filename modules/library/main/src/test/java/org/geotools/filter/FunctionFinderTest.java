@@ -16,11 +16,12 @@
  */
 package org.geotools.filter;
 
-import java.util.List;
+import static org.junit.Assert.*;
 
+import java.util.List;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.Hints;
 import org.geotools.filter.function.InterpolateFunction;
+import org.geotools.util.factory.Hints;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,14 +30,7 @@ import org.junit.Test;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Function;
 
-import static org.junit.Assert.*;
-
-/**
- * @author jody
- *
- *
- * @source $URL$
- */
+/** @author jody */
 public class FunctionFinderTest {
     static org.opengis.filter.FilterFactory ff;
 
@@ -77,7 +71,7 @@ public class FunctionFinderTest {
                 break;
             }
         }
-        assertTrue("Found Interpolate", found );
+        assertTrue("Found Interpolate", found);
     }
 
     @Test
@@ -103,5 +97,4 @@ public class FunctionFinderTest {
         name = finder.findFunctionDescription("INTERPOLATE");
         assertNull("INTERPOLATE", name);
     }
-
 }

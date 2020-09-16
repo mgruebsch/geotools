@@ -25,17 +25,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-import org.geotools.data.wfs.impl.WFSContentDataStore;
+import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.internal.Loggers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- *
- */
+/** */
 public class CubewerksOnlineTest {
 
     // old server -- do not test version 0.0.16
@@ -43,17 +39,19 @@ public class CubewerksOnlineTest {
     // URL("http://ceoware2.ccrs.nrcan.gc.ca/cubewerx/cwwfs/cubeserv.cgi?datastore=CEOWARE2&version=1.0.0&service=WFS&request=GetCapabilities");
     // url = new
     // URL("http://cgns.nrcan.gc.ca/wfs/cubeserv.cgi?DATASTORE=cgns&REQUEST=GetCapabilities&VERSION=1.0.0&SERVICE=WFS");
-    private static String SERVER_URL_100 = "http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi?SERVICE=wfs&DATASTORE=Foundation&version=1.0.0&request=GetCapabilities";
+    private static String SERVER_URL_100 =
+            "http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi?SERVICE=wfs&DATASTORE=Foundation&version=1.0.0&request=GetCapabilities";
 
-    private static String SERVER_URL_110 = "http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi?SERVICE=wfs&DATASTORE=Foundation&version=1.1.0&request=GetCapabilities";
+    private static String SERVER_URL_110 =
+            "http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi?SERVICE=wfs&DATASTORE=Foundation&version=1.1.0&request=GetCapabilities";
 
     private static URL url_100;
 
     private static URL url_110;
 
-    private static WFSContentDataStore wfs100;
+    private static WFSDataStore wfs100;
 
-    private static WFSContentDataStore wfs110;
+    private static WFSDataStore wfs110;
 
     @BeforeClass
     public static void oneTimeSetUp() throws Exception {
@@ -65,34 +63,32 @@ public class CubewerksOnlineTest {
             try {
                 stream = url_100.openStream();
             } catch (Throwable t) {
-                System.err.println("Server is not available. test disabled ");
+                // System.err.println("Server is not available. test disabled ");
                 url_100 = null;
                 url_110 = null;
-            } finally {
-                IOUtils.closeQuietly(stream);
             }
         }
         if (url_100 != null) {
             Loggers.info("Creating 1.0.0 datastore from ", url_100);
             try {
                 wfs100 = getDataStore(url_100, null);
+                assertEquals("1.0.0", wfs100.getInfo().getVersion());
             } catch (Throwable t) {
                 url_100 = null;
-                Loggers.info("Can't obtain 1.0.0 DataStore, 1.0.0 tests disabled: "
-                        + t.getMessage());
+                Loggers.info(
+                        "Can't obtain 1.0.0 DataStore, 1.0.0 tests disabled: " + t.getMessage());
             }
-            assertEquals("1.0.0", wfs100.getInfo().getVersion());
         }
         if (url_110 != null) {
             Loggers.info("Creating 1.1.0 datastore from ", url_110);
             try {
                 wfs110 = getDataStore(url_110, null);
+                assertEquals("1.1.0", wfs110.getInfo().getVersion());
             } catch (Exception t) {
                 url_110 = null;
-                Loggers.info("Can't obtain 1.1.0 DataStore, 1.1.0 tests disabled: "
-                        + t.getMessage());
+                Loggers.info(
+                        "Can't obtain 1.1.0 DataStore, 1.1.0 tests disabled: " + t.getMessage());
             }
-            assertEquals("1.1.0", wfs110.getInfo().getVersion());
         }
     }
 

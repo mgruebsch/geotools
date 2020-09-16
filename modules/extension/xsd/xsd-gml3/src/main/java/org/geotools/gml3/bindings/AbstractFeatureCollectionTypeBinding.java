@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2016, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,26 +18,22 @@ package org.geotools.gml3.bindings;
 
 import java.util.Collection;
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.DefaultFeatureCollections;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.feature.simple.SimpleFeature;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:AbstractFeatureCollectionType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType abstract="true" name="AbstractFeatureCollectionType"&gt;
  *      &lt;annotation&gt;
@@ -55,23 +51,17 @@ import org.opengis.feature.simple.SimpleFeature;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class AbstractFeatureCollectionTypeBinding extends AbstractComplexBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return GML.AbstractFeatureCollectionType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -82,28 +72,29 @@ public class AbstractFeatureCollectionTypeBinding extends AbstractComplexBinding
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        SimpleFeatureCollection featureCollection = 
-            (SimpleFeatureCollection) node.getChildValue(FeatureCollection.class);
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        SimpleFeatureCollection featureCollection =
+                (SimpleFeatureCollection) node.getChildValue(FeatureCollection.class);
         if (featureCollection == null) {
-            featureCollection = new DefaultFeatureCollection();
+            featureCollection = new DelayedSchemaFeatureCollection();
         }
 
-        //&lt;element maxOccurs="unbounded" minOccurs="0" ref="gml:featureMember"/&gt;
+        // &lt;element maxOccurs="unbounded" minOccurs="0" ref="gml:featureMember"/&gt;
         List<SimpleFeature> childValues = node.getChildValues(SimpleFeature.class);
-        
-        // example DefaultFeatureCollections or ListFeatureCollection
-        Collection<SimpleFeature> collection = DataUtilities.collectionCast( featureCollection );
+
+        // example ListFeatureCollection
+        Collection<SimpleFeature> collection = DataUtilities.collectionCast(featureCollection);
         collection.addAll(childValues);
 
-        //&lt;element minOccurs="0" ref="gml:featureMembers"/&gt;
-        SimpleFeature[] featureMembers = (SimpleFeature[]) node.getChildValue(SimpleFeature[].class);
+        // &lt;element minOccurs="0" ref="gml:featureMembers"/&gt;
+        SimpleFeature[] featureMembers =
+                (SimpleFeature[]) node.getChildValue(SimpleFeature[].class);
 
         if (featureMembers != null) {
             for (int i = 0; i < featureMembers.length; i++) {
@@ -115,13 +106,13 @@ public class AbstractFeatureCollectionTypeBinding extends AbstractComplexBinding
     }
 
     public Object getProperty(Object object, QName name) {
-        //just return the features themselves
+        // just return the features themselves
         if (GML.featureMembers.equals(name)) {
             SimpleFeatureCollection fc = (SimpleFeatureCollection) object;
 
             return fc;
 
-            //return fc.toArray(new Feature[fc.size()]);
+            // return fc.toArray(new Feature[fc.size()]);
         }
 
         return null;

@@ -1,21 +1,39 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2008-2014, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.data.wfs.internal;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.util.logging.Logging;
 
+/**
+ * Internal utility class providing static constants for Loggers used during WFSDataStore operation.
+ */
 public final class Loggers {
 
     private Loggers() {
         //
     }
 
-    public static final Logger MODULE = Logging.getLogger("org.geotools.data.wfs");
+    public static final Logger MODULE = Logging.getLogger(Loggers.class);
 
-    public static final Logger REQUESTS = Logging.getLogger("org.geotools.data.wfs.requests");
+    public static final Logger REQUESTS = Logging.getLogger(Loggers.class);
 
-    public static final Logger RESPONSES = Logging.getLogger("org.geotools.data.wfs.responses");
+    public static final Logger RESPONSES = Logging.getLogger(Loggers.class);
 
     public static final Level MODULE_TRACE_LEVEL = Level.FINER;
 
@@ -23,15 +41,15 @@ public final class Loggers {
 
     public static final Level MODULE_INFO_LEVEL = Level.INFO;
 
-    public static final Level REQUEST_TRACE_LEVEL = Level.INFO;// TODO: lower this
+    public static final Level REQUEST_TRACE_LEVEL = Level.FINE;
 
-    public static final Level REQUEST_DEBUG_LEVEL = Level.INFO;// TODO: lower this
+    public static final Level REQUEST_DEBUG_LEVEL = Level.FINER;
 
     public static final Level REQUEST_INFO_LEVEL = Level.INFO;
 
-    public static final Level RESPONSES_TRACE_LEVEL = Level.INFO;// TODO: lower this
+    public static final Level RESPONSES_TRACE_LEVEL = Level.FINE;
 
-    public static final Level RESPONSES_DEBUG_LEVEL = Level.INFO;// TODO: lower this
+    public static final Level RESPONSES_DEBUG_LEVEL = Level.FINER;
 
     public static void trace(Object... message) {
         log(MODULE, MODULE_TRACE_LEVEL, message);
@@ -75,5 +93,4 @@ public final class Loggers {
             logger.log(level, sb.toString());
         }
     }
-
 }

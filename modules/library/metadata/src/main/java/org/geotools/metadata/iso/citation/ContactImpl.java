@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,38 +19,35 @@
  */
 package org.geotools.metadata.iso.citation;
 
+import net.opengis.ows11.ContactType;
+import org.geotools.metadata.iso.MetadataEntity;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.metadata.citation.Address;
 import org.opengis.metadata.citation.Contact;
 import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.metadata.citation.Telephone;
 import org.opengis.util.InternationalString;
-import org.geotools.metadata.iso.MetadataEntity;
-
 
 /**
  * Information required to enable contact with the responsible person and/or organization.
  *
  * @since 2.1
- *
- *
- * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  * @author Touraïvane
  */
 public class ContactImpl extends MetadataEntity implements Contact {
-    /**
-     * Serial number for interoperability with different versions.
-     */
+    /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = 3283637180253117382L;
 
     /**
-     * Contact informations for the <A HREF="http://www.opengeospatial.org">Open Geospatial consortium</A>.
-     * "Open Geospatial consortium" is the new name for "OpenGIS consortium".
+     * Contact informations for the <A HREF="http://www.opengeospatial.org">Open Geospatial
+     * consortium</A>. "Open Geospatial consortium" is the new name for "OpenGIS consortium".
      *
      * @see OnLineResourceImpl#OGC
      */
     public static final Contact OGC;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.OGC);
         c.freeze();
@@ -63,6 +60,7 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * @see OnLineResourceImpl#OPEN_GIS
      */
     public static final Contact OPEN_GIS;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.OPEN_GIS);
         c.freeze();
@@ -70,12 +68,13 @@ public class ContactImpl extends MetadataEntity implements Contact {
     }
 
     /**
-     * Contact informations for the
-     * <A HREF="http://www.epsg.org">European Petroleum Survey Group</A>.
+     * Contact informations for the <A HREF="http://www.epsg.org">European Petroleum Survey
+     * Group</A>.
      *
      * @see OnLineResourceImpl#EPSG
      */
     public static final Contact EPSG;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.EPSG);
         c.freeze();
@@ -83,12 +82,13 @@ public class ContactImpl extends MetadataEntity implements Contact {
     }
 
     /**
-     * Contact informations for the
-     * <A HREF="http://www.remotesensing.org/geotiff/geotiff.html">GeoTIFF</A> group.
+     * Contact informations for the <A
+     * HREF="http://www.remotesensing.org/geotiff/geotiff.html">GeoTIFF</A> group.
      *
      * @see OnLineResourceImpl#GEOTIFF
      */
     public static final Contact GEOTIFF;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.GEOTIFF);
         c.freeze();
@@ -101,6 +101,7 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * @see OnLineResourceImpl#ESRI
      */
     public static final Contact ESRI;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.ESRI);
         c.freeze();
@@ -113,6 +114,7 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * @see OnLineResourceImpl#ORACLE
      */
     public static final Contact ORACLE;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.ORACLE);
         c.freeze();
@@ -123,10 +125,10 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * Contact informations for <A HREF="http://postgis.refractions.net">PostGIS</A>.
      *
      * @see OnLineResourceImpl#POSTGIS
-     *
      * @since 2.4
      */
     public static final Contact POSTGIS;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.POSTGIS);
         c.freeze();
@@ -137,10 +139,10 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * Contact informations for <A HREF="http://www.sun.com/">Sun Microsystems</A>.
      *
      * @see OnLineResourceImpl#SUN_MICROSYSTEMS
-     *
      * @since 2.2
      */
     public static final Contact SUN_MICROSYSTEMS;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.SUN_MICROSYSTEMS);
         c.freeze();
@@ -153,15 +155,14 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * @see OnLineResourceImpl#GEOTOOLS
      */
     public static final Contact GEOTOOLS;
+
     static {
         final ContactImpl c = new ContactImpl(OnLineResourceImpl.GEOTOOLS);
         c.freeze();
         GEOTOOLS = c;
     }
 
-    /**
-     * Supplemental instructions on how or when to contact the individual or organization.
-     */
+    /** Supplemental instructions on how or when to contact the individual or organization. */
     private InternationalString contactInstructions;
 
     /**
@@ -170,24 +171,16 @@ public class ContactImpl extends MetadataEntity implements Contact {
      */
     private InternationalString hoursOfService;
 
-    /**
-     * On-line information that can be used to contact the individual or organization.
-     */
+    /** On-line information that can be used to contact the individual or organization. */
     private OnLineResource onLineResource;
 
-    /**
-     * Physical and email address at which the organization or individual may be contacted.
-     */
+    /** Physical and email address at which the organization or individual may be contacted. */
     private Address address;
 
-    /**
-     * Telephone numbers at which the organization or individual may be contacted.
-     */
+    /** Telephone numbers at which the organization or individual may be contacted. */
     private Telephone phone;
 
-    /**
-     * Constructs an initially empty contact.
-     */
+    /** Constructs an initially empty contact. */
     public ContactImpl() {
         // empty constructor, please use set methods and call
         // freeze before returning this instance to client code
@@ -202,16 +195,41 @@ public class ContactImpl extends MetadataEntity implements Contact {
         super(source);
     }
 
-    /**
-     * Constructs a contact initialized to the specified online resource.
-     */
+    /** Constructs a contact initialized to the specified online resource. */
     public ContactImpl(final OnLineResource resource) {
         setOnLineResource(resource);
     }
 
+    public ContactImpl(ContactType contactInfo) {
+
+        if (contactInfo != null) {
+
+            if (contactInfo.getAddress() != null) {
+                setAddress(new AddressImpl(contactInfo.getAddress()));
+            }
+
+            if (contactInfo.getContactInstructions() != null) {
+                setContactInstructions(
+                        new SimpleInternationalString(contactInfo.getContactInstructions()));
+            }
+
+            if (contactInfo.getHoursOfService() != null) {
+                setHoursOfService(new SimpleInternationalString(contactInfo.getHoursOfService()));
+            }
+
+            if (contactInfo.getOnlineResource() != null) {
+                setOnLineResource(new OnLineResourceImpl(contactInfo.getOnlineResource()));
+            }
+
+            if (contactInfo.getPhone() != null) {
+                setPhone(new TelephoneImpl(contactInfo.getPhone()));
+            }
+        }
+    }
+
     /**
-     * Returns the physical and email address at which the organization or individual may be contacted.
-     * Returns {@code null} if none.
+     * Returns the physical and email address at which the organization or individual may be
+     * contacted. Returns {@code null} if none.
      */
     public Address getAddress() {
         return address;
@@ -220,7 +238,7 @@ public class ContactImpl extends MetadataEntity implements Contact {
     /**
      * Set the physical and email address at which the organization or individual may be contacted.
      */
-    public synchronized void setAddress(final Address newValue) {
+    public void setAddress(final Address newValue) {
         checkWritePermission();
         address = newValue;
     }
@@ -233,10 +251,8 @@ public class ContactImpl extends MetadataEntity implements Contact {
         return contactInstructions;
     }
 
-    /**
-     * Set supplemental instructions on how or when to contact the individual or organization.
-     */
-    public synchronized void setContactInstructions(final InternationalString newValue) {
+    /** Set supplemental instructions on how or when to contact the individual or organization. */
+    public void setContactInstructions(final InternationalString newValue) {
         checkWritePermission();
         contactInstructions = newValue;
     }
@@ -249,34 +265,29 @@ public class ContactImpl extends MetadataEntity implements Contact {
         return onLineResource;
     }
 
-    /**
-     * Set on-line information that can be used to contact the individual or organization.
-     */
-    public synchronized void setOnLineResource(final OnLineResource newValue) {
+    /** Set on-line information that can be used to contact the individual or organization. */
+    public void setOnLineResource(final OnLineResource newValue) {
         checkWritePermission();
         onLineResource = newValue;
     }
 
     /**
-     * Returns telephone numbers at which the organization or individual may be contacted.
-     * Returns {@code null} if none.
+     * Returns telephone numbers at which the organization or individual may be contacted. Returns
+     * {@code null} if none.
      */
     public Telephone getPhone() {
         return phone;
     }
 
-    /**
-     * Set telephone numbers at which the organization or individual may be contacted.
-     */
-    public synchronized void setPhone(final Telephone newValue) {
+    /** Set telephone numbers at which the organization or individual may be contacted. */
+    public void setPhone(final Telephone newValue) {
         checkWritePermission();
         phone = newValue;
     }
 
     /**
      * Returns time period (including time zone) when individuals can contact the organization or
-     * individual.
-     * Returns {@code null} if none.
+     * individual. Returns {@code null} if none.
      */
     public InternationalString getHoursOfService() {
         return hoursOfService;
@@ -286,7 +297,7 @@ public class ContactImpl extends MetadataEntity implements Contact {
      * Set time period (including time zone) when individuals can contact the organization or
      * individual.
      */
-    public synchronized void setHoursOfService(final InternationalString newValue) {
+    public void setHoursOfService(final InternationalString newValue) {
         checkWritePermission();
         hoursOfService = newValue;
     }

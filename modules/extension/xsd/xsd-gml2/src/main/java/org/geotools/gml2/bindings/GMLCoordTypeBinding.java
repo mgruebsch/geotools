@@ -17,23 +17,20 @@
 package org.geotools.gml2.bindings;
 
 import java.math.BigDecimal;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.gml2.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequenceFactory;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:CoordType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType name="CoordType"&gt;
  *      &lt;annotation&gt;
@@ -49,13 +46,8 @@ import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class GMLCoordTypeBinding extends AbstractComplexBinding {
     CoordinateSequenceFactory csFactory;
@@ -64,14 +56,13 @@ public class GMLCoordTypeBinding extends AbstractComplexBinding {
         this.csFactory = csFactory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return GML.CoordType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -82,49 +73,42 @@ public class GMLCoordTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * Returns a coordinate sequence with a single coordinate in it.
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        int dimension = 1;
-        double x;
-        double y;
-        double z;
-        x = y = z = Double.NaN;
-
-        x = ((BigDecimal) node.getChild("X").getValue()).doubleValue();
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        double x = ((BigDecimal) node.getChild("X").getValue()).doubleValue();
+        double y = Double.NaN;
+        double z = Double.NaN;
 
         if (!node.getChildren("Y").isEmpty()) {
-            dimension++;
             y = ((BigDecimal) node.getChild("Y").getValue()).doubleValue();
         }
 
         if (!node.getChildren("Z").isEmpty()) {
-            dimension++;
             z = ((BigDecimal) node.getChild("Z").getValue()).doubleValue();
         }
 
         return new Coordinate(x, y, z);
     }
 
-    public Object getProperty(Object object, QName name)
-        throws Exception {
+    public Object getProperty(Object object, QName name) throws Exception {
         Coordinate c = (Coordinate) object;
 
         if ("X".equals(name.getLocalPart())) {
-            return new Double(c.x);
+            return Double.valueOf(c.x);
         }
 
         if ("Y".equals(name.getLocalPart())) {
-            return new Double(c.y);
+            return Double.valueOf(c.y);
         }
 
-        if ("Z".equals(name.getLocalPart()) && !new Double(c.z).isNaN()) {
-            return new Double(c.z);
+        if ("Z".equals(name.getLocalPart()) && !Double.valueOf(c.getZ()).isNaN()) {
+            return Double.valueOf(c.getZ());
         }
 
         return null;

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,23 +19,16 @@ package org.geotools.filter.text.commons;
 import java.util.Calendar;
 import java.util.Date;
 
-
 /**
  * Duration utility class
- * <p>
- * Maintains convenient methods to manipulate the duration information.
- * </p>
- * 
+ *
+ * <p>Maintains convenient methods to manipulate the duration information.
+ *
  * @since 2.5
- * 
  * @author Mauricio Pazos - Axios Engineering
  * @author Gabriel Roldan - Axios Engineering
- * @version $Id$
- * @source $URL:
- *         http://svn.geotools.org/geotools/trunk/gt/modules/library/cql/src/main/java/org/geotools/text/filter/cql2/DurationUtil.java $
  */
 final class DurationUtil {
-    private static final Calendar CALENDAR = Calendar.getInstance();
     private static final int YEARS = 0;
     private static final int MONTHS = 1;
     private static final int DAYS = 2;
@@ -54,15 +47,13 @@ final class DurationUtil {
     /**
      * Extract from duration string the values of years, month and days
      *
-     * @param duration
-     * @return int[3] with years,months,days, if some value are not present -1
-     *         will be returned.
+     * @return int[3] with years,months,days, if some value are not present -1 will be returned.
      */
     private static int[] extractDurationDate(final String duration) {
         // initializes duration date container
         /** Y,M,D */
         int[] durationDate = new int[3];
-        
+
         for (int i = 0; i < durationDate.length; i++) {
             durationDate[i] = -1;
         }
@@ -114,9 +105,8 @@ final class DurationUtil {
     /**
      * Extract from duration string the values of hours, minutes and seconds
      *
-     * @param duration
-     * @return int[3] with hours, minutes and seconds if some value are not
-     *         present -1 will be returned.
+     * @return int[3] with hours, minutes and seconds if some value are not present -1 will be
+     *     returned.
      */
     private static int[] extractDurationTime(final String duration) {
         for (int i = 0; i < DURATION_TIME.length; i++) {
@@ -168,16 +158,12 @@ final class DurationUtil {
     /**
      * Add duration to date
      *
-     * @param date
-     *            a Date
-     * @param duration
-     *            a String formated like "P##Y##M##D"
-     *
+     * @param date a Date
+     * @param duration a String formated like "P##Y##M##D"
      * @return a Date
-     *
      */
     public static Date addDurationToDate(final Date date, final String duration)
-        throws NumberFormatException {
+            throws NumberFormatException {
         final int positive = 1;
 
         Date computedDate = null;
@@ -192,15 +178,12 @@ final class DurationUtil {
     /**
      * Adds years, month and days (duration) to initial date.
      *
-     * @param date
-     *            initial date
-     * @param duration
-     *            a String with format: PddYddMddD
-     * @return Date a computed date. if duration have not got duration "P"
-     *         return date value.
-     *
+     * @param date initial date
+     * @param duration a String with format: PddYddMddD
+     * @return Date a computed date. if duration have not got duration "P" return date value.
      */
-    private static Date computeDateFromDurationDate(final Date date, final String duration, int sign) {
+    private static Date computeDateFromDurationDate(
+            final Date date, final String duration, int sign) {
 
         int[] durationDate = new int[3];
         durationDate = extractDurationDate(duration);
@@ -209,24 +192,25 @@ final class DurationUtil {
             return date;
         }
 
-        CALENDAR.setTime(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
 
         // years
         if (durationDate[YEARS] >= 0) {
-            CALENDAR.add(Calendar.YEAR, sign * durationDate[YEARS]);
+            calendar.add(Calendar.YEAR, sign * durationDate[YEARS]);
         }
 
         // months
         if (durationDate[MONTHS] >= 0) {
-            CALENDAR.add(Calendar.MONTH, sign * durationDate[MONTHS]);
+            calendar.add(Calendar.MONTH, sign * durationDate[MONTHS]);
         }
 
         // days
         if (durationDate[DAYS] >= 0) {
-            CALENDAR.add(Calendar.DATE, sign * durationDate[DAYS]);
+            calendar.add(Calendar.DATE, sign * durationDate[DAYS]);
         }
 
-        Date lastDate = CALENDAR.getTime();
+        Date lastDate = calendar.getTime();
 
         return lastDate;
     }
@@ -234,7 +218,6 @@ final class DurationUtil {
     /**
      * durDate is null if all his values are -1
      *
-     * @param durDate
      * @return true if has some greater than or equal 0
      */
     private static boolean isNull(int[] durDate) {
@@ -250,41 +233,38 @@ final class DurationUtil {
     /**
      * Add or subtract time duration to initial date.
      *
-     * @param date
-     *            initial date
-     * @param duration
-     *            a String with format: TddHddMddS
-     * @param sign
-     *            1 or -1 (add or subract)
-     * @return Date a computed date. if duration have not got duration "T"
-     *         return date value.
+     * @param date initial date
+     * @param duration a String with format: TddHddMddS
+     * @param sign 1 or -1 (add or subract)
+     * @return Date a computed date. if duration have not got duration "T" return date value.
      */
-    private static Date computeDateFromDurationTime(final Date date, final String duration,
-        final int sign) {
+    private static Date computeDateFromDurationTime(
+            final Date date, final String duration, final int sign) {
         DURATION_TIME = extractDurationTime(duration);
 
         if (isNull(DURATION_TIME)) {
             return date;
         }
 
-        CALENDAR.setTime(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
 
         // hours
         if (DURATION_TIME[HOURS] >= 0) {
-            CALENDAR.add(Calendar.HOUR, sign * DURATION_TIME[HOURS]);
+            calendar.add(Calendar.HOUR, sign * DURATION_TIME[HOURS]);
         }
 
         // minute
         if (DURATION_TIME[MINUTES] >= 0) {
-            CALENDAR.add(Calendar.MINUTE, sign * DURATION_TIME[MINUTES]);
+            calendar.add(Calendar.MINUTE, sign * DURATION_TIME[MINUTES]);
         }
 
         // seconds
         if (DURATION_TIME[SECONDS] >= 0) {
-            CALENDAR.add(Calendar.SECOND, sign * DURATION_TIME[SECONDS]);
+            calendar.add(Calendar.SECOND, sign * DURATION_TIME[SECONDS]);
         }
 
-        Date lastDate = CALENDAR.getTime();
+        Date lastDate = calendar.getTime();
 
         return lastDate;
     }
@@ -292,11 +272,8 @@ final class DurationUtil {
     /**
      * Subtracts duration to date
      *
-     * @param date
-     *            a Date
-     * @param duration
-     *            a String formated like "P##Y##M##D"
-     *
+     * @param date a Date
+     * @param duration a String formated like "P##Y##M##D"
      * @return a Date
      */
     public static Date subtractDurationToDate(Date date, String duration) {

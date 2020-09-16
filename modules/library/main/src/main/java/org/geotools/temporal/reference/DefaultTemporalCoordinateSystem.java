@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,35 +17,35 @@
 package org.geotools.temporal.reference;
 
 import java.util.Date;
-import org.geotools.util.Utilities;
 import org.geotools.temporal.object.DefaultTemporalCoordinate;
+import org.geotools.util.Utilities;
 import org.opengis.metadata.extent.Extent;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.temporal.TemporalCoordinate;
 import org.opengis.temporal.TemporalCoordinateSystem;
 import org.opengis.util.InternationalString;
 
-/**
- *
- * @author Mehdi Sidhoum (Geomatys)
- *
- *
- *
- * @source $URL$
- */
-public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSystem implements TemporalCoordinateSystem {
+/** @author Mehdi Sidhoum (Geomatys) */
+public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSystem
+        implements TemporalCoordinateSystem {
 
     /**
-     * The origin of the scale, it must be specified in the Gregorian calendar with time of day in UTC.
+     * The origin of the scale, it must be specified in the Gregorian calendar with time of day in
+     * UTC.
      */
     private Date origin;
     /**
-     * The name of a single unit of measure used as the base interval for the scale.
-     * it shall be one of those units of measure for time specified by ISO 31-1, or a multiple of one of those units, as specified by ISO 1000.
+     * The name of a single unit of measure used as the base interval for the scale. it shall be one
+     * of those units of measure for time specified by ISO 31-1, or a multiple of one of those
+     * units, as specified by ISO 1000.
      */
     private InternationalString interval;
 
-    public DefaultTemporalCoordinateSystem(ReferenceIdentifier name, Extent domainOfValidity, Date origin, InternationalString interval) {
+    public DefaultTemporalCoordinateSystem(
+            ReferenceIdentifier name,
+            Extent domainOfValidity,
+            Date origin,
+            InternationalString interval) {
         super(name, domainOfValidity);
         this.origin = origin;
         this.interval = interval;
@@ -68,9 +68,8 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
     }
 
     /**
-     * Returns the equivalent Date in the Gregorian calendar and UTC of a coordinate value defined in this temporal coordinate system.
-     * @param c_value
-     * @return
+     * Returns the equivalent Date in the Gregorian calendar and UTC of a coordinate value defined
+     * in this temporal coordinate system.
      */
     public Date transformCoord(TemporalCoordinate c_value) {
         Date response;
@@ -103,7 +102,8 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
                 } else if (interval.toString().equals("millisecond")) {
                     f = n;
                 } else {
-                    throw new IllegalArgumentException("The name of a single unit of measure used as the base interval for the scale in this current TemporalCoordinateSystem is not supported !");
+                    throw new IllegalArgumentException(
+                            "The name of a single unit of measure used as the base interval for the scale in this current TemporalCoordinateSystem is not supported !");
                 }
                 response = new Date(origin.getTime() + f.longValue());
                 return response;
@@ -111,15 +111,14 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
                 return null;
             }
         } else {
-            throw new IllegalArgumentException("The TemporalCoordinate argument must be a TemporalCoordinate ! ");
+            throw new IllegalArgumentException(
+                    "The TemporalCoordinate argument must be a TemporalCoordinate ! ");
         }
     }
 
     /**
-     * Returns the equivalent TemporalCoordinate of a Date in Gregorian Calendar.
-     * Default of unit is millisecond.
-     * @param dateTime
-     * @return
+     * Returns the equivalent TemporalCoordinate of a Date in Gregorian Calendar. Default of unit is
+     * millisecond.
      */
     public TemporalCoordinate transformDateTime(Date dateTime) {
         TemporalCoordinate response;
@@ -158,10 +157,11 @@ public class DefaultTemporalCoordinateSystem extends DefaultTemporalReferenceSys
         }
         if (object instanceof DefaultTemporalCoordinateSystem && super.equals(object)) {
             if (object instanceof DefaultTemporalCoordinateSystem) {
-                final DefaultTemporalCoordinateSystem that = (DefaultTemporalCoordinateSystem) object;
+                final DefaultTemporalCoordinateSystem that =
+                        (DefaultTemporalCoordinateSystem) object;
 
-                return Utilities.equals(this.interval, that.interval) &&
-                        Utilities.equals(this.origin, that.origin);
+                return Utilities.equals(this.interval, that.interval)
+                        && Utilities.equals(this.origin, that.origin);
             }
         }
         return false;

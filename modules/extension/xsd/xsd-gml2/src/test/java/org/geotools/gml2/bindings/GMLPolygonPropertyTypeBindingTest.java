@@ -17,19 +17,12 @@
 package org.geotools.gml2.bindings;
 
 import org.geotools.gml2.GML;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLPolygonPropertyTypeBindingTest extends AbstractGMLBindingTest {
     ElementInstance association;
     ElementInstance geometry;
@@ -37,22 +30,35 @@ public class GMLPolygonPropertyTypeBindingTest extends AbstractGMLBindingTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        association = createElement(GML.NAMESPACE, "myPolygonProperty", GML.POLYGONPROPERTYTYPE,
-                null);
-        geometry = createElement(GML.NAMESPACE, "myPolygon", GML.POLYGONTYPE, null);
+        association =
+                createElement(GML.NAMESPACE, "myPolygonProperty", GML.PolygonPropertyType, null);
+        geometry = createElement(GML.NAMESPACE, "myPolygon", GML.PolygonType, null);
     }
 
     public void testWithGeometry() throws Exception {
-        Node node = createNode(association, new ElementInstance[] { geometry },
-                new Object[] {
-                    new GeometryFactory().createPolygon(new GeometryFactory().createLinearRing(
-                            new Coordinate[] {
-                                new Coordinate(0, 0), new Coordinate(1, 1), new Coordinate(2, 2),
-                                new Coordinate(0, 0),
-                            }), null)
-                }, null, null);
-        GMLGeometryAssociationTypeBinding s = (GMLGeometryAssociationTypeBinding) getBinding(GML.GEOMETRYASSOCIATIONTYPE);
-        GMLPolygonPropertyTypeBinding s1 = (GMLPolygonPropertyTypeBinding) getBinding(GML.POLYGONPROPERTYTYPE);
+        Node node =
+                createNode(
+                        association,
+                        new ElementInstance[] {geometry},
+                        new Object[] {
+                            new GeometryFactory()
+                                    .createPolygon(
+                                            new GeometryFactory()
+                                                    .createLinearRing(
+                                                            new Coordinate[] {
+                                                                new Coordinate(0, 0),
+                                                                new Coordinate(1, 1),
+                                                                new Coordinate(2, 2),
+                                                                new Coordinate(0, 0),
+                                                            }),
+                                            null)
+                        },
+                        null,
+                        null);
+        GMLGeometryAssociationTypeBinding s =
+                (GMLGeometryAssociationTypeBinding) getBinding(GML.GeometryAssociationType);
+        GMLPolygonPropertyTypeBinding s1 =
+                (GMLPolygonPropertyTypeBinding) getBinding(GML.PolygonPropertyType);
         Polygon p = (Polygon) s1.parse(association, node, s.parse(association, node, null));
         assertNotNull(p);
     }

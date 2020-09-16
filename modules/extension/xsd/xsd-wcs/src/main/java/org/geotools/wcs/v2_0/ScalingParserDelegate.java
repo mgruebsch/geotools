@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2012, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,12 +16,11 @@
  */
 package org.geotools.wcs.v2_0;
 
-import org.geotools.xml.XSDParserDelegate;
+import org.geotools.xsd.XSDParserDelegate;
 
 public class ScalingParserDelegate extends XSDParserDelegate {
 
     public ScalingParserDelegate() {
         super(new ScalingConfiguration());
     }
-
 }

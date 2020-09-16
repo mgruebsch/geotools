@@ -1,169 +1,2952 @@
-org.geotools.process.function.ProcessFunctionFactory
-    gt:BufferFeatureCollection(features, buffer)
-    gt:DoubleAddition(input_a, input_b)
-    gt:FeatureBuffer(input_a, input_b)
-    gt:Intersect(geom1, geom2)
-    gt:RasterToVector(band, bounds, inside, nodata, raster)
-    gt:Union(geom)
-    gt:VectorToRaster(features, bounds, attribute, rasterWidth, rasterHeight, title)
-    gt:buffer(buffer, geom1)
-    parameter(arg0)
-org.geotools.filter.function.DefaultFunctionFactory
-    Categorize()
-    Collection_Average(expression)
-    Collection_Bounds(geometry)
-    Collection_Count(expression)
-    Collection_Max(value)
-    Collection_Median(value)
-    Collection_Min(expression)
-    Collection_Sum(arg0)
-    Collection_Unique(expression)
-    Concatenate()
-    EqualInterval(arg0, arg1)
-    IEEEremainder(dividend, divisor)
-    Interpolate()
-    Jenks(arg0, arg1)
-    PropertyExists(propertyName)
-    Quantile(arg0, arg1)
-    Recode()
-    StandardDeviation(arg0, arg1)
-    UniqueInterval(arg0, arg1)
-    abs(int)
-    abs_2(long)
-    abs_3(float)
-    abs_4(double)
-    acos(value)
-    area(geometry)
-    asin(value)
-    atan(value)
-    atan2(x, y)
-    between(value, low, high)
-    boundary(geometry)
-    boundaryDimension(geometry)
-    buffer(geometry, distance)
-    bufferWithSegments(geometry, distance, numberOfSegments)
-    ceil(double)
-    centroid(geometry)
-    classify(expression, classifier)
-    contains(geometry, geometry)
-    convert(value, class)
-    convexHull(geometry)
-    cos(radians)
-    crosses(geometry, geoemtry)
-    dateFormat(format, date)
-    dateParse(format, string)
-    difference(geometry, geometry)
-    dimension(geometry)
-    disjoint(geometry, geometry)
-    distance(geometry, geometry)
-    double2bool(double)
-    endAngle(linestring)
-    endPoint(linestring)
-    env(variable)
-    envelope(geometry)
-    equalTo(arg0, arg1)
-    equalsExact(geometry, geometry)
-    equalsExactTolerance(geometry, geometry, tolarance)
-    exp(number)
-    exteriorRing(geometry)
-    floor(double)
-    geomFromWKT(geometry)
-    geomLength(geometry)
-    geometryType(geometry)
-    getGeometryN(geometry, index)
-    getX(geometry)
-    getY(geometry)
-    getZ(arg0)
-    greaterEqualThan(arg0, arg1)
-    greaterThan(arg0, arg1)
-    id()
-    if_then_else(boolean, then, else)
-    in10(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
-    in2(value, test, test)
-    in3(arg0, arg1, arg2, arg3)
-    in4(arg0, arg1, arg2, arg3, arg4)
-    in5(arg0, arg1, arg2, arg3, arg4, arg5)
-    in6(arg0, arg1, arg2, arg3, arg4, arg5, arg6)
-    in7(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-    in8(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
-    in9(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
-    int2bbool(int)
-    int2ddouble(int)
-    interiorPoint(geometry)
-    interiorRingN(geometry, geometry)
-    intersection(geometry, geometry)
-    intersects(geometry, geometry)
-    isClosed(geometry)
-    isEmpty(geometry)
-    isLike(string, regex)
-    isNull(arg0)
-    isRing(geometry)
-    isSimple(geometry)
-    isValid(geometry)
-    isWithinDistance(geometry, geometry, distance)
-    isometric(geometry, extrusion)
-    length(string)
-    lessEqualThan(arg0, arg1)
-    lessThan(arg0, arg1)
-    log(value)
-    max(double, double)
-    max_2(long, long)
-    max_3(float, float)
-    max_4(int, int)
-    min(double, double)
-    min_2(long, long)
-    min_3(float, float)
-    min_4(int, int)
-    not(arg0)
-    notEqualTo(arg0, arg1)
-    numGeometries(geometry)
-    numInteriorRing(polygon)
-    numPoints(geometry)
-    numberFormat(string, number)
-    numberFormat2(format, number, minus, decimal, seperator)
-    offset(geometry, offsetX, offsetY)
-    overlaps(geometry, geometr)
-    parseBoolean(string)
-    parseDouble(string)
-    parseInt(string)
-    parseLong(string)
-    pi()
-    pointN(geometry, index)
-    pow(base, exponent)
-    random()
-    relate(geometry, geometry)
-    relatePattern(geometry, geometry, pattern)
-    rint(double)
-    round(float)
-    roundDouble(number)
-    round_2(double)
-    sin(radians)
-    sqrt(number)
-    startAngle(geometry)
-    startPoint(geometry)
-    strCapitalize(string)
-    strConcat(string, string)
-    strEndsWith(string, postfix)
-    strEqualsIgnoreCase(string, string)
-    strIndexOf(string, string)
-    strLastIndexOf(string, string)
-    strLength(string)
-    strMatches(string, regex)
-    strPosition(string, lookup, forward/backToFront)
-    strReplace(string, search, replace, all)
-    strStartsWith(string, prefix)
-    strSubstring(string, beginIndex, endIndex)
-    strSubstringStart(string, beginIndex)
-    strToLowerCase(string)
-    strToUpperCase(string)
-    strTrim(string)
-    strTrim2(string, leading/trailing/both, character)
-    symDifference(geometry, geometry)
-    tan(radians)
-    toDegrees(radians)
-    toRadians(degree)
-    toWKT(geometry)
-    touches(geometry, geometry)
-    union(geometry, geometry)
-    vertices(geometry)
-    within(geometry, geometry)
+``DefaultFunctionFactory``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Contains 203 functions.
+
+``Area(geometry)``: returns ``area``
+''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``area`` (``Double``)
+
+``Categorize(LookupValue, Value, Threshold 1, Value 1, Threshold 2, Value 2, succeeding or preceding)``: returns ``return``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``LookupValue``
+
+* ``Value``
+
+* ``Threshold 1``
+
+* ``Value 1``
+
+* ``Threshold 2``
+
+* ``Value 2``
+
+* ``succeeding or preceding``
+
+* ``return``
+
+``Collection_Average(expression)``: returns ``average``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``expression`` (``Number``) required
+
+* ``average`` (``Number``)
+
+``Collection_Bounds(geometry)``: returns ``bounds``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``bounds``
+
+``Collection_Count(features)``: returns ``count``
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features``
+
+* ``count`` (``Number``)
+
+``Collection_Max(expression)``: returns ``max``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``expression`` (``Comparable``) required
+
+* ``max`` (``Comparable``)
+
+``Collection_Median(expression)``: returns ``median``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``expression`` (``Comparable``) required
+
+* ``median`` (``Comparable``)
+
+``Collection_Min(expression)``: returns ``min``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``expression`` (``Comparable``) required
+
+* ``min`` (``Comparable``)
+
+``Collection_Nearest(value)``: returns ``expression``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Comparable``) required
+
+* ``expression`` (``Expression``)
+
+``Collection_Sum(expression)``: returns ``sum``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``expression`` (``Number``) required
+
+* ``sum`` (``Number``)
+
+``Collection_Unique(expression)``: returns ``unique``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``expression``
+
+* ``unique``
+
+``Concatenate(text)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''
+
+* ``text`` (``String``) required
+
+* ``result`` (``String``)
+
+``EqualArea(value, classes, areaFunction, percentages)``: returns ``EqualArea``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``classes`` (``Integer``) required
+
+* ``areaFunction`` (``Double``) optional if no parameter follows, otherwise required
+
+* ``percentages`` (``Boolean``) optional
+
+* ``EqualArea`` (``RangedClassifier``)
+
+``EqualInterval(value, classes, percentages)``: returns ``EqualInterval``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``classes`` (``Integer``) required
+
+* ``percentages`` (``Boolean``) optional
+
+* ``EqualInterval`` (``RangedClassifier``)
+
+``IEEEremainder(dividend, divisor)``: returns ``remainder``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``dividend`` (``Number``) required
+
+* ``divisor`` (``Number``) required
+
+* ``remainder`` (``Double``)
+
+``Interpolate(data value pairs, mode, method)``: returns ``lookup``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data value pairs``
+
+* ``mode`` (``String``) required
+
+* ``method`` (``String``) optional
+
+* ``lookup``
+
+``Jenks(value, classes, percentages)``: returns ``Jenks``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``classes`` (``Integer``) required
+
+* ``percentages`` (``Boolean``) optional
+
+* ``Jenks`` (``RangedClassifier``)
+
+``PropertyExists(propertyName)``: returns ``exists``
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``propertyName``
+
+* ``exists`` (``Boolean``)
+
+``Quantile(value, classes, percentages)``: returns ``Quantile``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``classes`` (``Integer``) required
+
+* ``percentages`` (``Boolean``) optional
+
+* ``Quantile`` (``RangedClassifier``)
+
+``Recode(LookupValue, Data 1, Value 1, Data 2, Value 2)``: returns ``return``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``LookupValue``
+
+* ``Data 1``
+
+* ``Value 1``
+
+* ``Data 2``
+
+* ``Value 2``
+
+* ``return``
+
+``StandardDeviation(value, classes, percentages)``: returns ``StandardDeviation``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``classes`` (``Integer``) required
+
+* ``percentages`` (``Boolean``) optional
+
+* ``StandardDeviation`` (``RangedClassifier``)
+
+``UniqueInterval(value, classes, percentages)``: returns ``UniqueInterval``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``classes`` (``Integer``) required
+
+* ``percentages`` (``Boolean``) optional
+
+* ``UniqueInterval`` (``RangedClassifier``)
+
+``abs(int)``: returns ``abs``
+'''''''''''''''''''''''''''''
+
+* ``int`` (``Integer``) required
+
+* ``abs`` (``Integer``)
+
+``abs_2(number)``: returns ``long``
+'''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Long``) required
+
+* ``long`` (``Long``)
+
+``abs_3(number)``: returns ``float``
+''''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Float``) required
+
+* ``float`` (``Float``)
+
+``abs_4(number)``: returns ``double``
+'''''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Double``) required
+
+* ``double`` (``Double``)
+
+``acos(value)``: returns ``arc cosine``
+'''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``arc cosine`` (``Double``)
+
+``area2(geometry)``: returns ``area``
+'''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``area`` (``Double``)
+
+``asin(value)``: returns ``arc sine``
+'''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``arc sine`` (``Double``)
+
+``atan(value)``: returns ``arc tan``
+''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Double``) required
+
+* ``arc tan`` (``Double``)
+
+``atan2(x, y)``: returns ``arc tan``
+''''''''''''''''''''''''''''''''''''
+
+* ``x`` (``Double``) required
+
+* ``y`` (``Double``) required
+
+* ``arc tan`` (``Double``)
+
+``attributeCount(count)``: returns ``return``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+* ``count``
+
+* ``return``
+
+``between(value, min, max)``: returns ``between``
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``min``
+
+* ``max``
+
+* ``between`` (``Boolean``)
+
+``boundary(geometry)``: returns ``boundary``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``boundary`` (``Geometry``)
+
+``boundaryDimension(geometry)``: returns ``dimension``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``dimension`` (``Integer``)
+
+``boundedBy()``: returns ``result``
+'''''''''''''''''''''''''''''''''''
+
+* ``result`` (``Geometry``)
+
+``buffer(geometry, distance)``: returns ``buffer``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``distance`` (``Number``) required
+
+* ``buffer`` (``Geometry``)
+
+``bufferWithSegments(geometry, distance, numberOfSegments)``: returns ``buffer``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``distance`` (``Number``) required
+
+* ``numberOfSegments`` (``Number``) required
+
+* ``buffer`` (``Geometry``)
+
+``ceil(number)``: returns ``ceiling``
+'''''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Number``) required
+
+* ``ceiling`` (``Double``)
+
+``centroid(geometry)``: returns ``centroid``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``centroid`` (``Point``)
+
+``classify(expression, classifer)``: returns ``value``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``expression``
+
+* ``classifer`` (``Classifier``) required
+
+* ``value``
+
+``contains(geometry1, geometry2)``: returns ``contains``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``contains`` (``Boolean``)
+
+``contrast(reference, color1, color2, threshold)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``reference`` (``Color``) required
+
+* ``color1`` (``Color``) optional
+
+* ``color2`` (``Color``) optional
+
+* ``threshold`` (``Double``) optional
+
+* ``result`` (``Color``)
+
+``convert(value, class)``: returns ``converted``
+''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``class`` (``Class``) required
+
+* ``converted``
+
+``convexHull(geometry)``: returns ``hull``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``hull`` (``Geometry``)
+
+``cos(radians)``: returns ``cosine``
+''''''''''''''''''''''''''''''''''''
+
+* ``radians`` (``Double``) required
+
+* ``cosine`` (``Double``)
+
+``crosses(geometry1, geometry2)``: returns ``crosses``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``crosses`` (``Boolean``)
+
+``darken(color, amount, method)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``amount`` (``Float``) required
+
+* ``method`` (``Method``) optional
+
+* ``result`` (``Color``)
+
+``dateDifference(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Date``) required
+
+* ``b`` (``Date``) required
+
+* ``result`` (``Long``)
+
+``dateFormat(format, date)``: returns ``formatted``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``format`` (``String``) required
+
+* ``date`` (``Date``) required
+
+* ``formatted`` (``String``)
+
+``dateParse(format, dateString)``: returns ``date``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``format`` (``String``) required
+
+* ``dateString`` (``String``) required
+
+* ``date`` (``Date``)
+
+``desaturate(color, amount, method)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``amount`` (``Float``) required
+
+* ``method`` (``Method``) optional
+
+* ``result`` (``Color``)
+
+``difference(geometry1, geometry2)``: returns ``difference``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``difference`` (``Geometry``)
+
+``dimension(geometry)``: returns ``dimension``
+''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``dimension`` (``Integer``)
+
+``disjoint(geometry1, geometry2)``: returns ``disjoint``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``disjoint`` (``Boolean``)
+
+``disjoint3D(geometry1, geometry2)``: returns ``disjoint3D``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``disjoint3D`` (``Double``)
+
+``distance(geometry1, geometry2)``: returns ``distance``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``distance`` (``Double``)
+
+``distance3D(geometry1, geometry2)``: returns ``distance3D``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``distance3D`` (``Double``)
+
+``double2bool(double)``: returns ``double2bool``
+''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``double`` (``Double``) required
+
+* ``double2bool`` (``Boolean``)
+
+``endAngle(linestring)``: returns ``endAngle``
+''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``linestring`` (``LineString``) required
+
+* ``endAngle`` (``Double``)
+
+``endPoint(linestring)``: returns ``endPoint``
+''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``linestring`` (``LineString``) required
+
+* ``endPoint`` (``Point``)
+
+``env(variable)``: returns ``value``
+''''''''''''''''''''''''''''''''''''
+
+* ``variable`` (``String``) required
+
+* ``value``
+
+``envelope(geometry)``: returns ``envelope``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``envelope`` (``Geometry``)
+
+``equalTo(a, b)``: returns ``equalTo``
+''''''''''''''''''''''''''''''''''''''
+
+* ``a``
+
+* ``b``
+
+* ``equalTo`` (``Boolean``)
+
+``equalsExact(geometry1, geometry2)``: returns ``equalsExact``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``equalsExact`` (``Boolean``)
+
+``equalsExactTolerance(geometry1, geometry2, tolarance)``: returns ``equalsExactTolerance``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``tolarance`` (``Double``) required
+
+* ``equalsExactTolerance`` (``Boolean``)
+
+``exp(number)``: returns ``exponent``
+'''''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Number``) required
+
+* ``exponent`` (``Double``)
+
+``exteriorRing(geometry)``: returns ``exteriorRing``
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``exteriorRing`` (``LinearRing``)
+
+``floor(double)``: returns ``floor``
+''''''''''''''''''''''''''''''''''''
+
+* ``double`` (``Double``) required
+
+* ``floor`` (``Double``)
+
+``geomFromWKT(geometry)``: returns ``geomFromWKT``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``String``) required
+
+* ``geomFromWKT`` (``Geometry``)
+
+``geomLength(geometry)``: returns ``geomLength``
+''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``geomLength`` (``Double``)
+
+``geometry()``: returns ``geometry``
+''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Boolean``)
+
+``geometryType(geometry)``: returns ``geometryType``
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``geometryType`` (``String``)
+
+``getGeometryN(geometry, index)``: returns ``getGeometryN``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``index`` (``Integer``) required
+
+* ``getGeometryN`` (``Geometry``)
+
+``getX(geometry)``: returns ``getX``
+''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``getX`` (``Double``)
+
+``getY(geometry)``: returns ``getY``
+''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``getY`` (``Double``)
+
+``getz(geometry)``: returns ``getz``
+''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``getz`` (``Double``)
+
+``grayscale(color)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``result`` (``Color``)
+
+``greaterEqualThan(x, y)``: returns ``greaterEqualThan``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``x``
+
+* ``y``
+
+* ``greaterEqualThan`` (``Boolean``)
+
+``greaterThan(x, y)``: returns ``greaterThan``
+''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``x``
+
+* ``y``
+
+* ``greaterThan`` (``Boolean``)
+
+``hsl(hue, saturation, lightness)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``hue`` (``Double``) required
+
+* ``saturation`` (``Double``) required
+
+* ``lightness`` (``Double``) required
+
+* ``result`` (``Color``)
+
+``id()``: returns ``id``
+''''''''''''''''''''''''
+
+* ``id`` (``String``)
+
+``if_then_else(condition, then, else)``: returns ``if_then_else``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``condition`` (``Boolean``) required
+
+* ``then``
+
+* ``else``
+
+* ``if_then_else``
+
+``in(candidate, v)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``candidate``
+
+* ``v``
+
+* ``result`` (``Boolean``)
+
+``in10(value, in1, in2, in3, in4, in5, in6, in7, in8, in9, in10)``: returns ``in10``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in4``
+
+* ``in5``
+
+* ``in6``
+
+* ``in7``
+
+* ``in8``
+
+* ``in9``
+
+* ``in10``
+
+* ``in10`` (``Boolean``)
+
+``in2(value, in1, in2)``: returns ``in2``
+'''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in2`` (``Boolean``)
+
+``in3(value, in1, in2, in3)``: returns ``in3``
+''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in3`` (``Boolean``)
+
+``in4(value, in1, in2, in3, in4)``: returns ``in4``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in4``
+
+* ``in4`` (``Boolean``)
+
+``in5(value, in1, in2, in3, in4, in5)``: returns ``in5``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in4``
+
+* ``in5``
+
+* ``in5`` (``Boolean``)
+
+``in6(value, in1, in2, in3, in4, in5, in6)``: returns ``in6``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in4``
+
+* ``in5``
+
+* ``in6``
+
+* ``in6`` (``Boolean``)
+
+``in7(value, in1, in2, in3, in4, in5, in6, in7)``: returns ``in7``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in4``
+
+* ``in5``
+
+* ``in6``
+
+* ``in7``
+
+* ``in7`` (``Boolean``)
+
+``in8(value, in1, in2, in3, in4, in5, in6, in7, in8)``: returns ``in8``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in4``
+
+* ``in5``
+
+* ``in6``
+
+* ``in7``
+
+* ``in8``
+
+* ``in8`` (``Boolean``)
+
+``in9(value, in1, in2, in3, in4, in5, in6, in7, in8, in9)``: returns ``in9``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value``
+
+* ``in1``
+
+* ``in2``
+
+* ``in3``
+
+* ``in4``
+
+* ``in5``
+
+* ``in6``
+
+* ``in7``
+
+* ``in8``
+
+* ``in9``
+
+* ``in9`` (``Boolean``)
+
+``int2bbool(int)``: returns ``int2bbool``
+'''''''''''''''''''''''''''''''''''''''''
+
+* ``int`` (``Integer``) required
+
+* ``int2bbool`` (``Boolean``)
+
+``int2ddouble(int)``: returns ``int2ddouble``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+* ``int`` (``Integer``) required
+
+* ``int2ddouble`` (``Double``)
+
+``interiorPoint(geometry)``: returns ``interiorPoint``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``interiorPoint`` (``Point``)
+
+``interiorRingN(geometry, n)``: returns ``interiorRingN``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``n`` (``Integer``) required
+
+* ``interiorRingN`` (``LinearRing``)
+
+``intersection(geometry1, geometry2)``: returns ``intersection``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``intersection`` (``Geometry``)
+
+``intersects(geometry1, geometry2)``: returns ``intersects``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``intersects`` (``Boolean``)
+
+``intersects3D(geometry1, geometry2)``: returns ``intersects3D``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``intersects3D`` (``Double``)
+
+``isClosed(geometry)``: returns ``isClosed``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``isClosed`` (``Boolean``)
+
+``isCoverage()``: returns ``isCoverage``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``isCoverage`` (``Boolean``)
+
+``isEmpty(geometry)``: returns ``isEmpty``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``isEmpty`` (``Boolean``)
+
+``isLike(string, regex)``: returns ``isLike``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``regex`` (``String``) required
+
+* ``isLike`` (``Boolean``)
+
+``isNull(object)``: returns ``isNull``
+''''''''''''''''''''''''''''''''''''''
+
+* ``object``
+
+* ``isNull`` (``Boolean``)
+
+``isRing(geometry)``: returns ``isRing``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``isRing`` (``Boolean``)
+
+``isSimple(geometry)``: returns ``isSimple``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``isSimple`` (``Boolean``)
+
+``isValid(geometry)``: returns ``isValid``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``isValid`` (``Boolean``)
+
+``isWithinDistance(geometry1, geometry2, distance)``: returns ``isWithinDistance``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``distance`` (``Double``) required
+
+* ``isWithinDistance`` (``Boolean``)
+
+``isWithinDistance3D(geometry1, geometry2, distance)``: returns ``isWithinDistance3D``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``distance`` (``Double``) required
+
+* ``isWithinDistance3D`` (``Double``)
+
+``isometric(geometry, extrusion)``: returns ``isometric``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``extrusion`` (``Double``) required
+
+* ``isometric`` (``Geometry``)
+
+``jsonPointer(json, pointer)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``json`` (``String``) required
+
+* ``pointer`` (``String``) required
+
+* ``result``
+
+``lapply(source, expression)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``source`` (``List``) required
+
+* ``expression``
+
+* ``result`` (``List``)
+
+``length(string)``: returns ``length``
+''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``length`` (``Integer``)
+
+``lessEqualThan(a, b)``: returns ``lessEqualThan``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Number``) required
+
+* ``b`` (``Number``) required
+
+* ``lessEqualThan`` (``Boolean``)
+
+``lessThan(a, b)``: returns ``lessThan``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Number``) required
+
+* ``b`` (``Number``) required
+
+* ``lessThan`` (``Boolean``)
+
+``lighten(color, amount, method)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``amount`` (``Float``) required
+
+* ``method`` (``Method``) optional
+
+* ``result`` (``Color``)
+
+``list(item)``: returns ``list``
+''''''''''''''''''''''''''''''''
+
+* ``item``
+
+* ``list`` (``List``)
+
+``listMultiply(factor, list)``: returns ``listMultiply``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``factor`` (``Number``) required
+
+* ``list`` (``String``) required
+
+* ``listMultiply`` (``String``)
+
+``litem(source, index)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``source`` (``List``) required
+
+* ``index`` (``Integer``) required
+
+* ``result``
+
+``literate(index, times, expression)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``index``
+
+* ``times`` (``Integer``) required
+
+* ``expression``
+
+* ``result`` (``List``)
+
+``log(value)``: returns ``logarithm``
+'''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``Number``) required
+
+* ``logarithm`` (``Double``)
+
+``max(double, double)``: returns ``maxium``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``double`` (``Number``) required
+
+* ``double`` (``Number``) required
+
+* ``maxium`` (``Double``)
+
+``max_2(long, long)``: returns ``maximum``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``long`` (``Number``) required
+
+* ``long`` (``Number``) required
+
+* ``maximum`` (``Long``)
+
+``max_3(float, float)``: returns ``maximum``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``float`` (``Number``) required
+
+* ``float`` (``Number``) required
+
+* ``maximum`` (``Float``)
+
+``max_4(int, int)``: returns ``maximum``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``int`` (``Number``) required
+
+* ``int`` (``Number``) required
+
+* ``maximum`` (``Integer``)
+
+``min(double, double)``: returns ``minium``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``double`` (``Double``) required
+
+* ``double`` (``Double``) required
+
+* ``minium`` (``Double``)
+
+``min_2(long, long)``: returns ``minium``
+'''''''''''''''''''''''''''''''''''''''''
+
+* ``long`` (``Number``) required
+
+* ``long`` (``Number``) required
+
+* ``minium`` (``Long``)
+
+``min_3(float, float)``: returns ``minium``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``float`` (``Number``) required
+
+* ``float`` (``Number``) required
+
+* ``minium`` (``Float``)
+
+``min_4(int, int)``: returns ``minium``
+'''''''''''''''''''''''''''''''''''''''
+
+* ``int`` (``Number``) required
+
+* ``int`` (``Number``) required
+
+* ``minium`` (``Integer``)
+
+``mincircle(geometry)``: returns ``mincircle``
+''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``mincircle`` (``Geometry``)
+
+``minimumdiameter(geometry)``: returns ``minimumdiameter``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``minimumdiameter`` (``Geometry``)
+
+``minrectangle(geometry)``: returns ``minrectangle``
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``minrectangle`` (``Geometry``)
+
+``mix(color1, color2, weight)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``color1`` (``Color``) required
+
+* ``color2`` (``Color``) required
+
+* ``weight`` (``Double``) required
+
+* ``result`` (``Color``)
+
+``modulo(dividend, divisor)``: returns ``modulo``
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``dividend`` (``Integer``) required
+
+* ``divisor`` (``Integer``) required
+
+* ``modulo`` (``Integer``)
+
+``not(logicValue)``: returns ``not``
+''''''''''''''''''''''''''''''''''''
+
+* ``logicValue`` (``Boolean``) required
+
+* ``not`` (``Boolean``)
+
+``notEqualTo(a, b)``: returns ``notEqualTo``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``a``
+
+* ``b``
+
+* ``notEqualTo`` (``Boolean``)
+
+``numGeometries(geometry)``: returns ``numGeometries``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``numGeometries`` (``Integer``)
+
+``numInteriorRing(geometry)``: returns ``numInteriorRing``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``numInteriorRing`` (``Integer``)
+
+``numPoints(geometry)``: returns ``numPoints``
+''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``numPoints`` (``Integer``)
+
+``numberFormat(format, number, language)``: returns ``numberFormat``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``format`` (``String``) required
+
+* ``number`` (``Number``) required
+
+* ``language`` (``String``) optional
+
+* ``numberFormat`` (``String``)
+
+``numberFormat2(format, number, minus, decimal, separator)``: returns ``numberFormat2``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``format`` (``String``) required
+
+* ``number`` (``Number``) required
+
+* ``minus`` (``String``) required
+
+* ``decimal`` (``String``) required
+
+* ``separator`` (``String``) required
+
+* ``numberFormat2`` (``String``)
+
+``octagonalenvelope(geometry)``: returns ``octagonalenvelope``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``octagonalenvelope`` (``Geometry``)
+
+``offset(geometry, offsetX, offsetY)``: returns ``offset``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``offsetX`` (``Double``) required
+
+* ``offsetY`` (``Double``) required
+
+* ``offset`` (``Geometry``)
+
+``overlaps(geometry1, geometry2)``: returns ``overlaps``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``overlaps`` (``Geometry``)
+
+``parseBoolean(string)``: returns ``parseBoolean``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``parseBoolean`` (``Boolean``)
+
+``parseDouble(string)``: returns ``parseDouble``
+''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``parseDouble`` (``Double``)
+
+``parseInt(string)``: returns ``parseInt``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``parseInt`` (``Integer``)
+
+``parseLong(string)``: returns ``parseLong``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``parseLong`` (``Long``)
+
+``pgNearest(geometry, num_features)``: returns ``pgNearest``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``num_features`` (``Integer``) required
+
+* ``pgNearest`` (``Boolean``)
+
+``pi()``: returns ``pi``
+''''''''''''''''''''''''
+
+* ``pi`` (``Double``)
+
+``pointN(geometry, index)``: returns ``pointN``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``index`` (``Integer``) required
+
+* ``pointN`` (``Geometry``)
+
+``pow(base, exponent)``: returns ``power``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``base`` (``Number``) required
+
+* ``exponent`` (``Number``) required
+
+* ``power`` (``Double``)
+
+``property(propertyName)``: returns ``propertyValue``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``propertyName`` (``String``) required
+
+* ``propertyValue``
+
+``random()``: returns ``random``
+''''''''''''''''''''''''''''''''
+
+* ``random`` (``Double``)
+
+``relate(geometry1, geometry2)``: returns ``relate``
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry1`` (``Geometry``) required
+
+* ``geometry2`` (``Geometry``) required
+
+* ``relate`` (``String``)
+
+``relatePattern(geometry, geometry, pattern)``: returns ``related``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``geometry`` (``Geometry``) required
+
+* ``pattern`` (``String``) required
+
+* ``related`` (``Boolean``)
+
+``rescaleToPixels(value, defaultUnit, scaleFactor, rescalingMode)``: returns ``rescaleToPixels``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``value`` (``String``) required
+
+* ``defaultUnit`` (``Unit``) required
+
+* ``scaleFactor`` (``Double``) required
+
+* ``rescalingMode`` (``RescalingMode``) optional
+
+* ``rescaleToPixels`` (``String``)
+
+``rint(double)``: returns ``rounded``
+'''''''''''''''''''''''''''''''''''''
+
+* ``double`` (``Number``) required
+
+* ``rounded`` (``Double``)
+
+``round(number)``: returns ``float``
+''''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Number``) required
+
+* ``float`` (``Float``)
+
+``roundDouble(number)``: returns ``rounded``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Number``) required
+
+* ``rounded`` (``Double``)
+
+``round_2(number)``: returns ``long``
+'''''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Number``) required
+
+* ``long`` (``Long``)
+
+``saturate(color, amount, method)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``amount`` (``Float``) required
+
+* ``method`` (``Method``) optional
+
+* ``result`` (``Color``)
+
+``setCRS(geometry, CRS)``: returns ``setCRS``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``CRS`` (``String``) required
+
+* ``setCRS`` (``Geometry``)
+
+``shade(color, weight)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``weight`` (``Double``) required
+
+* ``result`` (``Color``)
+
+``sin(radians)``: returns ``sine``
+''''''''''''''''''''''''''''''''''
+
+* ``radians`` (``Number``) required
+
+* ``sine`` (``Double``)
+
+``size(source)``: returns ``result``
+''''''''''''''''''''''''''''''''''''
+
+* ``source`` (``Collection``) required
+
+* ``result`` (``Integer``)
+
+``spin(color, amount)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``amount`` (``Double``) required
+
+* ``result`` (``Color``)
+
+``sqrt(number)``: returns ``root``
+''''''''''''''''''''''''''''''''''
+
+* ``number`` (``Number``) required
+
+* ``root`` (``Double``)
+
+``startAngle(linestring)``: returns ``degrees``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``linestring`` (``LineString``) required
+
+* ``degrees`` (``Double``)
+
+``startPoint(linestring)``: returns ``point``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+* ``linestring`` (``LineString``) required
+
+* ``point`` (``Point``)
+
+``strAbbreviate(string, lower, upper, appendTo)``: returns ``string``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``lower`` (``Integer``) required
+
+* ``upper`` (``Integer``) required
+
+* ``appendTo`` (``String``) required
+
+* ``string`` (``String``)
+
+``strCapitalize(string)``: returns ``string``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``string`` (``String``)
+
+``strConcat(string1, string2)``: returns ``strConcat``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string1`` (``String``) required
+
+* ``string2`` (``String``) required
+
+* ``strConcat`` (``String``)
+
+``strDefaultIfBlank(string, default)``: returns ``string``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``default`` (``String``) required
+
+* ``string`` (``String``)
+
+``strEndsWith(String, postfix)``: returns ``endsWith``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``String`` (``String``) required
+
+* ``postfix`` (``String``) required
+
+* ``endsWith`` (``Boolean``)
+
+``strEqualsIgnoreCase(string, lookup)``: returns ``equals``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``lookup`` (``String``) required
+
+* ``equals`` (``Boolean``)
+
+``strIndexOf(String, lookup)``: returns ``index``
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``String`` (``String``) required
+
+* ``lookup`` (``String``) required
+
+* ``index`` (``Integer``)
+
+``strLastIndexOf(String, lookup)``: returns ``index``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``String`` (``String``) required
+
+* ``lookup`` (``String``) required
+
+* ``index`` (``Integer``)
+
+``strLength(string)``: returns ``length``
+'''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``length`` (``Integer``)
+
+``strMatches(string, regex)``: returns ``match``
+''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``regex`` (``String``) required
+
+* ``match`` (``Boolean``)
+
+``strPosition(string, lookup, method)``: returns ``string``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``lookup`` (``String``) required
+
+* ``method`` (``String``) required
+
+* ``string`` (``String``)
+
+``strReplace(string, search, replace, all)``: returns ``string``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``search`` (``String``) required
+
+* ``replace`` (``String``) required
+
+* ``all`` (``Boolean``) required
+
+* ``string`` (``String``)
+
+``strStartsWith(string, prefix)``: returns ``starts with``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``prefix`` (``String``) required
+
+* ``starts with`` (``Boolean``)
+
+``strStripAccents(string)``: returns ``string``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``string`` (``String``)
+
+``strSubstring(string, beginIndex, endIndex)``: returns ``substring``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``beginIndex`` (``Integer``) required
+
+* ``endIndex`` (``Integer``) required
+
+* ``substring`` (``String``)
+
+``strSubstringStart(string, beginIndex)``: returns ``substring``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``beginIndex`` (``Integer``) required
+
+* ``substring`` (``String``)
+
+``strToLowerCase(string)``: returns ``lowercase``
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``lowercase`` (``String``)
+
+``strToUpperCase(string)``: returns ``uppercase``
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``uppercase`` (``String``)
+
+``strTrim(string)``: returns ``trim``
+'''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``trim`` (``String``)
+
+``strTrim2(string, method, character)``: returns ``trim``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``string`` (``String``) required
+
+* ``method`` (``String``) required
+
+* ``character`` (``String``) required
+
+* ``trim`` (``String``)
+
+``strURLEncode(encodeable, formUrlEncode)``: returns ``strURLEncode``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``encodeable`` (``String``) required
+
+* ``formUrlEncode`` (``Boolean``) optional
+
+* ``strURLEncode`` (``String``)
+
+``stringTemplate(input, pattern, template, defaultValue)``: returns ``return``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``input``
+
+* ``pattern``
+
+* ``template``
+
+* ``defaultValue``
+
+* ``return``
+
+``symDifference(geometry, geometry)``: returns ``symetric difference``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``geometry`` (``Geometry``) required
+
+* ``symetric difference`` (``Geometry``)
+
+``tan(radians)``: returns ``tan``
+'''''''''''''''''''''''''''''''''
+
+* ``radians`` (``Number``) required
+
+* ``tan`` (``Double``)
+
+``tint(color, weight)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``color`` (``Color``) required
+
+* ``weight`` (``Double``) required
+
+* ``result`` (``Color``)
+
+``toDegrees(radians)``: returns ``degrees``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``radians`` (``Number``) required
+
+* ``degrees`` (``Double``)
+
+``toRadians(degree)``: returns ``radians``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``degree`` (``Number``) required
+
+* ``radians`` (``Double``)
+
+``toWKT(geometry)``: returns ``wkt``
+''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``wkt`` (``String``)
+
+``touches(geometry, geometry)``: returns ``touches``
+''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``geometry`` (``Geometry``) required
+
+* ``touches`` (``Boolean``)
+
+``union(geometry, geometry)``: returns ``union``
+''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``geometry`` (``Geometry``) required
+
+* ``union`` (``Geometry``)
+
+``vertices(geometry)``: returns ``vertices``
+''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``vertices`` (``MultiPoint``)
+
+``within(geometry, geometry)``: returns ``within``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``geometry`` (``Geometry``) required
+
+* ``within`` (``Boolean``)
+
+``ProcessFunctionFactory``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Contains 102 functions.
+
+``AddCoverages(coverageA, coverageB)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverageA`` (``GridCoverage2D``) required
+
+* ``coverageB`` (``GridCoverage2D``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``Affine(coverage, scalex, scaley, shearx, sheary, translatex, translatey, nodata, interpolation)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``) required
+
+* ``scalex`` (``Double``) optional
+
+* ``scaley`` (``Double``) optional
+
+* ``shearx`` (``Double``) optional
+
+* ``sheary`` (``Double``) optional
+
+* ``translatex`` (``Double``) optional
+
+* ``translatey`` (``Double``) optional
+
+* ``nodata`` (``double``)
+
+* ``interpolation`` (``Interpolation``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``Aggregate(features, aggregationAttribute, function, singlePass, groupByAttributes)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``aggregationAttribute`` (``String``) optional
+
+* ``function`` (``AggregationFunction``)
+
+* ``singlePass`` (``Boolean``) required
+
+* ``groupByAttributes`` (``String``)
+
+* ``result`` (``Results``)
+
+``AreaGrid(envelope, width, height)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``envelope`` (``ReferencedEnvelope``) required
+
+* ``width`` (``Integer``) required
+
+* ``height`` (``Integer``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``BandMerge(coverages, roi, transformChoice, index)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverages`` (``GridCoverage2D``) required
+
+* ``roi`` (``Geometry``) optional
+
+* ``transformChoice`` (``String``) optional
+
+* ``index`` (``Integer``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``BandSelect(coverage, SampleDimensions, VisibleSampleDimension)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``) required
+
+* ``SampleDimensions`` (``int``) required
+
+* ``VisibleSampleDimension`` (``Integer``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``BarnesSurface(data, valueAttr, dataLimit, scale, convergence, passes, minObservations, maxObservationDistance, noDataValue, pixelsPerCell, queryBuffer, outputBBOX, outputWidth, outputHeight)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``SimpleFeatureCollection``) required
+
+* ``valueAttr`` (``String``) required
+
+* ``dataLimit`` (``Integer``) optional
+
+* ``scale`` (``Double``) required
+
+* ``convergence`` (``Double``) optional
+
+* ``passes`` (``Integer``) optional
+
+* ``minObservations`` (``Integer``) optional
+
+* ``maxObservationDistance`` (``Double``) optional
+
+* ``noDataValue`` (``Double``) optional
+
+* ``pixelsPerCell`` (``Integer``) optional
+
+* ``queryBuffer`` (``Double``) optional
+
+* ``outputBBOX`` (``ReferencedEnvelope``) required
+
+* ``outputWidth`` (``Integer``) required
+
+* ``outputHeight`` (``Integer``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``Bounds(features)``: returns ``bounds``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``bounds`` (``ReferencedEnvelope``)
+
+``BufferFeatureCollection(features, distance, attributeName)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``distance`` (``Double``) required
+
+* ``attributeName`` (``String``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Centroid(features)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``ClassifyByRange(features, classifyOnAttribute, thresholds, outputValues, classifier, classes, include, outputAttribute, outputType)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``classifyOnAttribute`` (``String``) required
+
+* ``thresholds`` (``String``)
+
+* ``outputValues`` (``String``)
+
+* ``classifier`` (``String``) optional
+
+* ``classes`` (``Integer``) optional
+
+* ``include`` (``Boolean``) optional
+
+* ``outputAttribute`` (``String``) optional
+
+* ``outputType`` (``String``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Clip(features, clip, preserveZ)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``clip`` (``Geometry``) required
+
+* ``preserveZ`` (``Boolean``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``CollectGeometries(features)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``result`` (``GeometryCollection``)
+
+``Contour(data, band, levels, interval, simplify, smooth, roi)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``GridCoverage2D``) required
+
+* ``band`` (``Integer``) optional
+
+* ``levels`` (``double``)
+
+* ``interval`` (``Double``) optional
+
+* ``simplify`` (``Boolean``) optional
+
+* ``smooth`` (``Boolean``) optional
+
+* ``roi`` (``Geometry``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``ConvolveCoverage(data, kernel, kernelRadius, kernelWidth, kernelHeight)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``GridCoverage2D``) required
+
+* ``kernel`` (``KernelJAI``) optional
+
+* ``kernelRadius`` (``Integer``) optional
+
+* ``kernelWidth`` (``Integer``) optional
+
+* ``kernelHeight`` (``Integer``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``Count(features)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``result`` (``Number``)
+
+``CoverageClassStats(coverage, stats, band, classes, method, noData)``: returns ``results``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``) required
+
+* ``stats`` (``Statistic``)
+
+* ``band`` (``Integer``) optional
+
+* ``classes`` (``Integer``) optional
+
+* ``method`` (``ClassificationMethod``) optional
+
+* ``noData`` (``Double``) optional
+
+* ``results`` (``Results``)
+
+``CropCoverage(coverage, cropShape)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``) required
+
+* ``cropShape`` (``Geometry``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``Feature(geometry, crs, typeName)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``crs`` (``CoordinateReferenceSystem``) required
+
+* ``typeName`` (``String``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``FeatureClassStats(features, attribute, stats, classes, method, noData)``: returns ``results``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``attribute`` (``String``) required
+
+* ``stats`` (``Statistic``)
+
+* ``classes`` (``Integer``) optional
+
+* ``method`` (``ClassificationMethod``) optional
+
+* ``noData`` (``Double``) optional
+
+* ``results`` (``Results``)
+
+``Grid(bounds, width, height, vertexSpacing, mode)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``bounds`` (``ReferencedEnvelope``) required
+
+* ``width`` (``Double``) required
+
+* ``height`` (``Double``) optional
+
+* ``vertexSpacing`` (``Double``) optional
+
+* ``mode`` (``GridMode``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Heatmap(data, radiusPixels, weightAttr, pixelsPerCell, outputBBOX, outputWidth, outputHeight)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``SimpleFeatureCollection``) required
+
+* ``radiusPixels`` (``Integer``) required
+
+* ``weightAttr`` (``String``) optional
+
+* ``pixelsPerCell`` (``Integer``) optional
+
+* ``outputBBOX`` (``ReferencedEnvelope``) required
+
+* ``outputWidth`` (``Integer``) required
+
+* ``outputHeight`` (``Integer``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``InclusionFeatureCollection(first, second)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``first`` (``SimpleFeatureCollection``) required
+
+* ``second`` (``SimpleFeatureCollection``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``IntersectionFeatureCollection(first feature collection, second feature collection, first attributes to retain, second attributes to retain, intersectionMode, percentagesEnabled, areasEnabled)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``first feature collection`` (``SimpleFeatureCollection``) required
+
+* ``second feature collection`` (``SimpleFeatureCollection``) required
+
+* ``first attributes to retain`` (``String``)
+
+* ``second attributes to retain`` (``String``)
+
+* ``intersectionMode`` (``IntersectionMode``) optional
+
+* ``percentagesEnabled`` (``Boolean``) optional
+
+* ``areasEnabled`` (``Boolean``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Jiffle(coverage, script, destName, sourceName, outputType)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``)
+
+* ``script`` (``String``) required
+
+* ``destName`` (``String``) optional
+
+* ``sourceName`` (``String``)
+
+* ``outputType`` (``DataType``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``LRSGeocode(features, from_measure_attb, to_measure_attb, measure)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``from_measure_attb`` (``String``) required
+
+* ``to_measure_attb`` (``String``) required
+
+* ``measure`` (``Double``) required
+
+* ``result`` (``FeatureCollection``)
+
+``LRSMeasure(features, from_measure_attb, to_measure_attb, point, crs)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``from_measure_attb`` (``String``) required
+
+* ``to_measure_attb`` (``String``) required
+
+* ``point`` (``Point``) required
+
+* ``crs`` (``CoordinateReferenceSystem``) optional
+
+* ``result`` (``FeatureCollection``)
+
+``LRSSegment(features, from_measure_attb, to_measure_attb, from_measure, to_measure)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``from_measure_attb`` (``String``) required
+
+* ``to_measure_attb`` (``String``) required
+
+* ``from_measure`` (``Double``) required
+
+* ``to_measure`` (``Double``) required
+
+* ``result`` (``FeatureCollection``)
+
+``MultiplyCoverages(coverageA, coverageB)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverageA`` (``GridCoverage2D``) required
+
+* ``coverageB`` (``GridCoverage2D``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``Nearest(features, point, crs)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``point`` (``Point``) required
+
+* ``crs`` (``CoordinateReferenceSystem``) optional
+
+* ``result`` (``FeatureCollection``)
+
+``NormalizeCoverage(data)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``GridCoverage2D``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``PointBuffers(center, crs, distances, quadrantSegments)``: returns ``buffers``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``center`` (``Point``) required
+
+* ``crs`` (``CoordinateReferenceSystem``) optional
+
+* ``distances`` (``double``)
+
+* ``quadrantSegments`` (``Integer``) optional
+
+* ``buffers`` (``SimpleFeatureCollection``)
+
+``PointStacker(data, cellSize, weightClusterPosition, normalize, preserveLocation, outputBBOX, outputWidth, outputHeight)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``SimpleFeatureCollection``) required
+
+* ``cellSize`` (``Integer``) required
+
+* ``weightClusterPosition`` (``Boolean``) required
+
+* ``normalize`` (``Boolean``) required
+
+* ``preserveLocation`` (``PreserveLocation``) optional
+
+* ``outputBBOX`` (``ReferencedEnvelope``) required
+
+* ``outputWidth`` (``Integer``) required
+
+* ``outputHeight`` (``Integer``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``PolyLabeller(polygon, precision)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``polygon`` (``Geometry``) required
+
+* ``precision`` (``Double``) required
+
+* ``result`` (``Geometry``)
+
+``PolygonExtraction(data, band, insideEdges, roi, nodata, ranges)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``GridCoverage2D``) required
+
+* ``band`` (``Integer``) optional
+
+* ``insideEdges`` (``Boolean``) optional
+
+* ``roi`` (``Geometry``) optional
+
+* ``nodata`` (``Number``)
+
+* ``ranges`` (``Range``)
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Query(features, attribute, filter)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``attribute`` (``String``)
+
+* ``filter`` (``Filter``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``RangeLookup(coverage, band, ranges, outputPixelValues, noData)``: returns ``reclassified``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``) required
+
+* ``band`` (``Integer``) optional
+
+* ``ranges`` (``Range``)
+
+* ``outputPixelValues`` (``int``)
+
+* ``noData`` (``Double``) optional
+
+* ``reclassified`` (``GridCoverage2D``)
+
+``RasterAsPointCollection(data, targetCRS, scale, interpolation, emisphere)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``GridCoverage2D``) required
+
+* ``targetCRS`` (``CoordinateReferenceSystem``) optional
+
+* ``scale`` (``Float``) optional
+
+* ``interpolation`` (``Interpolation``) optional
+
+* ``emisphere`` (``Boolean``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``RasterZonalStatistics(data, band, zones, classification)``: returns ``statistics``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``GridCoverage2D``) required
+
+* ``band`` (``Integer``) optional
+
+* ``zones`` (``SimpleFeatureCollection``) required
+
+* ``classification`` (``GridCoverage2D``) optional
+
+* ``statistics`` (``SimpleFeatureCollection``)
+
+``RasterZonalStatistics2(source, bands, zones, classifier, nodata, mask, useROIAccessor, roi, statistics, minbounds, maxbounds, numbins, rangeData, localStats)``: returns ``zonal statistics``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``source`` (``GridCoverage2D``) required
+
+* ``bands`` (``int``)
+
+* ``zones`` (``Object``)
+
+* ``classifier`` (``GridCoverage2D``) optional
+
+* ``nodata`` (``Range``) required
+
+* ``mask`` (``Geometry``) required
+
+* ``useROIAccessor`` (``Boolean``) required
+
+* ``roi`` (``Polygon``) required
+
+* ``statistics`` (``StatsType``)
+
+* ``minbounds`` (``double``)
+
+* ``maxbounds`` (``double``)
+
+* ``numbins`` (``int``)
+
+* ``rangeData`` (``Object``)
+
+* ``localStats`` (``Boolean``) required
+
+* ``zonal statistics`` (``List``)
+
+``RectangularClip(features, clip, preserveZ)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``clip`` (``ReferencedEnvelope``) required
+
+* ``preserveZ`` (``Boolean``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Reproject(features, forcedCRS, targetCRS)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``forcedCRS`` (``CoordinateReferenceSystem``) optional
+
+* ``targetCRS`` (``CoordinateReferenceSystem``) optional
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``ScaleCoverage(coverage, xScale, yScale, xTranslate, yTranslate, interpolation)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``) required
+
+* ``xScale`` (``Double``) required
+
+* ``yScale`` (``Double``) required
+
+* ``xTranslate`` (``Double``) required
+
+* ``yTranslate`` (``Double``) required
+
+* ``interpolation`` (``Interpolation``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``Simplify(features, distance, preserveTopology)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``distance`` (``Double``) required
+
+* ``preserveTopology`` (``Boolean``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Snap(features, point, crs)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``FeatureCollection``) required
+
+* ``point`` (``Point``) required
+
+* ``crs`` (``CoordinateReferenceSystem``) optional
+
+* ``result`` (``FeatureCollection``)
+
+``StyleCoverage(coverage, style)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``coverage`` (``GridCoverage2D``) required
+
+* ``style`` (``Style``) required
+
+* ``result`` (``GridCoverage2D``)
+
+``Transform(features, transform)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``transform`` (``String``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``TransparencyFill(data, width)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``GridCoverage2D``) required
+
+* ``width`` (``Integer``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``UnionFeatureCollection(first, second)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``first`` (``SimpleFeatureCollection``) required
+
+* ``second`` (``SimpleFeatureCollection``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``Unique(features, attribute)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``attribute`` (``String``) required
+
+* ``result`` (``SimpleFeatureCollection``)
+
+``VectorToRaster(features, rasterWidth, rasterHeight, title, attribute, bounds)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``features`` (``SimpleFeatureCollection``) required
+
+* ``rasterWidth`` (``Integer``) required
+
+* ``rasterHeight`` (``Integer``) required
+
+* ``title`` (``String``) optional
+
+* ``attribute`` (``String``) required
+
+* ``bounds`` (``Envelope``) optional
+
+* ``result`` (``GridCoverage2D``)
+
+``VectorZonalStatistics(data, dataAttribute, zones)``: returns ``statistics``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``data`` (``SimpleFeatureCollection``) required
+
+* ``dataAttribute`` (``String``) required
+
+* ``zones`` (``SimpleFeatureCollection``) required
+
+* ``statistics`` (``SimpleFeatureCollection``)
+
+``area(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``double``)
+
+``boundary(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``buffer(geom, distance, quadrantSegments, capStyle)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``distance`` (``Double``) required
+
+* ``quadrantSegments`` (``Integer``) optional
+
+* ``capStyle`` (``BufferCapStyle``) optional
+
+* ``result`` (``Geometry``)
+
+``centroid(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``contains(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``convexHull(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``crosses(a, b)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``densify(geom, distance)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``distance`` (``Double``) required
+
+* ``result`` (``Geometry``)
+
+``difference(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``dimension(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``int``)
+
+``disjoint(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``distance(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``double``)
+
+``endPoint(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``LineString``) required
+
+* ``result`` (``Point``)
+
+``envelope(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``equalsExact(a, b)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``equalsExactTolerance(a, b, tolerance)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``tolerance`` (``Double``) required
+
+* ``result`` (``boolean``)
+
+``exteriorRing(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Polygon``) required
+
+* ``result`` (``Geometry``)
+
+``geometryType(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``String``)
+
+``getGeometryN(geom, index)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``GeometryCollection``) required
+
+* ``index`` (``Integer``) required
+
+* ``result`` (``Geometry``)
+
+``getX(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Point``) required
+
+* ``result`` (``double``)
+
+``getY(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Point``) required
+
+* ``result`` (``double``)
+
+``interiorPoint(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``interiorRingN(geom, index)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Polygon``) required
+
+* ``index`` (``Integer``) required
+
+* ``result`` (``Geometry``)
+
+``intersection(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``intersects(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``isClosed(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``LineString``) required
+
+* ``result`` (``boolean``)
+
+``isEmpty(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``isRing(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``LineString``) required
+
+* ``result`` (``boolean``)
+
+``isSimple(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``isValid(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``isWithinDistance(a, b, distance)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``distance`` (``Double``) required
+
+* ``result`` (``boolean``)
+
+``length(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``double``)
+
+``numGeometries(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``int``)
+
+``numInteriorRing(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Polygon``) required
+
+* ``result`` (``int``)
+
+``numPoints(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``int``)
+
+``octagonalEnvelope(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``overlaps(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``parameter(argumentName, values)``: returns ``parameterMap``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``argumentName`` (``String``) required
+
+* ``values`` (``Object``)
+
+* ``parameterMap`` (``Map``)
+
+``pointN(geom, index)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``LineString``) required
+
+* ``index`` (``Integer``) required
+
+* ``result`` (``Point``)
+
+``polygonize(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``relate(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``String``)
+
+``relatePattern(a, b, Relate pattern)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``Relate pattern`` (``String``) required
+
+* ``result`` (``boolean``)
+
+``reproject(geometry, sourceCRS, targetCRS)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geometry`` (``Geometry``) required
+
+* ``sourceCRS`` (``CoordinateReferenceSystem``) optional
+
+* ``targetCRS`` (``CoordinateReferenceSystem``) optional
+
+* ``result`` (``Geometry``)
+
+``simplify(geom, distance)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``) required
+
+* ``distance`` (``Double``) required
+
+* ``result`` (``Geometry``)
+
+``splitPolygon(polygon, line)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``polygon`` (``Geometry``) required
+
+* ``line`` (``LineString``) required
+
+* ``result`` (``Geometry``)
+
+``startPoint(geom)``: returns ``result``
+''''''''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``LineString``) required
+
+* ``result`` (``Point``)
+
+``symDifference(a, b)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``Geometry``)
+
+``touches(a, b)``: returns ``result``
+'''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``union(geom)``: returns ``result``
+'''''''''''''''''''''''''''''''''''
+
+* ``geom`` (``Geometry``):  min=2 max=unbounded
+
+* ``result`` (``Geometry``)
+
+``within(a, b)``: returns ``result``
+''''''''''''''''''''''''''''''''''''
+
+* ``a`` (``Geometry``) required
+
+* ``b`` (``Geometry``) required
+
+* ``result`` (``boolean``)
+
+``PolygonLabelFunctionFactory``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Contains 1 functions.
+
+``labelPoint(polygon, tolerance)``: returns ``labelPoint``
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+* ``polygon`` (``Geometry``) required
+
+* ``tolerance`` (``double``) required
+
+* ``labelPoint`` (``Point``)

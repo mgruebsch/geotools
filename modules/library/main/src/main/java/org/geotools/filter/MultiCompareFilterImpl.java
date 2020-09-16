@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -18,88 +18,108 @@ package org.geotools.filter;
 
 import java.util.Collection;
 import java.util.Collections;
-
-import org.opengis.filter.FilterFactory;
+import java.util.List;
+import org.geotools.util.Converters;
 import org.opengis.filter.expression.Expression;
 
 /**
  * Support for Multi-valued properties when comparing
- * 
+ *
  * @author Niels Charlier, Curtin University of Technology
- * 
- *
- *
- * @source $URL$
  */
 public abstract class MultiCompareFilterImpl extends CompareFilterImpl {
-    
+
     protected MatchAction matchAction;
-    
-    protected MultiCompareFilterImpl(FilterFactory factory, Expression e1, Expression e2) {
-        super(factory, e1, e2);
+
+    protected MultiCompareFilterImpl(Expression e1, Expression e2) {
+        super(e1, e2);
         this.matchAction = MatchAction.ANY;
     }
 
-    protected MultiCompareFilterImpl(FilterFactory factory, Expression e1, Expression e2,
-            boolean matchCase) {
-        super(factory, e1, e2, matchCase);
+    protected MultiCompareFilterImpl(Expression e1, Expression e2, boolean matchCase) {
+        super(e1, e2, matchCase);
         this.matchAction = MatchAction.ANY;
     }
-    
-    protected MultiCompareFilterImpl(FilterFactory factory, Expression e1, Expression e2,
-            MatchAction matchAction) {
-        super(factory, e1, e2);
+
+    protected MultiCompareFilterImpl(Expression e1, Expression e2, MatchAction matchAction) {
+        super(e1, e2);
         this.matchAction = matchAction;
     }
-    
-    protected MultiCompareFilterImpl(FilterFactory factory, Expression e1, Expression e2,
-            boolean matchCase, MatchAction matchAction) {
-        super(factory, e1, e2, matchCase);
+
+    protected MultiCompareFilterImpl(
+            Expression e1, Expression e2, boolean matchCase, MatchAction matchAction) {
+        super(e1, e2, matchCase);
         this.matchAction = matchAction;
     }
 
     public MatchAction getMatchAction() {
         return matchAction;
     }
-    
+
+    private Collection<Object> toCollection(Object obj) {
+        if (obj instanceof Collection) {
+            return (Collection<Object>) obj;
+        }
+        if (obj != null && obj.getClass().isArray()) {
+            return (Collection<Object>) Converters.convert(obj, List.class);
+        }
+        return null;
+    }
+
     public final boolean evaluate(Object feature) {
         final Object object1 = eval(expression1, feature);
         final Object object2 = eval(expression2, feature);
-        
-        if (!(object1 instanceof Collection) && !(object2 instanceof Collection)) {
+
+        Collection<Object> collection1 = toCollection(object1);
+        Collection<Object> collection2 = toCollection(object2);
+
+        if (collection1 == null && collection2 == null) {
             return evaluateInternal(object1, object2);
         }
 
-        Collection<Object> leftValues = object1 instanceof Collection ? (Collection<Object>) object1
-                : Collections.<Object>singletonList(object1);
-        Collection<Object> rightValues = object2 instanceof Collection ? (Collection<Object>) object2
-                : Collections.<Object>singletonList(object2);
+        Collection<Object> leftValues =
+                collection1 instanceof Collection
+                        ? collection1
+                        : Collections.<Object>singletonList(object1);
+        Collection<Object> rightValues =
+                collection2 instanceof Collection
+                        ? collection2
+                        : Collections.<Object>singletonList(object2);
 
         int count = 0;
-        
+
         for (Object value1 : leftValues) {
             for (Object value2 : rightValues) {
                 boolean temp = evaluateInternal(value1, value2);
                 if (temp) {
                     count++;
                 }
-                   
-                switch (matchAction){
-                    case ONE: if (count > 1) return false; break;
-                    case ALL: if (!temp) return false; break;
-                    case ANY: if (temp) return true; break;
+
+                switch (matchAction) {
+                    case ONE:
+                        if (count > 1) return false;
+                        break;
+                    case ALL:
+                        if (!temp) return false;
+                        break;
+                    case ANY:
+                        if (temp) return true;
+                        break;
                 }
             }
         }
 
-        switch (matchAction){
-            case ONE: return (count == 1);
-            case ALL: return true;
-            case ANY: return false;
-            default: return false;
+        switch (matchAction) {
+            case ONE:
+                return (count == 1);
+            case ALL:
+                return true;
+            case ANY:
+                return false;
+            default:
+                return false;
         }
     }
 
     public abstract boolean evaluateInternal(Object value1, Object value2);
-
 }

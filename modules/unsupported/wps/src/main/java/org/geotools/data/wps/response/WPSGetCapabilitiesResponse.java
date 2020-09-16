@@ -18,42 +18,37 @@ package org.geotools.data.wps.response;
 
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
-
 import net.opengis.ows11.ExceptionReportType;
 import net.opengis.wps10.WPSCapabilitiesType;
-
-import org.geotools.data.ows.AbstractWPSGetCapabilitiesResponse;
 import org.geotools.data.ows.HTTPResponse;
+import org.geotools.data.wps.AbstractWPSGetCapabilitiesResponse;
 import org.geotools.ows.ServiceException;
 import org.geotools.wps.WPSConfiguration;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.Parser;
+import org.geotools.xml.XMLHandlerHints;
+import org.geotools.xsd.Configuration;
+import org.geotools.xsd.Parser;
 import org.xml.sax.SAXException;
-
 
 /**
  * Provides a hook up to parse the capabilities document from inputstream.
  *
  * @author gdavis
- *
- *
- *
- *
- *
- * @source $URL$
  */
-public class WPSGetCapabilitiesResponse extends AbstractWPSGetCapabilitiesResponse
-{
+public class WPSGetCapabilitiesResponse extends AbstractWPSGetCapabilitiesResponse {
 
-    public WPSGetCapabilitiesResponse(HTTPResponse httpResponse) throws ServiceException, IOException
-    {
+    public WPSGetCapabilitiesResponse(HTTPResponse httpResponse)
+            throws ServiceException, IOException {
+        this(httpResponse, null);
+    }
+
+    public WPSGetCapabilitiesResponse(HTTPResponse httpResponse, Map<String, Object> hints)
+            throws ServiceException, IOException {
         super(httpResponse);
 
         InputStream inputStream = null;
-        try
-        {
+        try {
             inputStream = httpResponse.getResponseStream();
 
             // Map hints = new HashMap();
@@ -61,22 +56,20 @@ public class WPSGetCapabilitiesResponse extends AbstractWPSGetCapabilitiesRespon
             // hints.put(DocumentFactory.VALIDATION_HINT, Boolean.FALSE);
             Configuration config = new WPSConfiguration();
             Parser parser = new Parser(config);
+            parser.setEntityResolver(XMLHandlerHints.toEntityResolver(hints));
 
             Object object;
             excepResponse = null;
             capabilities = null;
-            try
-            {
+            try {
                 // object = DocumentFactory.getInstance(inputStream, hints, Level.WARNING);
                 object = parser.parse(inputStream);
-            }
-            catch (SAXException e)
-            {
-                throw (ServiceException) new ServiceException("Error while parsing XML.").initCause(e);
-            }
-            catch (ParserConfigurationException e)
-            {
-                throw (ServiceException) new ServiceException("Error while parsing XML.").initCause(e);
+            } catch (SAXException e) {
+                throw (ServiceException)
+                        new ServiceException("Error while parsing XML.").initCause(e);
+            } catch (ParserConfigurationException e) {
+                throw (ServiceException)
+                        new ServiceException("Error while parsing XML.").initCause(e);
             }
 
             // if (object instanceof ServiceException) {
@@ -84,24 +77,18 @@ public class WPSGetCapabilitiesResponse extends AbstractWPSGetCapabilitiesRespon
             // }
 
             // try casting the response
-            if (object instanceof WPSCapabilitiesType)
-            {
+            if (object instanceof WPSCapabilitiesType) {
                 capabilities = (WPSCapabilitiesType) object;
             }
             // exception caught on server and returned
-            else if (object instanceof ExceptionReportType)
-            {
+            else if (object instanceof ExceptionReportType) {
                 excepResponse = (ExceptionReportType) object;
             }
 
-        }
-        finally
-        {
-            if (inputStream != null)
-            {
+        } finally {
+            if (inputStream != null) {
                 inputStream.close();
             }
         }
     }
-
 }

@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *        
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -16,171 +16,127 @@
  */
 package org.geotools.filter;
 
-
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.geotools.util.Converters;
+import org.opengis.filter.expression.BinaryExpression;
 
 /**
- * Holds a mathematical relationship between two expressions. Note that the sub
- * expressions must be math expressions.  In other words, they must be a math
- * literal, another math expression, or a feature attribute with a declared
- * math type.  You may create math expressions of arbitrary complexity by
- * nesting other math expressions as sub expressions in one or more math
- * expressions. This filter defines left and right values to clarify the sub
- * expression precedence for non-associative operations, such as subtraction
- * and division. For example, the left value is the numerator and the right is
- * the denominator in an ExpressionMath division operation.
+ * Holds a mathematical relationship between two expressions. Note that the sub expressions must be
+ * math expressions. In other words, they must be a math literal, another math expression, or a
+ * feature attribute with a declared math type. You may create math expressions of arbitrary
+ * complexity by nesting other math expressions as sub expressions in one or more math expressions.
+ * This filter defines left and right values to clarify the sub expression precedence for
+ * non-associative operations, such as subtraction and division. For example, the left value is the
+ * numerator and the right is the denominator in an ExpressionMath division operation.
  *
  * @author Rob Hranac, Vision for New York
- *
- *
- * @source $URL$
  * @version $Id$
  */
-public abstract class MathExpressionImpl extends DefaultExpression
-    implements MathExpression {
-	
+public abstract class MathExpressionImpl extends DefaultExpression implements BinaryExpression {
+
     /** Holds the 'left' value of this math expression. */
     private org.opengis.filter.expression.Expression leftValue = null;
 
     /** Holds the 'right' value of this math expression. */
     private org.opengis.filter.expression.Expression rightValue = null;
 
-    
-    /**
-     * No argument constructor.
-     */
-    protected MathExpressionImpl() {
-    	
-    }
-    
-    protected MathExpressionImpl(org.opengis.filter.expression.Expression e1,org.opengis.filter.expression.Expression e2) {
-    	this.leftValue = e1;
-    	this.rightValue = e2;
+    /** No argument constructor. */
+    protected MathExpressionImpl() {}
+
+    protected MathExpressionImpl(
+            org.opengis.filter.expression.Expression e1,
+            org.opengis.filter.expression.Expression e2) {
+        this.leftValue = e1;
+        this.rightValue = e2;
     }
 
     /**
-     * Adds the 'left' value to this expression.
-     *
-     * @param leftValue Expression to add to this expression.
-     *
-     * @throws IllegalFilterException Attempting to add non-math expression.
-     * 
-     * @deprecated use {@link #setExpression1(org.opengis.filter.expression.Expression)}
-     */
-    public final void addLeftValue(Expression leftValue)
-        throws IllegalFilterException {
-    	
-    	setExpression1(leftValue);
-    }
-
-    /**
-     * Adds the 'right' value to this expression.
-     *
-     * @param rightValue Expression to add to this expression.
-     *
-     * @throws IllegalFilterException Attempting to add non-math expression.
-     * 
-     * @deprecated use {@link #setExpression2(org.opengis.filter.expression.Expression)}
-     */
-    public final void addRightValue(Expression rightValue)
-        throws IllegalFilterException {
-        
-    	setExpression2(rightValue);
-    }
-
-    /**
-     * Gets the left or first expression.
-     * 
-     * @deprecated use {@link #getExpression1()}.
-     */
-    public final Expression getLeftValue() {
-        return (Expression)getExpression1();
-    }
-    
-    /**
-     * 
      * Gets the left or first expression.
      *
      * @return the expression on the first side of the comparison.
      */
     public org.opengis.filter.expression.Expression getExpression1() {
-	    return leftValue;
-    }
-    
-    /**
-     * 
-     * Gets the left or first expression.
-     * 
-     * @throws IllegalFilterException
-     */
-    public void setExpression1(org.opengis.filter.expression.Expression expression) {
-    	Expression leftValue = (Expression)expression;
-    	if (isGeometryExpression(leftValue.getType()) ) {
-    		throw new IllegalFilterException(
-            "Attempted to add Geometry expression to math expression.");
-    	}
-        this.leftValue = leftValue;
+        return leftValue;
     }
 
-    /**
-     * Gets the right expression.
-     *
-     * @return the expression on the right of the comparison.
-     * 
-     * @deprecated use {@link #getExpression2()}.
-     */
-    public final Expression getRightValue() {
-        return (Expression) getExpression2();
+    /** Gets the left or first expression. */
+    public void setExpression1(org.opengis.filter.expression.Expression expression) {
+        if (isGeometryExpression(Filters.getExpressionType(expression))) {
+            throw new IllegalFilterException(
+                    "Attempted to add Geometry expression to math expression.");
+        }
+        this.leftValue = expression;
     }
-    
+
     /**
      * Gets the second expression.
      *
      * @return the expression on the second side of the comparison.
      */
     public org.opengis.filter.expression.Expression getExpression2() {
-	    return rightValue;
+        return rightValue;
     }
-    
-    /**
-     * Gets the second expression.
-     * 
-     * @throws IllegalFilterException
-     */
+
+    /** Gets the second expression. */
     public void setExpression2(org.opengis.filter.expression.Expression expression) {
-    	Expression rightValue = (Expression)expression;
-    	//Check to see if this is a valid math expression before adding.
-        if (isGeometryExpression(rightValue.getType()) ) {
-        	throw new IllegalFilterException(
-            "Attempted to add Geometry expression to math expression.");
+        // Check to see if this is a valid math expression before adding.
+        if (isGeometryExpression(Filters.getExpressionType(expression))) {
+            throw new IllegalFilterException(
+                    "Attempted to add Geometry expression to math expression.");
         }
-        this.rightValue = rightValue;        	
+        this.rightValue = expression;
     }
 
     /**
-     * Gets the type of this expression.
-     *
-     * @return Expression type.
-     */
-    public short getType() {
-        return expressionType;
-    }
-    
-    /** 
-     * Convenience method which ensures that both expressions have been 
-     * set. If any of operands not set an exception is thrown.
+     * Convenience method which ensures that both expressions have been set. If any of operands not
+     * set an exception is thrown.
      */
     protected void ensureOperandsSet() throws IllegalArgumentException {
-    	  // Checks to make sure both sub expressions exist.
+        // Checks to make sure both sub expressions exist.
         if ((leftValue == null) || (rightValue == null)) {
             throw new IllegalArgumentException(
-                "Attempted read math expression with missing sub expressions.");
-        } 
+                    "Attempted read math expression with missing sub expressions.");
+        }
     }
 
-   
-    protected Object number( double number ){
-    	//return Filters.puts( number );  // non strongly typed
-    	return new Double( number );      // Getools 2.1 style
+    protected Object number(double number) {
+        // return Filters.puts( number );  // non strongly typed
+        return Double.valueOf(number); // Getools 2.1 style
     }
-    
+
+    protected Object handleCollection(Object value1, Object value2) {
+        List<Number> numericList;
+        final Number scalar;
+        if (value1 instanceof Collection && value2 instanceof Collection) {
+            throw new RuntimeException("Both Maths expressions cannot be Collections");
+        } else if (value1 instanceof Collection) {
+            // first is collection, second is scalar
+            numericList =
+                    (List)
+                            ((Collection) value1)
+                                    .stream()
+                                    .map(v -> Converters.convert(v, Number.class))
+                                    .collect(Collectors.toList());
+            scalar = Filters.number(value2);
+
+        } else {
+            // second is collection, first is scalar
+            numericList =
+                    (List)
+                            ((Collection) value2)
+                                    .stream()
+                                    .map(v -> Converters.convert(v, Number.class))
+                                    .collect(Collectors.toList());
+            scalar = Filters.number(value1);
+        }
+
+        return numericList
+                .stream()
+                .map(n -> doArithmeticOperation(n.doubleValue(), scalar.doubleValue()))
+                .collect(Collectors.toList());
+    }
+
+    protected abstract Object doArithmeticOperation(Double operand1, Double operand2);
 }

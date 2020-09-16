@@ -47,10 +47,10 @@ Lets follow a couple of steps - just to start out with. The goal here is to let 
       CC: geotools-devel@lists.sourceforge.net
       Subject: Commit Access request for Fish module
 
-      Well as requested I have read the developers guide (some of it looks out of date?),
-      and created a wiki page for my proposed module:
+      As requested I have read the developers guide (some of it looks out of date?),
+      and submitted a documentation page for my proposed module:
 
-         http://docs.codehaus.org/display/GEOTOOLS/Fish
+         http://docs.geotools.org/latest/userguide/unsupported/fish.html
 
       I think all I need is commit access and I can get going.
 
@@ -85,7 +85,7 @@ The modules/unsupported/ directory is there to welcome your experimental work; t
 
 #. pom.xml
 
-   We start by getting the pom.xml configured since maven will need that to work against the module. The following will start you out:
+   We start by getting the ``pom.xml`` configured since maven will need that to work against the module. The following will start you out:
 
    Change all occurances of the word example to the name of your module::
 

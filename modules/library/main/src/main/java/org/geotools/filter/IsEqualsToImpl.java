@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
- *        
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -22,42 +22,28 @@ import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 
-/**
- * 
- * @author jdeolive TODO: rename this class to IsEqualToImpl
- *
- *
- *
- * @source $URL$
- */
+/** @author jdeolive TODO: rename this class to IsEqualToImpl */
 public class IsEqualsToImpl extends MultiCompareFilterImpl implements PropertyIsEqualTo {
 
-    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory) {
-        this(factory, null, null);
+    protected IsEqualsToImpl(Expression expression1, Expression expression2) {
+        this(expression1, expression2, true);
     }
 
-    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2) {
-        this(factory, expression1, expression2, true);
-    }
-    
-    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2, MatchAction matchAction) {
-        this(factory, expression1, expression2, true, matchAction);
+    protected IsEqualsToImpl(
+            Expression expression1, Expression expression2, MatchAction matchAction) {
+        this(expression1, expression2, true, matchAction);
     }
 
-    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2,
-            boolean matchCase) {
-        super(factory, expression1, expression2, matchCase);
-
-        // backwards compat with old type system
-        this.filterType = COMPARE_EQUALS;
+    protected IsEqualsToImpl(Expression expression1, Expression expression2, boolean matchCase) {
+        super(expression1, expression2, matchCase);
     }
-    
-    protected IsEqualsToImpl(org.opengis.filter.FilterFactory factory, Expression expression1, Expression expression2,
-            boolean matchCase, MatchAction matchAction) {
-        super(factory, expression1, expression2, matchCase, matchAction);
 
-        // backwards compat with old type system
-        this.filterType = COMPARE_EQUALS;
+    protected IsEqualsToImpl(
+            Expression expression1,
+            Expression expression2,
+            boolean matchCase,
+            MatchAction matchAction) {
+        super(expression1, expression2, matchCase, matchAction);
     }
 
     @Override
@@ -74,11 +60,11 @@ public class IsEqualsToImpl extends MultiCompareFilterImpl implements PropertyIs
         /*
          * For the following "if (value1.equals(value2))" line, we do not check for
          * "value1.getClass().equals(value2.getClass())" because:
-         * 
+         *
          * 1) It is usually done inside the 'Object.equals(Object)' method, so our check would be
          * redundant. 2) It would lead to a subtile issue with the 0.0 floating point value, as
          * explained below.
-         * 
+         *
          * Even if 'value1' and 'value2' are of the same class, we can not implement this code as
          * "return value1.equals(value2)" because a 'false' value doesn't means that the values are
          * numerically different. Float and Double.equals(Object) return 'false' when comparing +0.0
@@ -86,25 +72,28 @@ public class IsEqualsToImpl extends MultiCompareFilterImpl implements PropertyIs
          * them. It is better to fallback on the more generic code following the "if" block in order
          * to ensure consistent behavior.
          */
-        if (value1.equals(value2)) {
+        if (!matchingCase && value1 instanceof String && value2 instanceof String) {
+            return ((String) value1).equalsIgnoreCase((String) value2);
+        } else if (value1.equals(value2)) {
             return true;
+        } else if (value1.getClass().equals(value2.getClass())) {
+            return false;
         }
-        
+
         // if we are doing delayed evaluation of a literal, try conversions to the actual type
-        if(expression1 instanceof Literal && !(expression2 instanceof Literal)) {
+        if (expression1 instanceof Literal && !(expression2 instanceof Literal)) {
             Object v1 = Converters.convert(value1, value2.getClass());
-            if(v1 != null && value2.equals(v1))
-                return true;
+            if (v1 != null && v1.equals(value2)) return true;
         } else if (expression2 instanceof Literal && !(expression1 instanceof Literal)) {
             Object v2 = Converters.convert(value2, value1.getClass());
-            if(v2 != null && value1.equals(v2))
-                return true;
+            if (v2 != null && v2.equals(value1)) return true;
         }
-        
+
         // try the usual conversions then
         final boolean isNumeric1 = (value1 instanceof Number);
         final boolean isNumeric2 = (value2 instanceof Number);
-        if ((isNumeric1 && isNumeric2) || (isNumeric1 && (value2 instanceof CharSequence))
+        if ((isNumeric1 && isNumeric2)
+                || (isNumeric1 && (value2 instanceof CharSequence))
                 || (isNumeric2 && (value1 instanceof CharSequence))) {
             // Numeric comparison, try to parse strings to numbers and do proper
             // comparison between, say, 5 and 5.0 (Long and Double would say
@@ -143,12 +132,10 @@ public class IsEqualsToImpl extends MultiCompareFilterImpl implements PropertyIs
 
     /**
      * Parses the specified string as a {@link Long} or a {@link Double} value.
-     * 
-     * @param value
-     *            The string to parse.
+     *
+     * @param value The string to parse.
      * @return The value as a number.
-     * @throws NumberFormatException
-     *             if the string can't be parsed.
+     * @throws NumberFormatException if the string can't be parsed.
      */
     private static Number parseToNumber(final String value) throws NumberFormatException {
         try {

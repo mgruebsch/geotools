@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -16,13 +16,11 @@
  */
 package org.geotools.data.sort;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-
 import org.geotools.data.simple.SimpleFeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -30,37 +28,36 @@ import org.opengis.feature.simple.SimpleFeatureType;
 /**
  * Reads from a list of {@link FeatureBlockReader} backed by a {@link RandomAccessFile} and performs
  * the classic merge-sort algorithm
- * 
+ *
  * @author Andrea Aime - GeoSolutions
- * 
  */
 class MergeSortReader implements SimpleFeatureReader {
 
     List<FeatureBlockReader> readers;
 
-    RandomAccessFile raf;
-
-    File file;
+    SimpleFeatureIO io;
 
     SimpleFeatureType schema;
 
     Comparator<SimpleFeature> comparator;
 
-    public MergeSortReader(SimpleFeatureType schema, RandomAccessFile raf, File file,
-            List<FeatureBlockReader> readers, Comparator<SimpleFeature> comparator) {
+    public MergeSortReader(
+            SimpleFeatureType schema,
+            SimpleFeatureIO io,
+            List<FeatureBlockReader> readers,
+            Comparator<SimpleFeature> comparator) {
         this.schema = schema;
         this.comparator = comparator;
         this.readers = readers;
-        this.raf = raf;
-        this.file = file;
+        this.io = io;
     }
 
     public SimpleFeatureType getFeatureType() {
         return schema;
     }
 
-    public SimpleFeature next() throws IOException, IllegalArgumentException,
-            NoSuchElementException {
+    public SimpleFeature next()
+            throws IOException, IllegalArgumentException, NoSuchElementException {
         if (readers.size() == 0) {
             throw new NoSuchElementException();
         }
@@ -91,11 +88,6 @@ class MergeSortReader implements SimpleFeatureReader {
     }
 
     public void close() throws IOException {
-        try {
-            raf.close();
-        } finally {
-            file.delete();
-        }
+        io.close(true);
     }
-
 }

@@ -16,21 +16,15 @@
  */
 package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCDataStoreTest;
+import org.geotools.jdbc.JDBCDataStoreOnlineTest;
 import org.geotools.jdbc.JDBCTestSetup;
-
 
 /**
  * Datastore test for H2.
  *
  * @author Justin Deoliveira, The Open Planning Project
- *
- *
- *
- *
- * @source $URL$
  */
-public class H2DataStoreTest extends JDBCDataStoreTest {
+public class H2DataStoreTest extends JDBCDataStoreOnlineTest {
     protected JDBCTestSetup createTestSetup() {
         return new H2TestSetup();
     }

@@ -20,25 +20,17 @@ import java.beans.PropertyDescriptor;
 
 /**
  * @author Pati
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- *
- *
- * @source $URL$
+ *     <p>To change the template for this generated type comment go to
+ *     Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class TouchesIntegrityBeanInfo extends RelationIntegrityBeanInfo {
-	/**
-	 * 
-	 */
-	public TouchesIntegrityBeanInfo(){
+    /** */
+    public TouchesIntegrityBeanInfo() {
         super();
     }
 
-	
     /**
      * Implementation of getPropertyDescriptors.
-     *
      *
      * @see java.beans.BeanInfo#getPropertyDescriptors()
      */

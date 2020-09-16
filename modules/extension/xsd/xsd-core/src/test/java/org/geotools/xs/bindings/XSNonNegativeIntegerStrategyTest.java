@@ -21,15 +21,8 @@ import javax.xml.namespace.QName;
 import org.geotools.xs.TestSchema;
 import org.geotools.xs.XS;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class XSNonNegativeIntegerStrategyTest extends TestSchema {
-    public void validateValues(String text, Number expected)
-        throws Exception {
+    public void validateValues(String text, Number expected) throws Exception {
         Object value = new BigInteger(text.trim());
 
         Object result = strategy.parse(element(text, qname), value);
@@ -42,8 +35,9 @@ public class XSNonNegativeIntegerStrategyTest extends TestSchema {
     }
 
     public BigInteger integer(Object value) {
-        return (value instanceof BigInteger) ? ((BigInteger) value)
-                                             : BigInteger.valueOf(((Number) value).longValue());
+        return (value instanceof BigInteger)
+                ? ((BigInteger) value)
+                : BigInteger.valueOf(((Number) value).longValue());
     }
 
     public Number number(String number) {
@@ -70,7 +64,7 @@ public class XSNonNegativeIntegerStrategyTest extends TestSchema {
     }
 
     public void testPositiveNumber() throws Exception {
-        validateValues("1000", new Integer("1000"));
+        validateValues("1000", Integer.valueOf("1000"));
     }
 
     protected QName getQName() {

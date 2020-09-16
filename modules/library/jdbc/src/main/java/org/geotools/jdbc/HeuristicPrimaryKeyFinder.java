@@ -24,26 +24,22 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.util.logging.Logging;
 
 /**
  * Looks up the primary key using the {@link DatabaseMetaData} for the specified table, looking both
  * for primary keys and unique indexes. The sequence lookup is performed in conjuction with the sql
  * dialect
- * 
+ *
  * @author Andrea Aime - OpenGeo
- * 
- *
- *
- * @source $URL$
  */
 public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
     protected static final Logger LOGGER = Logging.getLogger(HeuristicPrimaryKeyFinder.class);
 
     @Override
-    public PrimaryKey getPrimaryKey(JDBCDataStore store, String databaseSchema, String tableName,
-            Connection cx) throws SQLException {
+    public PrimaryKey getPrimaryKey(
+            JDBCDataStore store, String databaseSchema, String tableName, Connection cx)
+            throws SQLException {
         DatabaseMetaData metaData = cx.getMetaData();
         LOGGER.log(Level.FINE, "Getting information about primary keys of {0}", tableName);
         ResultSet primaryKey = metaData.getPrimaryKeys(null, databaseSchema, tableName);
@@ -56,21 +52,29 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
              * name <LI><B>KEY_SEQ</B> short => sequence number within primary key
              * <LI><B>PK_NAME</B> String => primary key name (may be <code>null</code>)
              */
-            PrimaryKey pkey = createPrimaryKey(store, primaryKey, metaData, databaseSchema,
-                    tableName, cx);
+            PrimaryKey pkey =
+                    createPrimaryKey(store, primaryKey, metaData, databaseSchema, tableName, cx);
             if (pkey == null) {
                 // No known database supports unique indexes on views and this check
                 // causes problems with Oracle, so we skip it
                 if (!store.isView(metaData, databaseSchema, tableName)
                         && store.getVirtualTables().get(tableName) == null) {
                     // no primary key, check for a unique index
-                    LOGGER.log(Level.FINE, "Getting information about unique indexes of {0}",
+                    LOGGER.log(
+                            Level.FINE,
+                            "Getting information about unique indexes of {0}",
                             tableName);
-                    ResultSet uniqueIndex = metaData.getIndexInfo(null, databaseSchema, tableName,
-                            true, true);
+                    ResultSet uniqueIndex =
+                            metaData.getIndexInfo(null, databaseSchema, tableName, true, true);
                     try {
-                        pkey = createPrimaryKey(store, uniqueIndex, metaData, databaseSchema,
-                                tableName, cx);
+                        pkey =
+                                createPrimaryKey(
+                                        store,
+                                        uniqueIndex,
+                                        metaData,
+                                        databaseSchema,
+                                        tableName,
+                                        cx);
                     } finally {
                         store.closeSafe(uniqueIndex);
                     }
@@ -86,8 +90,14 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
     /*
      * Creates a key from a primary key or unique index.
      */
-    PrimaryKey createPrimaryKey(JDBCDataStore store, ResultSet index, DatabaseMetaData metaData,
-            String databaseSchema, String tableName, Connection cx) throws SQLException {
+    PrimaryKey createPrimaryKey(
+            JDBCDataStore store,
+            ResultSet index,
+            DatabaseMetaData metaData,
+            String databaseSchema,
+            String tableName,
+            Connection cx)
+            throws SQLException {
         ArrayList<PrimaryKeyColumn> cols = new ArrayList();
 
         while (index.next()) {
@@ -99,20 +109,28 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
             }
 
             // look up the type ( should only be one row )
-            ResultSet columns = metaData.getColumns(null, databaseSchema, tableName, columnName);
-            columns.next();
+            ResultSet columns =
+                    metaData.getColumns(
+                            null,
+                            store.escapeNamePattern(metaData, databaseSchema),
+                            store.escapeNamePattern(metaData, tableName),
+                            store.escapeNamePattern(metaData, columnName));
+            Class columnType;
+            try {
+                columns.next();
 
-            Class columnType = store.getSQLDialect().getMapping(columns, cx);
-            if(columnType == null) {
-                int binding = columns.getInt("DATA_TYPE");
-                columnType = store.getMapping(binding);
+                columnType = store.getSQLDialect().getMapping(columns, cx);
                 if (columnType == null) {
-                    LOGGER.warning("No class for sql type " + binding);
-                    columnType = Object.class;
+                    int binding = columns.getInt("DATA_TYPE");
+                    columnType = store.getMapping(binding);
+                    if (columnType == null) {
+                        LOGGER.warning("No class for sql type " + binding);
+                        columnType = Object.class;
+                    }
                 }
+            } finally {
+                store.closeSafe(columns);
             }
-
-            
 
             // determine which type of primary key we have
             PrimaryKeyColumn col = null;
@@ -126,7 +144,7 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
 
                 StringBuffer sql = new StringBuffer();
                 sql.append("SELECT ");
-                store.getSQLDialect().encodeColumnName(columnName, sql);
+                store.getSQLDialect().encodeColumnName(null, columnName, sql);
                 sql.append(" FROM ");
                 store.encodeTableName(tableName, sql, null);
 
@@ -150,15 +168,22 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
             // 2. Has a sequence?
             if (col == null) {
                 try {
-                    String sequenceName = store.getSQLDialect().getSequenceForColumn(
-                            databaseSchema, tableName, columnName, cx);
+                    String sequenceName =
+                            store.getSQLDialect()
+                                    .getSequenceForColumn(
+                                            databaseSchema, tableName, columnName, cx);
                     if (sequenceName != null) {
                         col = new SequencedPrimaryKeyColumn(columnName, columnType, sequenceName);
                     }
                 } catch (Exception e) {
                     // log the exception , and continue on
-                    LOGGER.log(Level.WARNING, "Error occured determining sequence for "
-                            + columnName + ", " + tableName, e);
+                    LOGGER.log(
+                            Level.WARNING,
+                            "Error occured determining sequence for "
+                                    + columnName
+                                    + ", "
+                                    + tableName,
+                            e);
                 }
             }
 
@@ -174,5 +199,4 @@ public class HeuristicPrimaryKeyFinder extends PrimaryKeyFinder {
         }
         return null;
     }
-
 }

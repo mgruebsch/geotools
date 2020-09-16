@@ -18,16 +18,11 @@ package org.geotools.sld.bindings;
 
 import org.geotools.styling.LayerFeatureConstraints;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class SLDLayerFeatureConstraintsBindingTest extends SLDTestSupport {
     public void testType() throws Exception {
-        assertEquals(LayerFeatureConstraints.class,
-            new SLDLayerFeatureConstraintsBinding(null).getType());
+        assertEquals(
+                LayerFeatureConstraints.class,
+                new SLDLayerFeatureConstraintsBinding(null).getType());
     }
 
     public void test() throws Exception {

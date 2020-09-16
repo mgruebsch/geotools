@@ -1,18 +1,33 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.renderer.label;
 
 import org.geotools.renderer.style.TextStyle2D;
 import org.geotools.styling.TextSymbolizer.PolygonAlignOptions;
-
-import com.vividsolutions.jts.algorithm.MinimumDiameter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.algorithm.MinimumDiameter;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
 
 /**
  * Helper class that keeps the state of the alternate polygon labelling angle to avoid its (sometime
  * expensive) computation as the labeller tries different labelling positions
- * 
+ *
  * @author Andrea Aime - GeoSolutions
  */
 class TextStyle2DExt extends TextStyle2D {
@@ -27,9 +42,7 @@ class TextStyle2DExt extends TextStyle2D {
     }
 
     void setupPolygonAlign(PreparedGeometry pg) {
-        if (item.getPolygonAlign() == PolygonAlignOptions.NONE)
-            return;
-
+        if (item.getPolygonAlign() == PolygonAlignOptions.NONE) return;
     }
 
     boolean flipRotation(Geometry geometry) {
@@ -88,5 +101,4 @@ class TextStyle2DExt extends TextStyle2D {
         }
         return angle;
     }
-
 }

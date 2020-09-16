@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.geotools</groupId>
         <artifactId>unsupported</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
   <!-- =========================================================== -->
@@ -27,12 +27,6 @@
     <packaging>jar</packaging>
     <name>Swing widgets</name>
 
-    <scm>
-        <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/extension/widgets-swing/
-        </connection>
-        <url>http://svn.osgeo.org/geotools/trunk/modules/extension/widgets-swing/</url>
-    </scm>
 
     <description>
     Provides widgets for map display and other GUI elements
@@ -133,16 +127,23 @@
             <classifier>swing</classifier>
         </dependency>
         <dependency>
-            <groupId>org.easytesting</groupId>
-            <artifactId>fest-swing-junit</artifactId>
-            <version>1.2.1</version>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-swing-junit</artifactId>
+            <version>3.8.0</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.jaitools</groupId>
             <artifactId>jt-utils</artifactId>
             <version>${jt.version}</version>
             <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                 <groupId>org.locationtech.jts</groupId>
+                 <artifactId>jts</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

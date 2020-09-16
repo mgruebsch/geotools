@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *        
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -16,211 +16,120 @@
  */
 package org.geotools.filter;
 
-import java.math.BigDecimal;
+import static org.geotools.filter.Filters.getExpressionType;
 
 import org.geotools.util.Converters;
-import org.opengis.feature.simple.SimpleFeature;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Literal;
-
-import com.vividsolutions.jts.geom.Geometry;
-
 
 /**
  * Defines an expression that holds a literal for return.
  *
  * @author Rob Hranac, Vision for New York
- *
- *
- * @source $URL$
  * @version $Id$
  */
-public class LiteralExpressionImpl extends DefaultExpression
-    implements LiteralExpression {
-    
-    private static BigDecimal MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
-    private static BigDecimal MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
-    
+public class LiteralExpressionImpl extends DefaultExpression implements Literal {
+
     /** Holds a reference to the literal. */
     private Object literal = null;
-    
-    /** The converted value guessed inside evaluate(Feature) **/
-    private Object parsedValue = null;
 
-    /**
-     * Constructor with literal.
-     */
-    protected LiteralExpressionImpl() {
-    }
+    /** Constructor with literal. */
+    protected LiteralExpressionImpl() {}
 
     /**
      * Constructor with literal.
      *
      * @param literal The literal to store inside this expression.
-     *
      * @throws IllegalFilterException This literal type is not in scope.
      */
-    protected LiteralExpressionImpl(Object literal)
-        throws IllegalFilterException {
-        this.setLiteral(literal);
+    public LiteralExpressionImpl(Object literal) throws IllegalFilterException {
+        this.setValue(literal);
     }
 
     /**
-     * Constructor with literal. This alternative constructor is a convinience
-     * one for integers an Integer object will be constructed, and no
-     * IllegalFilterException can ever be thrown.
+     * Constructor with literal. This alternative constructor is a convinience one for integers an
+     * Integer object will be constructed, and no IllegalFilterException can ever be thrown.
      *
      * @param value The integer to store inside this expression.
      */
     protected LiteralExpressionImpl(int value) {
         try {
-            this.setLiteral(new Integer(value));
+            this.setValue(Integer.valueOf(value));
         } catch (IllegalFilterException ile) {
-            //this is imposible as this is only thrown for
-            //invalid types, and Integer is a valid type
-            throw new AssertionError(
-                "LiteralExpressionImpl is broken, it should accept Integers");
+            // this is imposible as this is only thrown for
+            // invalid types, and Integer is a valid type
+            throw new AssertionError("LiteralExpressionImpl is broken, it should accept Integers");
         }
     }
-    
+
     protected LiteralExpressionImpl(long value) {
         try {
-            this.setLiteral(new Long(value));
+            this.setValue(Long.valueOf(value));
         } catch (IllegalFilterException ile) {
-            //this is imposible as this is only thrown for
-            //invalid types, and Double is a valid type
-            throw new AssertionError(
-                "LiteralExpressionImpl is broken, it should accept Longs");
+            // this is imposible as this is only thrown for
+            // invalid types, and Double is a valid type
+            throw new AssertionError("LiteralExpressionImpl is broken, it should accept Longs");
         }
     }
 
     /**
-     * Constructor with literal. This alternative constructor is a convinience
-     * one for doubles an Double object will be constructed, and no
-     * IllegalFilterException can ever be thrown.
+     * Constructor with literal. This alternative constructor is a convinience one for doubles an
+     * Double object will be constructed, and no IllegalFilterException can ever be thrown.
      *
      * @param value The double to store inside this expression.
      */
     protected LiteralExpressionImpl(double value) {
         try {
-            this.setLiteral(new Double(value));
+            this.setValue(Double.valueOf(value));
         } catch (IllegalFilterException ile) {
-            //this is imposible as this is only thrown for
-            //invalid types, and Double is a valid type
-            throw new AssertionError(
-                "LiteralExpressionImpl is broken, it should accept Doubles");
+            // this is imposible as this is only thrown for
+            // invalid types, and Double is a valid type
+            throw new AssertionError("LiteralExpressionImpl is broken, it should accept Doubles");
         }
     }
 
     /**
-     * Constructor with literal. This alternative constructor is a convinience
-     * one for doubles an Double object will be constructed, and no
-     * IllegalFilterException can ever be thrown.
+     * Constructor with literal. This alternative constructor is a convinience one for doubles an
+     * Double object will be constructed, and no IllegalFilterException can ever be thrown.
      *
      * @param value The double to store inside this expression.
      */
     protected LiteralExpressionImpl(String value) {
         try {
-            this.setLiteral(value);
+            this.setValue(value);
         } catch (IllegalFilterException ile) {
-            //this is imposible as this is only thrown for
-            //invalid types, and String is a valid type
-            throw new AssertionError(
-                "LiteralExpressionImpl is broken, it should accept Strings");
+            // this is imposible as this is only thrown for
+            // invalid types, and String is a valid type
+            throw new AssertionError("LiteralExpressionImpl is broken, it should accept Strings");
         }
-    }
-
-    /**
-     * Returns the literal type.
-     *
-     * @return the short representation of the expression type.
-     */
-    public short getType() {
-        return expressionType;
-    }
-
-    /**
-     * This method calls {@link #setValue(Object)}.
-     * 
-     * @deprecated use {@link #setValue(Object)}.
-     * 
-     */
-    public final void setLiteral(Object literal) throws IllegalFilterException {
-        setValue(literal);
-    }
-
-    /**
-     * This method calls {@link #getValue()}.
-     * 
-     * @deprecated use {@link #getValue()}.
-     * 
-     */
-    public final Object getLiteral() {
-        return getValue();
     }
 
     /**
      * Retrieves the literal of this expression.
      *
      * @return the literal held by this expression.
-     * 
      */
     public Object getValue() {
-    	return literal;
+        return literal;
     }
-    
+
     /**
      * Sets the literal.
      *
      * @param literal The literal to store inside this expression.
-     *
      * @throws IllegalFilterException This literal type is not in scope.
      */
     public final void setValue(Object literal) {
-    	if (literal instanceof Double) {
-            expressionType = LITERAL_DOUBLE;
-        } else if (literal instanceof Integer) {
-            expressionType = LITERAL_INTEGER;
-        } else if (literal instanceof Long) {
-            expressionType = LITERAL_LONG;
-        } else if (literal instanceof String) {
-            expressionType = LITERAL_STRING;
-        } else if (literal instanceof Geometry) {
-            expressionType = LITERAL_GEOMETRY;
-        } else {
-            expressionType = LITERAL_UNDECLARED;
-        }
-
         this.literal = literal;
-    }
-    
-    
-    /**
-     * Gets the value of this literal.
-     *
-     * @param feature Required by the interface but not used.
-     *
-     * @return the literal held by this expression.  Ignores the passed in
-     *         feature.  The literal held by this expression is almost invariably
-     *         a java.lang.String (so that no leading-zeros are lost during a string->
-     *         Class conversion.  This method will attempt to form the internal
-     *         String into a Integer, Double or BigInteger, before failing and
-     *         defaulting to a String.  To speed things up significantly, use the
-     *         evaluate(Object, Class) method so that we don't have to guess
-     *         at what you expect back from this evaluate method!
-     *
-     * @throws IllegalArgumentException Feature does not match declared schema.
-     */
-    public Object evaluate(SimpleFeature feature)
-    	throws IllegalArgumentException {
-    	return evaluate((Object)feature);
     }
 
     public Object evaluate(Object feature) {
         return literal;
     }
-    
-    public Object evaluate(Object feature, Class context) {
+
+    public <T> T evaluate(Object feature, Class<T> context) {
         return Converters.convert(literal, context);
     }
 
@@ -234,17 +143,14 @@ public class LiteralExpressionImpl extends DefaultExpression
     }
 
     /**
-     * Compares this filter to the specified object.  Returns true  if the
-     * passed in object is the same as this expression.  Checks  to make sure
-     * the expression types are the same as well as the literals.
+     * Compares this filter to the specified object. Returns true if the passed in object is the
+     * same as this expression. Checks to make sure the expression types are the same as well as the
+     * literals.
      *
      * @param obj - the object to compare this ExpressionLiteral against.
-     *
-     * @return true if specified object is equal to this expression; false
-     *         otherwise.
-     *
-     * @task REVISIT: missmatched types now considered not equal. This may be a
-     *       problem when comparing Doubles and Integers
+     * @return true if specified object is equal to this expression; false otherwise.
+     * @task REVISIT: missmatched types now considered not equal. This may be a problem when
+     *     comparing Doubles and Integers
      */
     public boolean equals(Object obj) {
         if (obj instanceof LiteralExpressionImpl) {
@@ -256,28 +162,33 @@ public class LiteralExpressionImpl extends DefaultExpression
             // null handling
             if (this.literal == null) {
                 return expLit.literal == null;
-            } else if(expLit.literal == null) {
+            } else if (expLit.literal == null) {
                 return false;
             }
-            
+
             // direct comparison if same type
-            if (this.expressionType == expLit.expressionType) {
-                if(this.literal.equals(expLit.literal)) {
+            if (getExpressionType(this) == getExpressionType(expLit)) {
+                if (this.literal.equals(expLit.literal)) {
                     return true;
                 }
             }
 
             // do the conversion dance
-            if (expressionType == LITERAL_GEOMETRY) {
-                return ((Geometry) this.literal).equalsExact((Geometry) expLit.evaluate(null, Geometry.class));
-            } else if (expressionType == LITERAL_INTEGER) {
-                return ((Integer) this.literal).equals((Integer) expLit.evaluate(null, Integer.class));
-            } else if (expressionType == LITERAL_STRING) {
-                return ((String) this.literal).equals((String) expLit.evaluate(null, String.class));
-            } else if (expressionType == LITERAL_DOUBLE) {
-                return ((Double) this.literal).equals((Double) expLit.evaluate(null, Double.class));
-            } else if (expressionType == LITERAL_LONG) {
-                return ((Long) this.literal).equals((Long) expLit.evaluate(null, Long.class));                
+            int expressionType = getExpressionType(this);
+            if (expressionType == ExpressionType.LITERAL_GEOMETRY
+                    && this.literal instanceof Geometry) {
+                return ((Geometry) this.literal).equalsExact(expLit.evaluate(null, Geometry.class));
+            } else if (expressionType == ExpressionType.LITERAL_GEOMETRY
+                    && this.literal instanceof Envelope) {
+                return ((Envelope) this.literal).equals(expLit.evaluate(null, Envelope.class));
+            } else if (expressionType == ExpressionType.LITERAL_INTEGER) {
+                return ((Integer) this.literal).equals(expLit.evaluate(null, Integer.class));
+            } else if (expressionType == ExpressionType.LITERAL_STRING) {
+                return ((String) this.literal).equals(expLit.evaluate(null, String.class));
+            } else if (expressionType == ExpressionType.LITERAL_DOUBLE) {
+                return ((Double) this.literal).equals(expLit.evaluate(null, Double.class));
+            } else if (expressionType == ExpressionType.LITERAL_LONG) {
+                return ((Long) this.literal).equals(expLit.evaluate(null, Long.class));
             } else {
                 // try to convert the other to the current type
                 Object other = expLit.evaluate(null, this.literal.getClass());
@@ -287,19 +198,18 @@ public class LiteralExpressionImpl extends DefaultExpression
                 // converters might be one way, try the opposite
                 other = expLit.getValue();
                 Object converted = this.evaluate(null, other.getClass());
-                if(converted != null) {
+                if (converted != null) {
                     return converted.equals(other);
                 }
-                // final attemp with a string to string comparison 
+                // final attemp with a string to string comparison
                 String str1 = (String) this.evaluate(null, String.class);
                 String str2 = (String) expLit.evaluate(null, String.class);
                 return str1 != null && str2 != null && str1.equals(str2);
             }
-        }
-        else if (obj instanceof Literal) {
+        } else if (obj instanceof Literal) {
             // some other Literal implementation like ConstantExpression
             Literal other = (Literal) obj;
-            return equals( new LiteralExpressionImpl( other.getValue() ) );
+            return equals(new LiteralExpressionImpl(other.getValue()));
         } else {
             return false;
         }
@@ -314,22 +224,21 @@ public class LiteralExpressionImpl extends DefaultExpression
         int result = 17;
 
         result = (37 * result) + ((literal == null) ? 0 : literal.hashCode());
-        result = (37 * result) + expressionType;
+        result = (37 * result) + Filters.getExpressionType(this);
 
         return result;
     }
 
     /**
-     * Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing
-     * which needs infomration from filter structure. Implementations should
-     * always call: visitor.visit(this); It is importatant that this is not
-     * left to a parent class unless the parents API is identical.
+     * Used by FilterVisitors to perform some action on this filter instance. Typicaly used by
+     * Filter decoders, but may also be used by any thing which needs infomration from filter
+     * structure. Implementations should always call: visitor.visit(this); It is importatant that
+     * this is not left to a parent class unless the parents API is identical.
      *
-     * @param visitor The visitor which requires access to this filter, the
-     *        method must call visitor.visit(this);
+     * @param visitor The visitor which requires access to this filter, the method must call
+     *     visitor.visit(this);
      */
     public Object accept(ExpressionVisitor visitor, Object extraData) {
-    	return visitor.visit(this,extraData);
+        return visitor.visit(this, extraData);
     }
 }

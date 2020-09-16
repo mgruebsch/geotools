@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,34 +16,28 @@
  */
 package org.geotools.styling;
 
+import java.util.Arrays;
 import java.util.Collections;
-
 import junit.framework.TestCase;
-
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.NameImpl;
+import org.geotools.metadata.iso.citation.OnLineResourceImpl;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
+import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.util.Cloneable;
-
 
 /**
  * Tests style cloning
  *
  * @author Sean Geoghegan
- *
- *
- * @source $URL$
  */
 public class StyleObjectTest extends TestCase {
     private StyleFactory styleFactory;
     private FilterFactory filterFactory;
 
-    /**
-     * Constructor for StyleCloneTest.
-     *
-     * @param arg0
-     */
+    /** Constructor for StyleCloneTest. */
     public StyleObjectTest(String arg0) {
         super(arg0);
     }
@@ -52,7 +46,7 @@ public class StyleObjectTest extends TestCase {
      * @see TestCase#setUp()
      */
     protected void setUp() throws Exception {
-        styleFactory = StyleFactoryFinder.createStyleFactory();
+        styleFactory = CommonFactoryFinder.getStyleFactory();
         filterFactory = CommonFactoryFinder.getFilterFactory(null);
     }
 
@@ -65,13 +59,13 @@ public class StyleObjectTest extends TestCase {
 
     public void testStyle() throws Exception {
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setFeatureTypeName("feature-type-1");
+        fts.featureTypeNames().add(new NameImpl("feature-type-1"));
 
         FeatureTypeStyle fts2 = fts2();
 
         Style style = styleFactory.getDefaultStyle();
-        style.addFeatureTypeStyle(fts);
-        style.addFeatureTypeStyle(fts2);
+        style.featureTypeStyles().add(fts);
+        style.featureTypeStyles().add(fts2);
 
         Style clone = (Style) ((Cloneable) style).clone();
         assertClone(style, clone);
@@ -79,22 +73,22 @@ public class StyleObjectTest extends TestCase {
         Style notEq = styleFactory.getDefaultStyle();
 
         fts2 = fts2();
-        notEq.addFeatureTypeStyle(fts2);
+        notEq.featureTypeStyles().add(fts2);
         assertEqualsContract(clone, notEq, style);
     }
 
     private FeatureTypeStyle fts2() {
         FeatureTypeStyle fts2 = styleFactory.createFeatureTypeStyle();
         Rule rule = styleFactory.createRule();
-        fts2.addRule(rule);
-        fts2.setFeatureTypeName("feature-type-2");
+        fts2.rules().add(rule);
+        fts2.featureTypeNames().add(new NameImpl("feature-type-2"));
 
         return fts2;
     }
 
     public void testFeatureTypeStyle() throws Exception {
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setFeatureTypeName("feature-type");
+        fts.featureTypeNames().add(new NameImpl("feature-type"));
 
         Rule rule1;
 
@@ -103,10 +97,10 @@ public class StyleObjectTest extends TestCase {
         rule1.setFilter(filterFactory.id(Collections.singleton(filterFactory.featureId("FID"))));
 
         Rule rule2 = styleFactory.createRule();
-        rule2.setIsElseFilter(true);
+        rule2.setElseFilter(true);
         rule2.setName("rule2");
-        fts.addRule(rule1);
-        fts.addRule(rule2);
+        fts.rules().add(rule1);
+        fts.rules().add(rule2);
 
         FeatureTypeStyle clone = (FeatureTypeStyle) ((Cloneable) fts).clone();
         assertClone(fts, clone);
@@ -117,33 +111,35 @@ public class StyleObjectTest extends TestCase {
 
         FeatureTypeStyle notEq = styleFactory.createFeatureTypeStyle();
         notEq.setName("fts-not-equal");
-        notEq.addRule(rule1);
+        notEq.rules().add(rule1);
         assertEqualsContract(clone, notEq, fts);
     }
 
     public void testRule() throws Exception {
-        Symbolizer symb1 = styleFactory.createLineSymbolizer(styleFactory
-                .getDefaultStroke(), "geometry");
+        Symbolizer symb1 =
+                styleFactory.createLineSymbolizer(styleFactory.getDefaultStroke(), "geometry");
 
-        Symbolizer symb2 = styleFactory.createPolygonSymbolizer(styleFactory
-                .getDefaultStroke(), styleFactory.getDefaultFill(), "shape");
+        Symbolizer symb2 =
+                styleFactory.createPolygonSymbolizer(
+                        styleFactory.getDefaultStroke(), styleFactory.getDefaultFill(), "shape");
 
         Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[] { symb1, symb2 });
+        rule.symbolizers().addAll(Arrays.asList(symb1, symb2));
 
         Rule clone = (Rule) ((Cloneable) rule).clone();
         assertClone(rule, clone);
 
-        symb2 = styleFactory.createPolygonSymbolizer(styleFactory
-                .getDefaultStroke(), styleFactory.getDefaultFill(), "shape");
+        symb2 =
+                styleFactory.createPolygonSymbolizer(
+                        styleFactory.getDefaultStroke(), styleFactory.getDefaultFill(), "shape");
 
         Rule notEq = styleFactory.createRule();
-        notEq.setSymbolizers(new Symbolizer[] { symb2 });
+        notEq.symbolizers().add(symb2);
         assertEqualsContract(clone, notEq, rule);
 
-        symb1 = styleFactory.createLineSymbolizer(styleFactory.getDefaultStroke(),
-                "geometry");
-        clone.setSymbolizers(new Symbolizer[] { symb1 });
+        symb1 = styleFactory.createLineSymbolizer(styleFactory.getDefaultStroke(), "geometry");
+        clone.symbolizers().clear();
+        clone.symbolizers().add(symb1);
         assertTrue(!rule.equals(clone));
     }
 
@@ -169,8 +165,7 @@ public class StyleObjectTest extends TestCase {
         Expression ancX = filterFactory.literal(10);
         Expression ancY = filterFactory.literal(10);
         AnchorPoint ancPoint = styleFactory.createAnchorPoint(ancX, ancY);
-        LabelPlacement placement = styleFactory.createPointPlacement(ancPoint,
-                null, null);
+        LabelPlacement placement = styleFactory.createPointPlacement(ancPoint, null, null);
         notEq.setLabelPlacement(placement);
         assertEqualsContract(clone, notEq, textSymb);
     }
@@ -180,22 +175,24 @@ public class StyleObjectTest extends TestCase {
         Font clone = (Font) ((Cloneable) font).clone();
         assertClone(font, clone);
 
-        Font other = styleFactory.createFont(filterFactory.literal("other"),
-                filterFactory.literal("normal"),
-                filterFactory.literal("BOLD"),
-                filterFactory.literal(12));
+        Font other =
+                styleFactory.createFont(
+                        filterFactory.literal("other"),
+                        filterFactory.literal("normal"),
+                        filterFactory.literal("BOLD"),
+                        filterFactory.literal(12));
 
         assertEqualsContract(clone, other, font);
     }
 
     public void testHalo() {
-        Halo halo = styleFactory.createHalo(styleFactory.getDefaultFill(),
-                filterFactory.literal(10));
+        Halo halo =
+                styleFactory.createHalo(styleFactory.getDefaultFill(), filterFactory.literal(10));
         Halo clone = (Halo) ((Cloneable) halo).clone();
         assertClone(halo, clone);
 
-        Halo other = styleFactory.createHalo(styleFactory.getDefaultFill(),
-                filterFactory.literal(12));
+        Halo other =
+                styleFactory.createHalo(styleFactory.getDefaultFill(), filterFactory.literal(12));
         assertEqualsContract(clone, other, halo);
     }
 
@@ -209,24 +206,24 @@ public class StyleObjectTest extends TestCase {
     }
 
     public void testAnchorPoint() {
-        AnchorPoint anchorPoint = styleFactory.createAnchorPoint(filterFactory.literal(1),
-                filterFactory.literal(2));
+        AnchorPoint anchorPoint =
+                styleFactory.createAnchorPoint(filterFactory.literal(1), filterFactory.literal(2));
         AnchorPoint clone = (AnchorPoint) ((Cloneable) anchorPoint).clone();
         assertClone(anchorPoint, clone);
 
-        AnchorPoint other = styleFactory.createAnchorPoint(filterFactory.literal(3), filterFactory
-                .literal(4));
+        AnchorPoint other =
+                styleFactory.createAnchorPoint(filterFactory.literal(3), filterFactory.literal(4));
         assertEqualsContract(clone, other, anchorPoint);
     }
 
     public void testDisplacement() {
-        Displacement displacement = styleFactory.createDisplacement(filterFactory.literal(1),
-                filterFactory.literal(2));
+        Displacement displacement =
+                styleFactory.createDisplacement(filterFactory.literal(1), filterFactory.literal(2));
         Displacement clone = (Displacement) ((Cloneable) displacement).clone();
         assertClone(displacement, clone);
 
-        Displacement other = styleFactory.createDisplacement(filterFactory.literal(3),
-                filterFactory.literal(4));
+        Displacement other =
+                styleFactory.createDisplacement(filterFactory.literal(3), filterFactory.literal(4));
         assertEqualsContract(clone, other, displacement);
     }
 
@@ -242,8 +239,7 @@ public class StyleObjectTest extends TestCase {
 
     public void testPolygonSymbolizer() {
         PolygonSymbolizer polygonSymb = styleFactory.createPolygonSymbolizer();
-        PolygonSymbolizer clone = (PolygonSymbolizer) ((Cloneable) polygonSymb)
-            .clone();
+        PolygonSymbolizer clone = (PolygonSymbolizer) ((Cloneable) polygonSymb).clone();
         assertClone(polygonSymb, clone);
 
         PolygonSymbolizer notEq = styleFactory.getDefaultPolygonSymbolizer();
@@ -263,25 +259,25 @@ public class StyleObjectTest extends TestCase {
 
     public void testGraphic() {
         Graphic graphic = styleFactory.getDefaultGraphic();
-        graphic.addMark(styleFactory.getDefaultMark());
+        graphic.graphicalSymbols().add(styleFactory.getDefaultMark());
 
         Graphic clone = (Graphic) ((Cloneable) graphic).clone();
         assertClone(graphic, clone);
         assertEqualsContract(clone, graphic);
-        assertEquals(clone.getSymbols().length, graphic.getSymbols().length);
+        assertEquals(clone.graphicalSymbols().size(), graphic.graphicalSymbols().size());
 
         Graphic notEq = styleFactory.getDefaultGraphic();
         assertEqualsContract(clone, notEq, graphic);
     }
 
     public void testExternalGraphic() {
-        ExternalGraphic exGraphic = styleFactory.createExternalGraphic("http://somewhere",
-                "image/png");
+        ExternalGraphic exGraphic =
+                styleFactory.createExternalGraphic("http://somewhere", "image/png");
         ExternalGraphic clone = (ExternalGraphic) ((Cloneable) exGraphic).clone();
         assertClone(exGraphic, clone);
 
-        ExternalGraphic notEq = styleFactory.createExternalGraphic("http://somewhereelse",
-                "image/jpeg");
+        ExternalGraphic notEq =
+                styleFactory.createExternalGraphic("http://somewhereelse", "image/jpeg");
         assertEqualsContract(clone, notEq, exGraphic);
 
         // make sure it works for different format, same url
@@ -310,22 +306,23 @@ public class StyleObjectTest extends TestCase {
 
     public void testStroke() {
         Stroke stroke = styleFactory.getDefaultStroke();
-        DuplicatingStyleVisitor duplicate = new DuplicatingStyleVisitor( styleFactory );
-        stroke.accept( duplicate );
+        DuplicatingStyleVisitor duplicate = new DuplicatingStyleVisitor(styleFactory);
+        stroke.accept(duplicate);
         Stroke clone = (Stroke) duplicate.getCopy();
-        
+
         assertClone(stroke, clone);
 
-        Stroke notEq = styleFactory.createStroke(filterFactory.literal("#FF0000"), filterFactory
-                .literal(10));
+        Stroke notEq =
+                styleFactory.createStroke(
+                        filterFactory.literal("#FF0000"), filterFactory.literal(10));
         assertEqualsContract(clone, notEq, stroke);
 
         // a stroke is a complex object with lots of properties,
         // need more extensive tests here.
         Stroke dashArray = styleFactory.getDefaultStroke();
-        dashArray.setDashArray(new float[] { 1.0f, 2.0f, 3.0f });
+        dashArray.setDashArray(new float[] {1.0f, 2.0f, 3.0f});
 
-        dashArray.accept( duplicate );
+        dashArray.accept(duplicate);
         Stroke dashArray2 = (Stroke) duplicate.getCopy();
         assertEqualsContract(dashArray, dashArray2);
     }
@@ -333,12 +330,10 @@ public class StyleObjectTest extends TestCase {
     private static void assertClone(Object real, Object clone) {
         assertNotNull("Real was null", real);
         assertNotNull("Clone was null", clone);
-        assertTrue("" + real.getClass().getName() + " was not cloned",
-            real != clone);
+        assertTrue("" + real.getClass().getName() + " was not cloned", real != clone);
     }
 
-    private static void assertEqualsContract(Object controlEqual,
-        Object controlNe, Object test) {
+    private static void assertEqualsContract(Object controlEqual, Object controlNe, Object test) {
         assertNotNull(controlEqual);
         assertNotNull(controlNe);
         assertNotNull(test);
@@ -364,8 +359,7 @@ public class StyleObjectTest extends TestCase {
         // assertHashcode equality
         int controlEqHash = controlEqual.hashCode();
         int testHash = test.hashCode();
-        assertTrue("Equal objects should return equal hashcodes",
-            controlEqHash == testHash);
+        assertTrue("Equal objects should return equal hashcodes", controlEqHash == testHash);
     }
 
     private static void assertEqualsContract(Object controlEqual, Object test) {
@@ -385,7 +379,32 @@ public class StyleObjectTest extends TestCase {
         // assertHashcode equality
         int controlEqHash = controlEqual.hashCode();
         int testHash = test.hashCode();
-        assertTrue("Equal objects should return equal hashcodes",
-            controlEqHash == testHash);
+        assertTrue("Equal objects should return equal hashcodes", controlEqHash == testHash);
+    }
+
+    public void testFeatureStyleImplCopy() throws Exception {
+        // create FeatureTypeStyleImpl
+        FeatureTypeStyle fts = new FeatureTypeStyleImpl();
+        assertNull(fts.getTransformation());
+        assertNull(fts.getOnlineResource());
+
+        // Create OnlineResource and transformation
+        OnLineResource impl = new OnLineResourceImpl();
+        Expression style = filterFactory.literal("square");
+
+        // set OnlineResource and transformation
+        fts.setTransformation(style);
+        fts.setOnlineResource(impl);
+
+        // test if set
+        assertEquals(fts.getTransformation(), filterFactory.literal("square"));
+        assertEquals(fts.getOnlineResource(), new OnLineResourceImpl());
+
+        // create copy fts2 from fts
+        FeatureTypeStyleImpl fts2 = new FeatureTypeStyleImpl(fts);
+
+        // test if values are equal and thus copied
+        assertEquals(fts.getTransformation(), fts2.getTransformation());
+        assertEquals(fts.getOnlineResource(), fts2.getOnlineResource());
     }
 }

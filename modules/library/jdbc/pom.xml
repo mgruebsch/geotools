@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>library</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
   
 
@@ -27,20 +27,16 @@
   <artifactId>gt-jdbc</artifactId>
   <packaging>jar</packaging>
   <name>JDBC DataStore Support</name>
-  
-
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/jdbc/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/library/jdbc/</url>
-  </scm>
 
   <description>
     Abstract datastore implementation and helper classes / apis to be extended
     by datastores backed by releational databases accesible via jdbc.
   </description>
-
+  
+  <properties>
+    <moduleIdentifier>org.geotools.jdbc</moduleIdentifier>
+  </properties>
+  
   <licenses>
     <license>
       <name>Lesser General Public License (LGPL)</name>
@@ -80,17 +76,7 @@
   <dependencies>
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
       <artifactId>gt-main</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-data</artifactId>
       <version>${project.version}</version>
     </dependency>
      <dependency>
@@ -98,46 +84,24 @@
       <artifactId>commons-dbcp</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-sample-data</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+    <dependency>    
       <groupId>com.mockrunner</groupId>
-      <artifactId>mockrunner</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymockclassextension</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <!-- The version number is specified in the parent POM. -->
+      <artifactId>mockrunner-jdbc</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

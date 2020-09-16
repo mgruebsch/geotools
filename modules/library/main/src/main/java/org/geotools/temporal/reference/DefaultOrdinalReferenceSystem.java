@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -23,22 +23,17 @@ import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.temporal.OrdinalEra;
 import org.opengis.temporal.OrdinalReferenceSystem;
 
-/**
- *
- * @author Mehdi Sidhoum (Geomatys)
- *
- *
- *
- * @source $URL$
- */
-public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSystem implements OrdinalReferenceSystem {
+/** @author Mehdi Sidhoum (Geomatys) */
+public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSystem
+        implements OrdinalReferenceSystem {
 
-    /**
-     * An ordinal temporal reference system  consists of a set of ordinal eras.
-     */
+    /** An ordinal temporal reference system consists of a set of ordinal eras. */
     private Collection<OrdinalEra> ordinalEraSequence;
 
-    public DefaultOrdinalReferenceSystem(ReferenceIdentifier name, Extent domainOfValidity, Collection<OrdinalEra> ordinalEraSequence) {
+    public DefaultOrdinalReferenceSystem(
+            ReferenceIdentifier name,
+            Extent domainOfValidity,
+            Collection<OrdinalEra> ordinalEraSequence) {
         super(name, domainOfValidity);
         this.ordinalEraSequence = ordinalEraSequence;
     }
@@ -68,7 +63,11 @@ public class DefaultOrdinalReferenceSystem extends DefaultTemporalReferenceSyste
     @Override
     public int hashCode() {
         int hash = super.hashCode();
-        hash = 37 * hash + (this.ordinalEraSequence != null ? this.ordinalEraSequence.hashCode() : 0);
+        hash =
+                37 * hash
+                        + (this.ordinalEraSequence != null
+                                ? this.ordinalEraSequence.hashCode()
+                                : 0);
         return hash;
     }
 

@@ -42,7 +42,7 @@ Here is a sample of some of the great features in the library today:
 * Supports graphs and networks
 * Java Topology Suite (JTS) - with support for the OGC Simple Features Specification - used as the geometry model for vector features.
 * A stateless, low memory renderer, particularly useful in server-side environments
-* Powerful "schema asisted" parsing technology using XML Schema to bind to GML content
+* Powerful "schema assisted" parsing technology using XML Schema to bind to GML content
 * Interact with OGC web services with both Web Map Server and Web Feature Server support
 * Open plug-in system allowing you to teach the library additional formats
 * Plug-ins for the ImageIO-EXT project allowing GeoTools to read additional raster formats from GDAL
@@ -51,50 +51,51 @@ Q: Okay what data formats does GeoTools support?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 GeoTools supports additional formats through the use of plug-ins. You can control the formats supported
-by your application by only including the plug-ins you requrie.
+by your application by only including the plug-ins you require.
 
-* arcgrid
-* arcsde
-* db2
+* ``arcgrid`` 
+* ``db2`` 
 * raster formats
   
-  * geotiff
-  * grassraster
-  * gtopo30
-  * image - world plus image files using common image formats such as JPEG, TIFF, GIF and PNG
-  * imageio-ext-gdal (allows access to additional GDAL formats thanks to the ImageIO project)
-  * imagemoasaic
-  * imagepyramid
-  * JP2K
+  * ``geotiff`` 
+  * ``grassraster`` 
+  * ``gtopo30`` 
+  * ``image``  - world plus image files using common image formats such as JPEG, TIFF, GIF and PNG
+  * ``imageio-ext-gdal`` (allows access to additional GDAL formats thanks to the ImageIO project)
+  * ``imagemoasaic`` 
+  * ``imagepyramid`` 
+  * ``JP2K`` 
   
-* Database "jdbc-ng" support
+* Database ``gt-jdbc-ng`` `` support
   
-  * h2
-  * mysql
-  * oracle
-  * postgis
-  * spatialite
-  * sqlserver
+  + ``db2``
+  + ``geopackage``
+  + ``hana``  
+  + ``h2``  
+  + ``mysql``  
+  + ``oracle``  
+  + ``postgis``
+  + ``sqlserver``
+  + ``teradata``
 
-* postgis
-* property - simple text file format often used for testing
-* shapefile
+* ``property``  - simple text file format often used for testing
+* ``shapefile`` 
 
 Perhaps one of the unsupported modules or plugins may have what you need. These modules
 are supplied by the community and do not yet meet the quality expected by the library:
 
 There are also some "unsupported" formats that are either popular or under development:
 
-* app-schema (under development) - allows the remapping and combining of one or more data sources into a provided application schema
-* dfx
-* edigeo
-* geojson
-* wfs
+
+* ``dfx`` 
+* ``geojson`` 
+* ``wfs`` 
+
 
 The current authoritative list of plugins is of course the source code: 
 
-* http://svn.osgeo.org/geotools/trunk/modules/plugin/
-* http://svn.osgeo.org/geotools/trunk/modules/unsupported/
+* https://github.com/geotools/geotools/tree/master/modules/plugin
+* https://github.com/geotools/geotools/tree/master/modules/unsupported
 
 GeoTools versions
 ^^^^^^^^^^^^^^^^^
@@ -105,16 +106,17 @@ Q. How are GeoTools versions organized?
 Like many open source projects, GeoTools has a *development* version and one or more *stable* versions active at any
 given time. By active, we mean that the project developers are working on new features, improvements and bug fixes.
 
-Source code for the stable branch(es) can be found in the *branches* folder of the GeoTools subversion repository. For
-example, at the time of writing the active stable branch is `branches/2.7.x <http://svn.osgeo.org/geotools/branches/2.7.x/>`_.
+The development version is the master branch in the GitHub repository (https://github.com/geotools/geotools).
+This is the 'bleeding edge' code where the latest features are being worked on. Eventually this code will become
+the next stable branch. 
 
-Formal releases are based on a stable branch. The source code for a formal release is archived in the *tags* folder of
-the subversion repository. For example, the version 2.7.1 sources can be found in
-`tags/2.7.1 <http://svn.osgeo.org/geotools/tags/2.7.1/>`_.
+Stable versions are a branch in the GitHub repository. As an example, the 14.x stable branch can be found at 
+https://github.com/geotools/geotools/tree/14.x. Stable versions do not get new features, but do get bug fixes
+and sometimes other minor improvements.
 
-Source code for the development version are in the `trunk <http://svn.osgeo.org/geotools/trunk/>`_ folder. This is the
-bleeding edge code where the latest features are being worked on. Eventually this code will become the next stable
-branch.
+Formal releases are a tag in the GitHub repository. For example, GeoTools 14.0  can be found at
+https://github.com/geotools/geotools/releases/tag/14.0. Similarly, the 13.1 release can be found at
+https://github.com/geotools/geotools/releases/tag/13.1.
 
 Commencing with GeoTools version 8, a major.minor.patch numbering system applies. 
 
@@ -133,34 +135,44 @@ patch
 Q. What is a SNAPSHOT version and how do I use it?
 ''''''''''''''''''''''''''''''''''''''''''''''''''
 
-A snapshot is the GeoTools code that the developers are actively working on. Usually there will be two active snapshots:
-one associated with the most recent formal release (e.g GeoTools 2.7-SNAPSHOT) and a second for the development version
-(e.g. GeoTools 8-SNAPSHOT). At times there will also be snapshot releases for an earlier stable branch that is still
-being maintained (e.g. GeoTools 2.6-SNAPSHOT).
+A snapshot is the GeoTools code that the developers are actively working on.
+
+Usually there will be three active snapshots:
+
+* one associated with the stable branch (e.g GeoTools 23-SNAPSHOT);
+* a second associated with the maintenance branch (e.g. 22-SNAPSHOT);
+* and a third for master branch (e.g. 24-SNAPSHOT).
+
+At times there will also be snapshot releases for an earlier branch that is having a bug fixe
+applied (e.g. GeoTools 19-SNAPSHOT).
 
 New snapshot jars are built nightly and deployed to a repository separate from the one used for formal releases. If you
-are using Maven as your build tool you can work with a snapshot release by adding the following to your pom.xml::
+are using Maven as your build tool you can work with a snapshot release by adding the following to your ``pom.xml`` :
 
-    <repository>
-        <id>opengeo</id>
-        <name>OpenGeo Maven Repository</name>
-        <url>http://repo.opengeo.org/</url>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
+.. code-block:: xml
 
-You can now build your project against a snapshot release by setting it as the your version property as shown here::
+   <repository>
+       <id>osgeo-snapshot</id>
+       <name>OSGeo Snapshot Repository</name>
+       <url>https://repo.osgeo.org/repository/snapshot/</url>
+       <snapshots><enabled>true</enabled></snapshots>
+       <releases><enabled>false</enabled></releases>
+   </repository>
 
-    <properties>
-        <geotools.version>8-SNAPSHOT</geotools.version>
-    </properties>
+You can now build your project against a snapshot release by setting it as the your version property as shown here:
 
+.. code-block:: xml
+
+   <properties>
+       <geotools.version>24-SNAPSHOT</geotools.version>
+   </properties>
+
+This is a great approach when to use when actively testing a fix in your application.
 
 Common License Questions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Q: What licence does GeoTools use?
+Q: What license does GeoTools use?
 ''''''''''''''''''''''''''''''''''
 
 All GeoTools modules are released under the GNU Lesser General Public License (LGPL). GeoTools can be used for
@@ -205,10 +217,9 @@ project so the changes can be incorporated into the core source code.
 
 .. note::
 
-   This means you can use GeoTools as a library but you cannot
-   incorporate GeoTools code directly into your GLP application. Legally, the
-   latter amounts to re-licensing GeoTools under a new license and you do not have
-   the right to do so.
+   You can also incorporate GeoTools code directly into your GPL application. Legally, the
+   latter amounts to re-licensing GeoTools under the GPL, which is specifically allowed
+   by the LGPL. This re-licensing is one-way, and requires specific actions - see the LGPL.
 
 Q: What restrictions are there on my use of GeoTools?
 '''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -227,7 +238,7 @@ Q: What restrictions are there on my re-distribution of GeoTools?
 
 Technically, you have to provide everyone who receives a copy of GeoTools from
 you with some way to get the source code to the library. In practice, pointing
-those users to the Geotools project itself is considered an adequate solution.
+those users to the GeoTools project itself is considered an adequate solution.
    
 However, if you are re-distributing a modified version of GeoTools then you
 need to provide users with access to the modified code. This means that you
@@ -251,15 +262,15 @@ Q: Why can't I find module X in the GeoTools distribution or javadocs?
 
 If you're working with a recent GeoTools release then chances are the module that you're looking for is an
 :doc:`unsupported module </unsupported/index>`. These modules not part of the standard GeoTools distribution but are
-available from the `Subversion repository <http://svn.osgeo.org/geotools>`_ in the **modules/unsupported** folder. If
+available from the `GIT repository <https://github.com/geotools/geotools>`_ in the **modules/unsupported** folder. If
 you are using Maven as your build tool you can include a dependency for an unsupported module as you would any other
 GeoTools module.
 
 Q: What is an unsupported module?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Unsupported modules are those found in the **modules/unsupported** folder of each GeoTools version in the `Subversion
-repository <http://svn.osgeo.org/geotools>`_. They are not part of the standard GeoTools distribution but are still
+Unsupported modules are those found in the **modules/unsupported** folder of each GeoTools version in the `GIT
+repository <https://github.com/geotools/geotools>`_. They are not part of the standard GeoTools distribution but are still
 available for use via Subversion, Maven and manual download.
 
 A module can be unsupported for one or more of the following reasons:

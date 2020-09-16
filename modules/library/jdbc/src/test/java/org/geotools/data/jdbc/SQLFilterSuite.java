@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -20,18 +20,12 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-
 /**
  * Runs the filter tests.
  *
  * @author James Macgill<br>
  * @author Chris Holmes
- *
- * @task REVISIT: Is there still need for this with maven?  It runs everything
- *       that ends with Test.
- *
- *
- * @source $URL$
+ * @task REVISIT: Is there still need for this with maven? It runs everything that ends with Test.
  */
 public class SQLFilterSuite extends TestCase {
     public SQLFilterSuite(java.lang.String testName) {
@@ -46,7 +40,7 @@ public class SQLFilterSuite extends TestCase {
         TestSuite suite = new TestSuite("All filter tests");
 
         suite.addTestSuite(FilterToSQLTest.class);
-        
+
         return suite;
     }
 }

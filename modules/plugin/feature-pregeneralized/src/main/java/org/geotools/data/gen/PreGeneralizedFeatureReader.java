@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -19,23 +19,19 @@ package org.geotools.data.gen;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
-
 import org.geotools.data.FeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
  * @author Christian Mueller
- * 
- * Implementation of {@link FeatureReader} for {@link PreGeneralizedSimpleFeature}
- *
- *
- *
- * @source $URL$
+ *     <p>Implementation of {@link FeatureReader} for {@link PreGeneralizedSimpleFeature}
  */
-
-public class PreGeneralizedFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {
+public class PreGeneralizedFeatureReader
+        implements FeatureReader<SimpleFeatureType, SimpleFeature> {
     protected SimpleFeatureType featureTyp;
+
+    protected SimpleFeatureType returnedFeatureType;
 
     protected FeatureReader<SimpleFeatureType, SimpleFeature> backendReader;
 
@@ -43,11 +39,16 @@ public class PreGeneralizedFeatureReader implements FeatureReader<SimpleFeatureT
 
     protected String geomPropertyName, backendGeomPropertyName;
 
-    public PreGeneralizedFeatureReader(SimpleFeatureType featureTyp, int indexMapping[],
-            FeatureReader<SimpleFeatureType, SimpleFeature> backendReader, String geomPropertyName,
+    public PreGeneralizedFeatureReader(
+            SimpleFeatureType featureTyp,
+            SimpleFeatureType returnedFeatureType,
+            int indexMapping[],
+            FeatureReader<SimpleFeatureType, SimpleFeature> backendReader,
+            String geomPropertyName,
             String backendGeomPropertyName) {
         super();
         this.featureTyp = featureTyp;
+        this.returnedFeatureType = returnedFeatureType;
         this.backendReader = backendReader;
         this.geomPropertyName = geomPropertyName;
         this.backendGeomPropertyName = backendGeomPropertyName;
@@ -59,21 +60,23 @@ public class PreGeneralizedFeatureReader implements FeatureReader<SimpleFeatureT
     }
 
     public SimpleFeatureType getFeatureType() {
-        return featureTyp;
+        return returnedFeatureType;
     }
 
     public boolean hasNext() throws IOException {
         return backendReader.hasNext();
-
     }
 
-    public SimpleFeature next() throws IOException, IllegalArgumentException,
-            NoSuchElementException {
+    public SimpleFeature next()
+            throws IOException, IllegalArgumentException, NoSuchElementException {
         SimpleFeature next = backendReader.next();
-        if (next == null)
-            return null;
-        return new PreGeneralizedSimpleFeature(featureTyp, indexMapping, next, geomPropertyName,
+        if (next == null) return null;
+        return new PreGeneralizedSimpleFeature(
+                featureTyp,
+                returnedFeatureType,
+                indexMapping,
+                next,
+                geomPropertyName,
                 backendGeomPropertyName);
     }
-
 }

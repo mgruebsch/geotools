@@ -16,29 +16,22 @@
  */
 package org.geotools.data.vpf.io;
 
+import org.geotools.data.vpf.VPFLogger;
 import org.geotools.data.vpf.exc.VPFDataFormatException;
-
 
 /**
  * Class TripletId.java is responsible for
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @author <a href="mailto:knuterik@onemap.org">Knut-Erik Johnsen</a>, Project
- *         OneMap
+ * @author <a href="mailto:knuterik@onemap.org">Knut-Erik Johnsen</a>, Project OneMap
  * @version 1.0.0
  * @author <a href="mailto:jeff@ionicenterprise.com">Jeff Yutzler</a>
- *
- *
- *
  * @source $URL$
  */
 public class TripletId extends Number {
     /** serialVersionUID */
     private static final long serialVersionUID = -3584133713173893007L;
-    /**
-     * The raw data that can be decomposed into as many as three separate
-     * numbers
-     */
+    /** The raw data that can be decomposed into as many as three separate numbers */
     private byte[] rawData = null;
 
     /**
@@ -55,23 +48,19 @@ public class TripletId extends Number {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        String result = new String();
+        String result = "";
 
         try {
             if (getIdLength() > 0) {
-                result = new Integer(getId()).toString();
+                result = Integer.valueOf(getId()).toString();
             }
 
             if (getTileIdLength() > 0) {
-                result = result.concat("%")
-                               .concat(new Integer(getTileId()).toString())
-                               .trim();
+                result = result.concat("%").concat(Integer.valueOf(getTileId()).toString()).trim();
             }
 
             if (getNextIdLength() > 0) {
-                result = result.concat("%")
-                               .concat(new Integer(getNextId()).toString())
-                               .trim();
+                result = result.concat("%").concat(Integer.valueOf(getNextId()).toString()).trim();
             }
         } catch (RuntimeException exp) {
             throw new VPFDataFormatException("This triplet is invalid.", exp);
@@ -140,6 +129,7 @@ public class TripletId extends Number {
 
     /**
      * Returns the Tile ID
+     *
      * @return Returns the Tile ID, the second number of the triplet
      */
     public int getTileId() {
@@ -171,6 +161,7 @@ public class TripletId extends Number {
 
     /**
      * Returns the Next ID
+     *
      * @return Returns the Next ID, the third number of the triplet
      */
     public int getNextId() {
@@ -204,7 +195,6 @@ public class TripletId extends Number {
      * Describe <code>calculateDataSize</code> method here.
      *
      * @param definition a <code>byte</code> value indicating the details of the bytes
-     *
      * @return an <code>int</code> value
      */
     public static int calculateDataSize(byte definition) {
@@ -217,32 +207,32 @@ public class TripletId extends Number {
 
         for (int i = 0; i < pieces.length; i++) {
             switch (pieces[i]) {
-            case 0:
-                break;
+                case 0:
+                    break;
 
-            case 1:
-                size++;
+                case 1:
+                    size++;
 
-                break;
+                    break;
 
-            case 2:
-                size += 2;
+                case 2:
+                    size += 2;
 
-                break;
+                    break;
 
-            case 3:
-                size += 4;
+                case 3:
+                    size += 4;
 
-                break;
+                    break;
 
-            default:
-                System.out.println("Tripled id size decoding error");
-                System.out.println("tripled definition: " + definition);
-                System.out.println("piece 0: " + pieces[0]);
-                System.out.println("piece 1: " + pieces[1]);
-                System.out.println("piece 2: " + pieces[2]);
+                default:
+                    VPFLogger.log("Tripled id size decoding error");
+                    VPFLogger.log("tripled definition: " + definition);
+                    VPFLogger.log("piece 0: " + pieces[0]);
+                    VPFLogger.log("piece 1: " + pieces[1]);
+                    VPFLogger.log("piece 2: " + pieces[2]);
 
-                break;
+                    break;
             }
         }
 
@@ -253,14 +243,14 @@ public class TripletId extends Number {
      * @see java.lang.Number#doubleValue()
      */
     public double doubleValue() {
-        return new Integer(getId()).doubleValue();
+        return Integer.valueOf(getId()).doubleValue();
     }
 
     /* (non-Javadoc)
      * @see java.lang.Number#floatValue()
      */
     public float floatValue() {
-        return new Integer(getId()).floatValue();
+        return Integer.valueOf(getId()).floatValue();
     }
 
     /* (non-Javadoc)
@@ -274,20 +264,20 @@ public class TripletId extends Number {
      * @see java.lang.Number#longValue()
      */
     public long longValue() {
-        return new Integer(getId()).longValue();
+        return Integer.valueOf(getId()).longValue();
     }
 
     /* (non-Javadoc)
      * @see java.lang.Number#byteValue()
      */
     public byte byteValue() {
-        return new Integer(getId()).byteValue();
+        return Integer.valueOf(getId()).byteValue();
     }
 
     /* (non-Javadoc)
      * @see java.lang.Number#shortValue()
      */
     public short shortValue() {
-        return new Integer(getId()).shortValue();
+        return Integer.valueOf(getId()).shortValue();
     }
 }

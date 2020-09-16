@@ -3,7 +3,7 @@ Style
 
 References:
 
-* http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd (xml schema)
+* http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd (XML schema)
 * http://schemas.opengis.net/sld/1.0.0/example-sld.xml (example)
 
 
@@ -15,13 +15,13 @@ Parser
 
 You can use a GTXML Configuration to parse and encode SLD documents.
 
-To parse an SLD document use the SLDConfiguration::
+To parse an SLD document use the ``SLDConfiguration``::
   
   Configuration config = new SLDConfiguration();
   Parser parser = new Parser(config);
   StyledLayerDescriptor sld = (StyledLayerDescriptor) parser.parse(inputStream);
 
-Consider the following sld document::
+Consider the following SLD document::
   
   <StyledLayerDescriptor version="1.0.0"
     xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"
@@ -59,8 +59,8 @@ To parse the document::
   import javax.xml.parsers.ParserConfigurationException;
   import org.geotools.sld.SLDConfiguration;
   import org.geotools.styling.StyledLayerDescriptor;
-  import org.geotools.xml.Configuration;
-  import org.geotools.xml.Parser;
+  import org.geotools.xsd.Configuration;
+  import org.geotools.xsd.Parser;
   import org.xml.sax.SAXException;
   ...
   
@@ -86,23 +86,23 @@ To parse the document::
 SLDParser (DOM)
 '''''''''''''''
 
-The SLDParser makes use of an in memory DOM data structure. it is well tested and used by uDig and GeoServer.
+The ``SLDParser`` makes use of an in memory DOM data structure. It is well tested and used by uDig and GeoServer.
 
 In addition to working with a DOM it offers a number of other constructors:
 
-* SLDParser( StyleFactory, fileName )
-* SLDParser( StyleFactory, URL )
-* SLDParser( StyleFactory, File )
-* SLDParser( StyleFactory, InputStream )
-* SLDParser( StyleFactory, Reader )
+* ``SLDParser( StyleFactory, fileName )``
+* ``SLDParser( StyleFactory, URL )``
+* ``SLDParser( StyleFactory, File )``
+* ``SLDParser( StyleFactory, InputStream )``
+* ``SLDParser( StyleFactory, Reader )``
 
-You can use an SLD parser to directly parse out the full StyleLayerDescriptor
+You can use an SLD parser to directly parse out the full ``StyleLayerDescriptor``
 data structure::
 
   SLDParser stylereader = new SLDParser(styleFactory, url);
   StyledLayerDescriptor sld = stylereader.parseSLD();
 
-Parse a StyleLayerDescriptor from an input stream::
+Parse a ``StyleLayerDescriptor`` from an input stream::
   
   SLDParser stylereader = new SLDParser(styleFactory, inputStream );
   StyledLayerDescriptor sld = stylereader.parseSLD();
@@ -112,7 +112,7 @@ Or you can skip all of that and extract the defined Style objects as an array::
   SLDParser stylereader = new SLDParser( styleFactory, url);
   Style styles[] = stylereader.readXML();
 
-This also works for an input stram::
+This also works for an input stream::
   
   SLDParser stylereader = new SLDParser(styleFactory, inputStream);
   Style styles[] = stylereader.readXML();
@@ -124,25 +124,25 @@ Encode SLD
 Encoder
 '''''''
 
-The same SLDConfiguration can be used for encoding::
+The same ``SLDConfiguration`` can be used for encoding::
   
-  Configuration = new SLDConfiguration();
-  Encoder encoder = new org.geotools.xml.Encoder( configuration );
+  Configuration configuration = new SLDConfiguration();
+  Encoder encoder = new org.geotools.xsd.Encoder( configuration );
   encoder.encode( sld, org.geotools.sld.bindings.SLD.STYLEDLAYERDESCRIPTOR, outputStream );
 
 SLDTransformer
 ''''''''''''''
 
-We make use of a traditional XML transform idiom to produce XML content quickly. The Transform walks through an existing data structure generating SAX events during the walk.
+We make use of a traditional XML transform idiom to produce XML content quickly. The ``Transform`` walks through an existing data structure generating SAX events during the walk.
 
-You can also use the a Transformer, the usual warning applies that this is a fast solution that requires careful configuration in order to produce valid output.
+You can also use a ``Transformer``, the usual warning applies that this is a fast solution that requires careful configuration in order to produce valid output.
 
-Example of SLDTransofrmer::
+Example of ``SLDTransofrmer``::
   
   SLDTransformer transformer = new SLDTransformer();
   String xml = transformer.transform( sld );
 
-You can customise the output as well::
+You can customize the output as well::
 
   FeatureTransformer transform = new FeatureTranformer();
   
@@ -158,12 +158,12 @@ Parse SE
 ^^^^^^^^
 
 The Symbology Encoding specification cuts down a lot of the boiler plate SLD constructs
-allowing you to focus on FeatureTypeStyle directly:
+allowing you to focus on ``FeatureTypeStyle`` directly:
 
 .. literalinclude:: /../../modules/extension/xsd/xsd-sld/src/test/resources/org/geotools/se/v1_1/example-featurestyle.xml
      :language: xml
 
-It also has a coverage style (which we still represent as a FeatureTypeStyle):
+It also has a coverage style (which we still represent as a ``FeatureTypeStyle``):
 
 .. literalinclude:: /../../modules/extension/xsd/xsd-sld/src/test/resources/org/geotools/se/v1_1/example-coveragestyle.xml
      :language: xml
@@ -171,7 +171,7 @@ It also has a coverage style (which we still represent as a FeatureTypeStyle):
 Parser
 ''''''
 
-To parse an SE document use the SEConfiguration::
+To parse an SE document use the ``SEConfiguration``::
   
   Configuration config = new SEConfiguration();
   Parser parser = new Parser(config);
@@ -182,18 +182,18 @@ There is also an SLD 1.1 configuration you can use.
 Encode SE
 ^^^^^^^^^
 
-To encode an SE document use the SEConfiguration with the appropriate target.
+To encode an SE document use the ``SEConfiguration`` with the appropriate target.
 
 As an example a feature type style::
 
   Configuration = new SEConfiguration();
-  Encoder encoder = new org.geotools.xml.Encoder( configuration );
+  Encoder encoder = new org.geotools.xsd.Encoder( configuration );
   encoder.encode( style, org.geotools.se.SE.FeatureTypeStyle, outputStream );
 
 Example with a coverage style::
 
   Configuration = new SEConfiguration();
-  Encoder encoder = new org.geotools.xml.Encoder( configuration );
+  Encoder encoder = new org.geotools.xsd.Encoder( configuration );
   encoder.encode( style, org.geotools.se.SE.CoverageStyle, outputStream );
 
 There is also an SLD 1.1 configuration you can use.

@@ -4,7 +4,7 @@
  *
  *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
  *    (C) 2003-2005, Open Geospatial Consortium Inc.
- *    
+ *
  *    All Rights Reserved. http://www.opengis.org/legal/
  */
 package org.opengis.geometry;
@@ -42,7 +42,7 @@ package org.opengis.geometry;
  * @since GeoAPI 2.1
  *
  *
- * @source $URL$
+ *
  */
 public interface PrecisionFactory {
 
@@ -58,10 +58,9 @@ public interface PrecisionFactory {
      * factory.createPrecision(PrecisionType.DOUBLE, 0); // double precision - 16 digits
      * <code></pre>
      *
-     * @param type PercisionType The rounding policy used
+     * @param code The rounding policy used
      * @param scale Multiplying factor used to obtain a precise coordinate
      * @return Precision capable of rounding as described by type and scale
      */
     Precision createFixedPrecision(PrecisionType code, double scale);
-
 }

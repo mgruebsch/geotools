@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -17,26 +17,22 @@
 package org.geotools.gml3.bindings;
 
 import javax.xml.namespace.QName;
-
-import org.geotools.geometry.jts.coordinatesequence.CoordinateSequences;
 import org.geotools.gml2.SrsSyntax;
-import org.geotools.gml2.bindings.GMLEncodingUtils;
+import org.geotools.gml2.bindings.GML2EncodingUtils;
 import org.geotools.gml3.GML;
-import org.geotools.gml3.GMLConfiguration;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.Configuration;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.vividsolutions.jts.geom.Geometry;
-
 
 /**
  * Binding object for the type http://www.opengis.net/gml:AbstractGeometryType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType abstract="true" name="AbstractGeometryType"&gt;
  *      &lt;annotation&gt;
@@ -62,13 +58,8 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
     Configuration config;
@@ -87,14 +78,13 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
         this.srsSyntax = srsSyntax;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return GML.AbstractGeometryType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -105,14 +95,14 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //set the crs
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        // set the crs
         if (value instanceof Geometry) {
             CoordinateReferenceSystem crs = GML3ParsingUtils.crs(node);
 
@@ -124,11 +114,10 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
 
         return value;
     }
-    
-    public Object getProperty(Object object, QName name)
-        throws Exception {
+
+    public Object getProperty(Object object, QName name) throws Exception {
         Geometry geometry = (Geometry) object;
-        
+
         if ("srsName".equals(name.getLocalPart())) {
             CoordinateReferenceSystem crs = GML3EncodingUtils.getCRS(geometry);
             if (crs != null) {
@@ -137,21 +126,7 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
         }
 
         if ("srsDimension".equals(name.getLocalPart())) {
-            if (GMLEncodingUtils.isEmpty(geometry)) {
-                return null;
-            }
-            
-            //check if srsDimension is turned off
-            if (config.hasProperty(GMLConfiguration.NO_SRS_DIMENSION)) {
-                return null;
-            }
-
-            /**
-             * For the dimension, use the actual dimension of the geometry. Using
-             * the dimension of the CRS is not sufficient, since currently CRSes
-             * don't support 3D.
-             */
-            return CoordinateSequences.coordinateDimension(geometry);
+            return GML2EncodingUtils.getGeometryDimension(geometry, config);
         }
 
         // FIXME: should be gml:id, but which GML?
@@ -165,12 +140,12 @@ public class AbstractGeometryTypeBinding extends AbstractComplexBinding {
         if ("name".equals(name.getLocalPart())) {
             return GML3EncodingUtils.getName(geometry);
         }
-        
+
         // FIXME: should be gml:description, but which GML?
         // Refactor bindings or introduce a new one for GML 3.2
         if ("description".equals(name.getLocalPart())) {
             return GML3EncodingUtils.getDescription(geometry);
-        }   
+        }
         if ("uomLabels".equals(name.getLocalPart())) {
             return GML3EncodingUtils.getUomLabels(geometry);
         }

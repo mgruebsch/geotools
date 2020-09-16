@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,19 +16,18 @@
  */
 package org.geotools.data;
 
-import org.junit.Before;
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import java.util.concurrent.TimeUnit;
+import org.junit.Test;
 
 /**
  * Test of LockingAPI FeatureLock data object.
+ *
  * <p>
- * 
+ *
  * @see org.geotools.data
  * @author jgarnett, Refractions Reasearch Inc.
- *
- *
- * @source $URL$
  * @version CVS Version
  */
 public class FeatureLockTest {
@@ -36,20 +35,27 @@ public class FeatureLockTest {
     long lockDuration;
     FeatureLock lock;
 
-    @Before
-    public void setUp() throws Exception {
-        lockDuration = 240; // 240 minutes
+    @Test
+    public void testGetID() {
+        lockDuration = 240; // 240 milliseconds
         lockName = "TestLock";
         lock = new FeatureLock(lockName, lockDuration);
+        assertEquals("lockName", lockName, lock.getAuthorization());
     }
 
     @Test
-    public void testGetID() {        
-        assertEquals( "lockName", lockName, lock.getAuthorization() );
+    public void testGetExpire() {
+        lockDuration = 240; // 240 milliseconds
+        lockName = "TestLock";
+        lock = new FeatureLock(lockName, lockDuration);
+        assertEquals("lockDate", lockDuration, lock.getDuration());
     }
 
     @Test
-    public void testGetExpire() {        
-        assertEquals( "lockDate", lockDuration, lock.getDuration() ); 
+    public void testGetExpireSeconds() {
+        lockDuration = 15; // 15 seconds
+        lockName = "TestLock";
+        lock = new FeatureLock(lockName, lockDuration, TimeUnit.SECONDS);
+        assertEquals("lockDate", lockDuration * 1000, lock.getDuration());
     }
 }

@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2012, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2012 - 2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -49,7 +48,7 @@ import org.opengis.filter.sort.SortBy;
 /**
  * The central class that perform transformations on filters, queries and feature types. Can invert
  * itself and return a {@link Transformer} that goes the other direction.
- * 
+ *
  * @author Andrea Aime - GeoSolutions
  */
 class Transformer {
@@ -68,8 +67,12 @@ class Transformer {
 
     SimpleFeatureType schema;
 
-    public Transformer(SimpleFeatureSource source, Name name, List<Definition> definitions,
-            SimpleFeatureType targetSchema) throws IOException {
+    public Transformer(
+            SimpleFeatureSource source,
+            Name name,
+            List<Definition> definitions,
+            SimpleFeatureType targetSchema)
+            throws IOException {
         this.source = source;
         this.name = name;
         this.definitions = definitions;
@@ -83,14 +86,9 @@ class Transformer {
         } else {
             this.schema = targetSchema;
         }
-
     }
 
-    /**
-     * Locates all geometry properties in the transformed type
-     * 
-     * @return
-     */
+    /** Locates all geometry properties in the transformed type */
     List<String> getGeometryPropertyNames() {
         List<String> result = new ArrayList<String>();
 
@@ -106,19 +104,15 @@ class Transformer {
     /**
      * Computes the target schema, first trying a static analysis, and if that one does not work,
      * evaluating the expressions against a sample feature
-     * 
-     * @param typeName
-     * @param definitions
-     * @return
-     * @throws IOException
      */
     private SimpleFeatureType computeTargetSchema(Name typeName, List<Definition> definitions)
             throws IOException {
-        SimpleFeatureType target = computeTargetSchemaStatically(source.getSchema(), typeName, definitions);
-        if(target != null) {
+        SimpleFeatureType target =
+                computeTargetSchemaStatically(source.getSchema(), typeName, definitions);
+        if (target != null) {
             return target;
         }
-        
+
         // get a sample feature, used as a last resort in case we cannot get a fix on the type
         // by static analysis (we don't use it first since the feature coudl contain null
         // values that result the expression into returning us a null
@@ -134,11 +128,12 @@ class Transformer {
                 iterator.close();
             }
         }
-        
-        if(sample == null) {
-            throw new IllegalStateException("Cannot compute the target feature type from the " +
-            		"definitions by static analysis, and the source does not have any feature " +
-            		"that we can use as a sample to compute the target type dynamically");
+
+        if (sample == null) {
+            throw new IllegalStateException(
+                    "Cannot compute the target feature type from the "
+                            + "definitions by static analysis, and the source does not have any feature "
+                            + "that we can use as a sample to compute the target type dynamically");
         }
 
         // build the output feature type
@@ -152,20 +147,40 @@ class Transformer {
         return tb.buildFeatureType();
     }
 
-    private SimpleFeatureType computeTargetSchemaStatically(SimpleFeatureType originalSchema, Name typeName,
-            List<Definition> definitions) {
+    private SimpleFeatureType computeTargetSchemaStatically(
+            SimpleFeatureType originalSchema, Name typeName, List<Definition> definitions) {
         // build the output feature type
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         tb.setName(typeName);
         for (Definition definition : definitions) {
             AttributeDescriptor ad = definition.getAttributeDescriptor(originalSchema);
-            if(ad == null) {
+            if (ad == null) {
                 return null;
             }
             tb.add(ad);
         }
-        
+
         return tb.buildFeatureType();
+    }
+
+    /**
+     * Utility method to transform feature ids based on the convention &lt;type name&gt;.&lt;id&gt;.
+     *
+     * <p>Should be invoked by classes using this Transformer instance to build transformed
+     * features.
+     *
+     * @param sourceFeature the source feature
+     * @return the transformed feature identifier
+     */
+    String transformFid(SimpleFeature sourceFeature) {
+        String origFid = sourceFeature.getID();
+        String origFidPrefix = sourceFeature.getType().getTypeName() + ".";
+        if (origFid.startsWith(origFidPrefix)) {
+            String id = origFid.substring(origFidPrefix.length());
+            return schema.getTypeName() + "." + id;
+        } else {
+            return origFid;
+        }
     }
 
     public SimpleFeatureType getSchema() {
@@ -187,9 +202,6 @@ class Transformer {
     /**
      * Returns the list of original names for the specified properties. If a property does not have
      * an equivalent original name (it is not a simple rename) it won't be returned
-     * 
-     * @param names
-     * @return
      */
     public List<String> getOriginalNames(List<String> names) {
 
@@ -202,11 +214,12 @@ class Transformer {
                 originalNames.add(pn.getPropertyName());
             } else {
                 if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.log(Level.FINE, "The attribute {0} has a general transformation "
-                            + "{1}, can't associate it with an original attribute name ",
-                            new Object[] { name, ex });
+                    LOGGER.log(
+                            Level.FINE,
+                            "The attribute {0} has a general transformation "
+                                    + "{1}, can't associate it with an original attribute name ",
+                            new Object[] {name, ex});
                 }
-
             }
         }
 
@@ -216,9 +229,6 @@ class Transformer {
     /**
      * Injects the transformed attribute expressions into the filter to make it runnable against the
      * original data
-     * 
-     * @param filter
-     * @return
      */
     Filter transformFilter(Filter filter) {
         TransformFilterVisitor transformer = new TransformFilterVisitor(expressions);
@@ -226,11 +236,17 @@ class Transformer {
     }
 
     /**
+     * Injects the transformed attribute expressions into the expression to make it runnable against
+     * the original data
+     */
+    Expression transformExpression(Expression expression) {
+        TransformFilterVisitor transformer = new TransformFilterVisitor(expressions);
+        return (Expression) expression.accept(transformer, null);
+    }
+
+    /**
      * Transforms a query so that it can be run against the original feature source and provides all
      * the necessary attributes to evaluate the requested expressions
-     * 
-     * @param query
-     * @return
      */
     Query transformQuery(Query query) {
         Filter txFilter = transformFilter(query.getFilter());
@@ -245,7 +261,7 @@ class Transformer {
         if (query.getStartIndex() != null && !caps.isJoiningSupported()) {
             txQuery.setStartIndex(null);
         }
-        if (query.getSortBy() != null && !caps.supportsSorting(query.getSortBy())) {
+        if (query.getSortBy() != null && !caps.supportsSorting(txQuery.getSortBy())) {
             txQuery.setSortBy(null);
         }
 
@@ -264,12 +280,7 @@ class Transformer {
         return txQuery;
     }
 
-    /**
-     * Transforms a SortBy[] so that it can be sent down to the original store
-     * 
-     * @param query
-     * @return
-     */
+    /** Transforms a SortBy[] so that it can be sent down to the original store */
     SortBy[] getTransformedSortBy(Query query) {
         SortBy[] original = query.getSortBy();
         if (original == null) {
@@ -284,14 +295,12 @@ class Transformer {
             PropertyName pname = sort.getPropertyName();
             Expression ex = expressions.get(pname.getPropertyName());
             if (ex == null) {
-                throw new IllegalArgumentException("Attribute " + pname
-                        + " is not part of the output schema");
+                throw new IllegalArgumentException(
+                        "Attribute " + pname + " is not part of the output schema");
             } else if (ex instanceof PropertyName) {
                 PropertyName pn = (PropertyName) ex;
                 transformed.add(FF.sort(pn.getPropertyName(), sort.getSortOrder()));
-            } else if (ex instanceof Literal) {
-                // fine, we can continue, constants do not affect sorting
-            } else {
+            } else if (!(ex instanceof Literal)) {
                 // ok, this one cannot be sent down, so we need to do sorting on our own anyways
                 return null;
             }
@@ -300,13 +309,7 @@ class Transformer {
         return transformed.toArray(new SortBy[transformed.size()]);
     }
 
-    /**
-     * Builds the list of original attributes required to run the specified query
-     * 
-     * @param source
-     * @param query
-     * @return
-     */
+    /** Builds the list of original attributes required to run the specified query */
     String[] getRequiredAttributes(Query query) {
         Set<String> attributes = new HashSet<String>();
 
@@ -332,7 +335,11 @@ class Transformer {
 
     @Override
     public String toString() {
-        return "Transformer[ feature source= " + source + " , type=" + source.getSchema()
-                + ", definitions=" + definitions;
+        return "Transformer[ feature source= "
+                + source
+                + " , type="
+                + source.getSchema()
+                + ", definitions="
+                + definitions;
     }
 }

@@ -18,49 +18,33 @@ package org.geotools.data.wps.response;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.xml.parsers.ParserConfigurationException;
-
 import net.opengis.ows11.ExceptionReportType;
 import net.opengis.wps10.ProcessDescriptionsType;
-
 import org.geotools.data.ows.HTTPResponse;
 import org.geotools.data.ows.Response;
 import org.geotools.ows.ServiceException;
 import org.geotools.wps.WPSConfiguration;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.Parser;
+import org.geotools.xsd.Configuration;
+import org.geotools.xsd.Parser;
 import org.xml.sax.SAXException;
 
-
 /**
- * Represents the response from a server after a DescribeProcess request
- * has been issued.
+ * Represents the response from a server after a DescribeProcess request has been issued.
  *
  * @author gdavis
- *
- *
- * @source $URL$
  */
-public class DescribeProcessResponse extends Response
-{
+public class DescribeProcessResponse extends Response {
 
     private ProcessDescriptionsType processDescs;
     private ExceptionReportType excepResponse;
 
-    /**
-     * @param contentType
-     * @param inputStream
-     * @throws ServiceException
-     * @throws SAXException
-     */
-    public DescribeProcessResponse(HTTPResponse httpResponse) throws IOException, ServiceException
-    {
+    /** */
+    public DescribeProcessResponse(HTTPResponse httpResponse) throws IOException, ServiceException {
         super(httpResponse);
 
         InputStream inputStream = null;
-        try
-        {
+        try {
             inputStream = httpResponse.getResponseStream();
 
             // Map hints = new HashMap();
@@ -71,49 +55,36 @@ public class DescribeProcessResponse extends Response
             Object object;
             excepResponse = null;
             processDescs = null;
-            try
-            {
+            try {
                 // object = DocumentFactory.getInstance(inputStream, hints, Level.WARNING);
                 object = parser.parse(inputStream);
-            }
-            catch (SAXException e)
-            {
+            } catch (SAXException e) {
                 throw (IOException) new IOException().initCause(e);
-            }
-            catch (ParserConfigurationException e)
-            {
+            } catch (ParserConfigurationException e) {
                 throw (IOException) new IOException().initCause(e);
             }
 
             // try casting the response
-            if (object instanceof ProcessDescriptionsType)
-            {
+            if (object instanceof ProcessDescriptionsType) {
                 processDescs = (ProcessDescriptionsType) object;
             }
             // exception caught on server and returned
-            else if (object instanceof ExceptionReportType)
-            {
+            else if (object instanceof ExceptionReportType) {
                 excepResponse = (ExceptionReportType) object;
             }
 
-        }
-        finally
-        {
-            if (inputStream != null)
-            {
+        } finally {
+            if (inputStream != null) {
                 inputStream.close();
             }
         }
     }
 
-    public ProcessDescriptionsType getProcessDesc()
-    {
+    public ProcessDescriptionsType getProcessDesc() {
         return processDescs;
     }
 
-    public ExceptionReportType getExceptionResponse()
-    {
+    public ExceptionReportType getExceptionResponse() {
         return excepResponse;
     }
-
 }

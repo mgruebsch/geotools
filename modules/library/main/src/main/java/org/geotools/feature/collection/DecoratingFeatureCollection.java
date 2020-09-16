@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,44 +18,55 @@ package org.geotools.feature.collection;
 
 import java.io.IOException;
 import java.util.Collection;
-
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 /**
  * A FeatureCollection which completely delegates to another FeatureCollection.
- * <p>
- * This class should be subclasses by classes which must somehow decorate 
- * another SimpleFeatureCollection and override the relevant methods. 
- * </p>
+ *
+ * <p>This class should be subclasses by classes which must somehow decorate another
+ * SimpleFeatureCollection and override the relevant methods.
+ *
  * @author Justin Deoliveira, The Open Planning Project, jdeolive@openplans.org
  * @since 2.5
- *
- * @source $URL$
  */
-public class DecoratingFeatureCollection<T extends FeatureType, F extends Feature> implements
-        FeatureCollection<T, F> {
+public class DecoratingFeatureCollection<T extends FeatureType, F extends Feature>
+        implements FeatureCollection<T, F> {
 
-    /**
-     * the delegate
-     */
+    /** the delegate */
     protected FeatureCollection<T, F> delegate;
 
     protected DecoratingFeatureCollection(FeatureCollection<T, F> delegate) {
         this.delegate = delegate;
     }
 
-    public void accepts(org.opengis.feature.FeatureVisitor visitor,
-            org.opengis.util.ProgressListener progress) throws IOException {
-        DataUtilities.visit(this, visitor, progress);
+    public void accepts(
+            org.opengis.feature.FeatureVisitor visitor, org.opengis.util.ProgressListener progress)
+            throws IOException {
+        if (canDelegate(visitor)) {
+            delegate.accepts(visitor, progress);
+        } else {
+            DataUtilities.visit(this, visitor, progress);
+        }
     }
-    
+
+    /**
+     * Methods for subclass to override in order to determine if the supplied visitor can be passed
+     * to the delegate collection.
+     *
+     * <p>The default is false and the visitor receives the decoraeted features.
+     */
+    protected boolean canDelegate(FeatureVisitor visitor) {
+        return false;
+    }
+
     public boolean contains(Object o) {
         return delegate.contains(o);
     }
@@ -107,7 +118,8 @@ public class DecoratingFeatureCollection<T extends FeatureType, F extends Featur
     public <O> O[] toArray(O[] a) {
         return delegate.toArray(a);
     }
-	public String getID() {
-		return delegate.getID();
-	}
+
+    public String getID() {
+        return delegate.getID();
+    }
 }

@@ -16,14 +16,13 @@
  */
 package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCTypeNamesTest;
+import org.geotools.jdbc.JDBCTypeNamesOnlineTest;
 import org.geotools.jdbc.JDBCTypeNamesTestSetup;
 
-public class H2TypeNamesTest extends JDBCTypeNamesTest {
+public class H2TypeNamesTest extends JDBCTypeNamesOnlineTest {
 
-	@Override
-	protected JDBCTypeNamesTestSetup createTestSetup() {
-		return new H2TypeNamesTestSetup();
-	}
-
+    @Override
+    protected JDBCTypeNamesTestSetup createTestSetup() {
+        return new H2TypeNamesTestSetup();
+    }
 }

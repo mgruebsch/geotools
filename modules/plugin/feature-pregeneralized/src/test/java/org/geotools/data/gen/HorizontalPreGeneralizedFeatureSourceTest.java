@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -17,18 +17,17 @@
 
 package org.geotools.data.gen;
 
-/**
- * 
- *
- * @source $URL$
- */
-public class HorizontalPreGeneralizedFeatureSourceTest extends
-        AbstractPreGeneralizedFeatureSourceTest {
+public class HorizontalPreGeneralizedFeatureSourceTest
+        extends AbstractPreGeneralizedFeatureSourceTest {
 
     static final String ConfigName = "src/test/resources/geninfo_horizontal.xml";
 
     public void testGetCount() {
         testGetCount(ConfigName);
+    }
+
+    public void testPropertySelection() {
+        testPropertySelection(ConfigName);
     }
 
     public void testGetBounds() {
@@ -70,5 +69,4 @@ public class HorizontalPreGeneralizedFeatureSourceTest extends
     public void testGetSchema() {
         testGetSchema(ConfigName);
     }
-
 }

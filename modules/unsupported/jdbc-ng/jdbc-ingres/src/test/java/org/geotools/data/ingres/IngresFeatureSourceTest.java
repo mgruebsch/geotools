@@ -2,7 +2,7 @@ package org.geotools.data.ingres;
 
 import java.util.Iterator;
 
-import org.geotools.data.DefaultQuery;
+
 import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -27,13 +27,13 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.filter.spatial.BBOX;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 
 /**
  * 
  *
- * @source $URL$
+
  */
 public class IngresFeatureSourceTest extends JDBCFeatureSourceTest {
 

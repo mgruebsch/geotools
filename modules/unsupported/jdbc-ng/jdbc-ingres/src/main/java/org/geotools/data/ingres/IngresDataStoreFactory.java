@@ -14,12 +14,13 @@ import org.geotools.jdbc.SQLDialect;
 /**
  * 
  *
- * @source $URL$
+
  */
 public class IngresDataStoreFactory extends JDBCDataStoreFactory {
 
     /** parameter for database type */
-    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "ingres");
+    public static final Param DBTYPE = new Param("dbtype", String.class, "Type", true, "ingres",
+            Collections.singletonMap(Parameter.LEVEL, "program"));
     
     /** parameter for namespace of the datastore */
     public static final Param LOOSEBBOX = new Param("Loose bbox", Boolean.class, "Perform only primary filter on bbox", false, Boolean.TRUE);

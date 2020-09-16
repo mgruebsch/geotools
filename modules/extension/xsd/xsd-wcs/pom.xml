@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.geotools.xsd</groupId>
     <artifactId>xsd</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
   
   <!-- =========================================================== -->
@@ -28,12 +28,6 @@
   <name>WCS XML Support</name>
   <url>http://maven.geotools.fr/reports/modules/extension/xsd/xsd-wcs/</url>
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.geotools.org/trunk/modules/extension/xsd/xsd-wcs/
-    </connection>
-    <url>http://svn.geotools.org/trunk/modules/extension/xsd/xsd-wcs/</url>
-  </scm>
 
   <description>
     WCS 1.0.0 Bindings.
@@ -68,11 +62,6 @@
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
   <dependencies>
-   	<dependency>
-	 		<groupId>org.geotools</groupId>
-	 		<artifactId>gt-xml</artifactId>
-   	 	<version>${project.version}</version>
-   	</dependency>
    	<dependency>
 	 		<groupId>org.geotools.xsd</groupId>
 	 		<artifactId>gt-xsd-core</artifactId>
@@ -117,24 +106,14 @@
 
     <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-sample-data</artifactId>
+      <artifactId>gt-coverage</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>  <!-- The -source argument for the Java compiler. -->
-          <target>1.5</target>  <!-- The -target argument for the Java compiler. -->
-          <debug>true</debug>   <!-- Whether to include debugging information. -->
-          <encoding>UTF-8</encoding> <!-- The -encoding argument for the Java compiler. -->
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.geotools.maven</groupId>
         <artifactId>xmlcodegen</artifactId>
@@ -143,7 +122,7 @@
           <schemaLocation>wcsAll.xsd</schemaLocation>
           <schemaSourceDirectory>${basedir}/src/main/resources/org/geotools/wcs/v2_0</schemaSourceDirectory>
           <destinationPackage>org.geotools.wcs.v2_0</destinationPackage>
-          <complexBindingBaseClass>org.geotools.xml.AbstractComplexEMFBinding</complexBindingBaseClass>
+          <complexBindingBaseClass>org.geotools.xsd.AbstractComplexEMFBinding</complexBindingBaseClass>
           <bindingConstructorArguments>
             <bindingConstructorArgument>
               <name>factory</name>

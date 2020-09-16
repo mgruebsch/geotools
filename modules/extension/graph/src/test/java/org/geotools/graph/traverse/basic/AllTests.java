@@ -18,14 +18,9 @@ package org.geotools.graph.traverse.basic;
 
 import junit.framework.TestSuite;
 
-/**
- * 
- *
- * @source $URL$
- */
 public class AllTests extends TestSuite {
-  public AllTests() {
-    super();
-    addTest(new TestSuite(SimpleGraphWalkerTest.class));
-  } 	
+    public AllTests() {
+        super();
+        addTest(new TestSuite(SimpleGraphWalkerTest.class));
+    }
 }

@@ -17,16 +17,12 @@
 
 package org.geotools.grid;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Represents a {@code GridElement} that is a polygon.
  *
  * @author michael
- *
- *
- *
- * @source $URL$
  */
 public interface PolygonElement extends GridElement {
 
@@ -43,5 +39,4 @@ public interface PolygonElement extends GridElement {
      * @return the center coordinates
      */
     Coordinate getCenter();
-
 }

@@ -17,19 +17,12 @@
 package org.geotools.gml2.bindings;
 
 import org.geotools.gml2.GML;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLLineStringPropertyTypeBindingTest extends AbstractGMLBindingTest {
     ElementInstance association;
     ElementInstance geometry;
@@ -37,22 +30,33 @@ public class GMLLineStringPropertyTypeBindingTest extends AbstractGMLBindingTest
     protected void setUp() throws Exception {
         super.setUp();
 
-        association = createElement(GML.NAMESPACE, "myLineStringProperty",
-                GML.LINESTRINGPROPERTYTYPE, null);
-        geometry = createElement(GML.NAMESPACE, "myLineString", GML.LINESTRINGTYPE, null);
+        association =
+                createElement(
+                        GML.NAMESPACE, "myLineStringProperty", GML.LineStringPropertyType, null);
+        geometry = createElement(GML.NAMESPACE, "myLineString", GML.LineStringType, null);
     }
 
     public void testWithGeometry() throws Exception {
-        Node node = createNode(association, new ElementInstance[] { geometry },
-                new Object[] {
-                    new GeometryFactory().createLinearRing(
-                        new Coordinate[] {
-                            new Coordinate(0, 0), new Coordinate(1, 1), new Coordinate(2, 2),
-                            new Coordinate(0, 0),
-                        })
-                }, null, null);
-        GMLGeometryAssociationTypeBinding s = (GMLGeometryAssociationTypeBinding) getBinding(GML.GEOMETRYASSOCIATIONTYPE);
-        GMLLineStringPropertyTypeBinding s1 = (GMLLineStringPropertyTypeBinding) getBinding(GML.LINESTRINGPROPERTYTYPE);
+        Node node =
+                createNode(
+                        association,
+                        new ElementInstance[] {geometry},
+                        new Object[] {
+                            new GeometryFactory()
+                                    .createLinearRing(
+                                            new Coordinate[] {
+                                                new Coordinate(0, 0),
+                                                new Coordinate(1, 1),
+                                                new Coordinate(2, 2),
+                                                new Coordinate(0, 0),
+                                            })
+                        },
+                        null,
+                        null);
+        GMLGeometryAssociationTypeBinding s =
+                (GMLGeometryAssociationTypeBinding) getBinding(GML.GeometryAssociationType);
+        GMLLineStringPropertyTypeBinding s1 =
+                (GMLLineStringPropertyTypeBinding) getBinding(GML.LineStringPropertyType);
         LineString p = (LineString) s1.parse(association, node, s.parse(association, node, null));
         assertNotNull(p);
     }

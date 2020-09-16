@@ -20,7 +20,7 @@ The resolver can be configured to use an `OASIS Catalog <http://www.oasis-open.o
 
 Example::
 
-    SchemaResolver resolver = new SchemaResolver(SchemaCatalog.build(DataUtilities.fileToURL(new File("/path/to/catalog.xml"))));
+    SchemaResolver resolver = new SchemaResolver(SchemaCatalog.build(URLs.fileToUrl(new File("/path/to/catalog.xml"))));
 
 
 Classpath
@@ -40,4 +40,4 @@ Example::
 
     SchemaResolver resolver = new SchemaResolver(new SchemaCache(new File("/path/to/schema-cache"), true));
 
-If downloads are not enabled, a prepopulated cache will still be used, but missing schemas will not be downloaded.
+If downloads are not enabled, a pre-populated cache will still be used, but missing schemas will not be downloaded.

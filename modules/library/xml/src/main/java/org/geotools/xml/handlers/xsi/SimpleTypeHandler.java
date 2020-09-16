@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -19,7 +19,6 @@ package org.geotools.xml.handlers.xsi;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.geotools.xml.XSIElementHandler;
 import org.geotools.xml.schema.Facet;
 import org.geotools.xml.schema.SimpleType;
@@ -29,19 +28,13 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 
-
 /**
  * SimpleTypeHandler purpose.
- * 
- * <p>
- * represents a simpleType element
- * </p>
+ *
+ * <p>represents a simpleType element
  *
  * @author dzwiers, Refractions Research, Inc. http://www.refractions.net
  * @author $Author:$ (last modification)
- *
- *
- * @source $URL$
  * @version $Id$
  */
 public class SimpleTypeHandler extends XSIElementHandler {
@@ -52,7 +45,8 @@ public class SimpleTypeHandler extends XSIElementHandler {
     public static final int ALL = 7;
 
     /** 'simpleType' */
-    public final static String LOCALNAME = "simpleType";
+    public static final String LOCALNAME = "simpleType";
+
     private static int offset = 0;
     private String id;
     private String name;
@@ -68,20 +62,18 @@ public class SimpleTypeHandler extends XSIElementHandler {
         return offset++;
     }
 
-    /**
-     * @see java.lang.Object#hashCode()
-     */
+    /** @see java.lang.Object#hashCode() */
+    @SuppressWarnings("PMD.OverrideBothEqualsAndHashcode")
     public int hashCode() {
-        return (LOCALNAME.hashCode() * ((id == null) ? 1 : id.hashCode()) * ((finaL == 0)
-        ? 1 : finaL) * ((name == null) ? 1 : name.hashCode())) + hashCodeOffset;
+        return (LOCALNAME.hashCode()
+                        * ((id == null) ? 1 : id.hashCode())
+                        * ((finaL == 0) ? 1 : finaL)
+                        * ((name == null) ? 1 : name.hashCode()))
+                + hashCodeOffset;
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#getHandler(java.lang.String,
-     *      java.lang.String)
-     */
-    public XSIElementHandler getHandler(String namespaceURI, String localName)
-        throws SAXException {
+    /** @see org.geotools.xml.XSIElementHandler#getHandler(java.lang.String, java.lang.String) */
+    public XSIElementHandler getHandler(String namespaceURI, String localName) throws SAXException {
         if (SchemaHandler.namespaceURI.equalsIgnoreCase(namespaceURI)) {
             // child types
             //
@@ -92,9 +84,11 @@ public class SimpleTypeHandler extends XSIElementHandler {
                 if (child == null) {
                     child = lh;
                 } else {
-                    throw new SAXNotRecognizedException(getLocalName()
-                        + " may only have one '" + ListHandler.LOCALNAME
-                        + "' declaration.");
+                    throw new SAXNotRecognizedException(
+                            getLocalName()
+                                    + " may only have one '"
+                                    + ListHandler.LOCALNAME
+                                    + "' declaration.");
                 }
 
                 return lh;
@@ -107,9 +101,11 @@ public class SimpleTypeHandler extends XSIElementHandler {
                 if (child == null) {
                     child = lh;
                 } else {
-                    throw new SAXNotRecognizedException(getLocalName()
-                        + " may only have one '" + RestrictionHandler.LOCALNAME
-                        + "' declaration.");
+                    throw new SAXNotRecognizedException(
+                            getLocalName()
+                                    + " may only have one '"
+                                    + RestrictionHandler.LOCALNAME
+                                    + "' declaration.");
                 }
 
                 return lh;
@@ -122,9 +118,11 @@ public class SimpleTypeHandler extends XSIElementHandler {
                 if (child == null) {
                     child = lh;
                 } else {
-                    throw new SAXNotRecognizedException(getLocalName()
-                        + " may only have one '" + UnionHandler.LOCALNAME
-                        + "' declaration.");
+                    throw new SAXNotRecognizedException(
+                            getLocalName()
+                                    + " may only have one '"
+                                    + UnionHandler.LOCALNAME
+                                    + "' declaration.");
                 }
 
                 return lh;
@@ -135,11 +133,10 @@ public class SimpleTypeHandler extends XSIElementHandler {
     }
 
     /**
-     * @see org.geotools.xml.XSIElementHandler#startElement(java.lang.String,
-     *      java.lang.String, org.xml.sax.Attributes)
+     * @see org.geotools.xml.XSIElementHandler#startElement(java.lang.String, java.lang.String,
+     *     org.xml.sax.Attributes)
      */
-    public void startElement(String namespaceURI, String localName,
-        Attributes atts){
+    public void startElement(String namespaceURI, String localName, Attributes atts) {
         id = atts.getValue("", "id");
 
         if (id == null) {
@@ -161,14 +158,7 @@ public class SimpleTypeHandler extends XSIElementHandler {
         }
     }
 
-    /**
-     * <p>
-     * translates the final attribute to an integer mask
-     * </p>
-     *
-     * @param finaL
-     *
-     */
+    /** translates the final attribute to an integer mask */
     public static int findFinal(String finaL) {
         if ((finaL == null) || "".equalsIgnoreCase(finaL)) {
             return NONE;
@@ -199,31 +189,17 @@ public class SimpleTypeHandler extends XSIElementHandler {
         return r;
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#getLocalName()
-     */
+    /** @see org.geotools.xml.XSIElementHandler#getLocalName() */
     public String getLocalName() {
         return LOCALNAME;
     }
 
-    /**
-     * <p>
-     * returns the simpletype's name
-     * </p>
-     *
-     */
+    /** returns the simpletype's name */
     public String getName() {
         return name;
     }
 
-    /**
-     * <p>
-     * compacts the data resolving references.
-     * </p>
-     *
-     * @param parent
-     *
-     */
+    /** compacts the data resolving references. */
     protected SimpleType compress(SchemaHandler parent) {
         logger.info("Start compressing SimpleType " + getName());
 
@@ -239,8 +215,15 @@ public class SimpleTypeHandler extends XSIElementHandler {
 
         SimpleType[] simpleTypes = getSimpleTypes(child, parent);
 
-        cache = new SimpleTypeGT(id, name, parent.getTargetNamespace(),
-                child.getHandlerType(), simpleTypes, facets, finaL);
+        cache =
+                new SimpleTypeGT(
+                        id,
+                        name,
+                        parent.getTargetNamespace(),
+                        child.getHandlerType(),
+                        simpleTypes,
+                        facets,
+                        finaL);
 
         logger.info("End compressing SimpleType " + getName());
         id = null;
@@ -249,26 +232,24 @@ public class SimpleTypeHandler extends XSIElementHandler {
         return cache;
     }
 
-    static SimpleType[] getSimpleTypes(XSIElementHandler child,
-        SchemaHandler parent) {
+    static SimpleType[] getSimpleTypes(XSIElementHandler child, SchemaHandler parent) {
         switch (child.getHandlerType()) {
-        case RESTRICTION:
-            return getSimpleTypes((RestrictionHandler) child, parent);
+            case RESTRICTION:
+                return getSimpleTypes((RestrictionHandler) child, parent);
 
-        case LIST:
-            return getSimpleTypes((ListHandler) child, parent);
+            case LIST:
+                return getSimpleTypes((ListHandler) child, parent);
 
-        case UNION:
-            return getSimpleTypes((UnionHandler) child, parent);
+            case UNION:
+                return getSimpleTypes((UnionHandler) child, parent);
 
-        default:
-            throw new RuntimeException(
-                "Should not be here ... child is one of the other three types.");
+            default:
+                throw new RuntimeException(
+                        "Should not be here ... child is one of the other three types.");
         }
     }
 
-    static SimpleType[] getSimpleTypes(RestrictionHandler rest,
-        SchemaHandler parent) {
+    static SimpleType[] getSimpleTypes(RestrictionHandler rest, SchemaHandler parent) {
         SimpleType[] children = new SimpleType[1];
 
         if (rest.getChild() != null) {
@@ -298,8 +279,7 @@ public class SimpleTypeHandler extends XSIElementHandler {
         if (union.getMemberTypes() != null) {
             String[] qNames = union.getMemberTypes().split("\\s");
 
-            for (int i = 0; i < qNames.length; i++)
-                l.add(parent.lookUpSimpleType(qNames[i]));
+            for (int i = 0; i < qNames.length; i++) l.add(parent.lookUpSimpleType(qNames[i]));
         }
 
         if (union.getSimpleTypes() != null) {
@@ -333,18 +313,13 @@ public class SimpleTypeHandler extends XSIElementHandler {
         return facets;
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#getHandlerType()
-     */
+    /** @see org.geotools.xml.XSIElementHandler#getHandlerType() */
     public int getHandlerType() {
         return SIMPLETYPE;
     }
 
-    /**
-     * @see org.geotools.xml.XSIElementHandler#endElement(java.lang.String,
-     *      java.lang.String)
-     */
-    public void endElement(String namespaceURI, String localName){
+    /** @see org.geotools.xml.XSIElementHandler#endElement(java.lang.String, java.lang.String) */
+    public void endElement(String namespaceURI, String localName) {
         // do nothing
     }
 }

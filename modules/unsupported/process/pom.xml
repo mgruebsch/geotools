@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.geotools</groupId>
         <artifactId>unsupported</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
 
@@ -28,12 +28,6 @@
     <packaging>jar</packaging>
     <name>Process</name>
 
-    <scm>
-        <connection>
-            scm:svn:http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/
-        </connection>
-        <url>http://svn.osgeo.org/geotools/trunk/modules/unsupported/process/</url>
-    </scm>
 
     <description>
       An API for creating custom processes/operations plus a
@@ -82,9 +76,15 @@
   <!-- =========================================================== -->
     <dependencies>
         <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-api</artifactId>
-            <version>${project.version}</version>
+          <groupId>org.jaitools</groupId>
+          <artifactId>jt-utils</artifactId>
+          <version>${jt.version}</version>
+          <exclusions>
+            <exclusion>
+               <groupId>org.locationtech.jts</groupId>
+               <artifactId>jts</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -93,18 +93,9 @@
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-coverage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-cql</artifactId>
-            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.media</groupId>

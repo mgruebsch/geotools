@@ -17,31 +17,26 @@
 package org.geotools.filter.v1_0;
 
 import javax.xml.namespace.QName;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Expression;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
 
 /**
  * Binding object for the element http://www.opengis.net/ogc:Div.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:element name="Div" substitutionGroup="ogc:expression" type="ogc:BinaryOperatorType"/&gt;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class OGCDivBinding extends AbstractComplexBinding {
     FilterFactory filterfactory;
@@ -50,14 +45,13 @@ public class OGCDivBinding extends AbstractComplexBinding {
         this.filterfactory = filterfactory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return OGC.Div;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -72,14 +66,14 @@ public class OGCDivBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        return filterfactory.divide((Expression) node.getChildValue(0),
-            (Expression) node.getChildValue(1));
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        return filterfactory.divide(
+                (Expression) node.getChildValue(0), (Expression) node.getChildValue(1));
     }
 }

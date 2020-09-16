@@ -1,12 +1,11 @@
 Property Plugin
 ---------------
 
-DataStore supporting the use of simple java property files for storing spatial data. This was
-originally a tutorial in the use of AbstractDataStore and has become useful in its own right.
+DataStore supporting the use of simple java property files for storing spatial data. This was originally based on a tutorial in the use of AbstractDataStore, but has now been migrated to use ContentDataStore. The old implementation has been moved to the unsupported module.
 
 **Reference**
 
-* :doc:`/tutorial/abstractdatastore`
+* :doc:`/tutorial/datastore/index`
 
 **Maven**::
    
@@ -31,7 +30,7 @@ These examples use the file :download:`example.properties </tutorial/artifacts/e
 
 Here is an example to parse the above file:
 
-.. literalinclude:: /../src/main/java/org/geotools/data/property/PropertyExamples.java
+.. literalinclude:: /../src/main/java/org/geotools/property/PropertyExamples.java
    :language: java
    :start-after: // example3 start
    :end-before: // example3 end

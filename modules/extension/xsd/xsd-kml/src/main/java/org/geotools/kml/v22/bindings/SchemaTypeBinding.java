@@ -1,27 +1,43 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 package org.geotools.kml.v22.bindings;
 
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.kml.v22.KML;
 import org.geotools.kml.v22.SchemaRegistry;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
 import org.geotools.xs.XS;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.Schema;
 
 /**
  * Binding object for the type http://www.opengis.net/kml/2.2:SchemaType.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  *  <code>
  *  &lt;complexType final="#all" name="SchemaType"&gt;
@@ -31,13 +47,11 @@ import org.opengis.feature.type.Schema;
  *      &lt;/sequence&gt;
  *      &lt;attribute name="name" type="string"/&gt;
  *      &lt;attribute name="id" type="ID"/&gt;
- *  &lt;/complexType&gt; 
- * 	
+ *  &lt;/complexType&gt;
+ *
  *   </code>
  * </pre>
- * 
- * </p>
- * 
+ *
  * @generated
  */
 public class SchemaTypeBinding extends AbstractComplexBinding {
@@ -48,16 +62,16 @@ public class SchemaTypeBinding extends AbstractComplexBinding {
         this.schemaRegistry = schemaRegistry;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return KML.SchemaType;
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Class getType() {
@@ -65,8 +79,10 @@ public class SchemaTypeBinding extends AbstractComplexBinding {
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
@@ -80,17 +96,15 @@ public class SchemaTypeBinding extends AbstractComplexBinding {
 
         if (node.hasAttribute("name")) {
             featureTypeName = (String) node.getAttributeValue("name");
-        }
-        else if (featureTypeId != null) {
+        } else if (featureTypeId != null) {
             featureTypeName = featureTypeId;
-        }
-        else {
+        } else {
             featureTypeName = "feature";
         }
 
         SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
         tb.setName(featureTypeName);
-        //TODO: crs
+        // TODO: crs
 
         for (Node n : (List<Node>) node.getChildren("SimpleField")) {
             String name = (String) n.getAttributeValue("name");
@@ -108,7 +122,7 @@ public class SchemaTypeBinding extends AbstractComplexBinding {
     }
 
     private Class mapTypeName(String typeName) {
-        //try xs simple type
+        // try xs simple type
         Schema xsTypeMappingProfile = XS.getInstance().getTypeMappingProfile();
         NameImpl name = new NameImpl(XS.NAMESPACE, typeName);
         if (xsTypeMappingProfile.containsKey(name)) {
@@ -118,14 +132,13 @@ public class SchemaTypeBinding extends AbstractComplexBinding {
             }
         }
 
-        //try gml geometry types
+        // try gml geometry types
         Geometries g = Geometries.getForName(typeName);
         if (g != null) {
             return g.getBinding();
         }
 
-        //default
+        // default
         return String.class;
     }
-
 }

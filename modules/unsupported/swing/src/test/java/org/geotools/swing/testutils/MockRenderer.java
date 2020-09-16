@@ -17,60 +17,60 @@
 
 package org.geotools.swing.testutils;
 
-import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
-import org.geotools.map.MapContext;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
+import org.geotools.util.factory.Hints;
+import org.locationtech.jts.geom.Envelope;
 
 /**
  * A simple mock GTRenderer.
- * 
+ *
  * @author Michael Bedward
  * @since 8.0
- *
- * @source $URL$
  * @version $Id$
  */
 public class MockRenderer implements GTRenderer {
+    protected List<RenderListener> listeners = new ArrayList<RenderListener>();
+
     private MapContent mapContent;
     private long paintTime;
     private boolean verbose;
-    
+
     private CountDownLatch paintLatch = new CountDownLatch(0);
     private Lock lock = new ReentrantLock();
-    
+
     public MockRenderer() {
         this(null);
     }
-    
+
     public MockRenderer(MapContent mapContent) {
         this.mapContent = mapContent;
         this.paintTime = 0;
     }
-    
+
     /**
      * Sets the time that the mock renderer will pretend to paint.
-     * 
+     *
      * @param millis time in milliseconds
      */
     public void setPaintTime(long millis) {
         paintTime = millis < 0 ? 0 : millis;
     }
-    
+
     public void setVerbose(boolean b) {
         verbose = b;
     }
@@ -87,15 +87,16 @@ public class MockRenderer implements GTRenderer {
 
     @Override
     public void addRenderListener(RenderListener listener) {
+        this.listeners.add(listener);
     }
 
     @Override
     public void removeRenderListener(RenderListener listener) {
+        this.listeners.remove(listener);
     }
 
     @Override
-    public void setJava2DHints(RenderingHints hints) {
-    }
+    public void setJava2DHints(RenderingHints hints) {}
 
     @Override
     public RenderingHints getJava2DHints() {
@@ -103,8 +104,7 @@ public class MockRenderer implements GTRenderer {
     }
 
     @Override
-    public void setRendererHints(Map<Object, Object> hints) {
-    }
+    public void setRendererHints(Map<Object, Object> hints) {}
 
     @Override
     public Map<Object, Object> getRendererHints() {
@@ -112,18 +112,8 @@ public class MockRenderer implements GTRenderer {
     }
 
     @Override
-    public void setContext(MapContext context) {
-        throw new UnsupportedOperationException("Should not be called");
-    }
-
-    @Override
     public void setMapContent(MapContent mapContent) {
         this.mapContent = mapContent;
-    }
-
-    @Override
-    public MapContext getContext() {
-        throw new UnsupportedOperationException("Should not be called");
     }
 
     @Override
@@ -147,20 +137,28 @@ public class MockRenderer implements GTRenderer {
     }
 
     @Override
-    public void paint(Graphics2D graphics, Rectangle paintArea, Envelope mapArea, AffineTransform worldToScreen) {
+    public void paint(
+            Graphics2D graphics,
+            Rectangle paintArea,
+            Envelope mapArea,
+            AffineTransform worldToScreen) {
         pretendToPaint();
     }
 
     @Override
-    public void paint(Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope mapArea, AffineTransform worldToScreen) {
+    public void paint(
+            Graphics2D graphics,
+            Rectangle paintArea,
+            ReferencedEnvelope mapArea,
+            AffineTransform worldToScreen) {
         pretendToPaint();
     }
 
-    private void pretendToPaint() {
+    protected void pretendToPaint() {
         lock.lock();
         try {
             if (verbose) {
-                System.out.println("mock paint started");
+                // System.out.println("mock paint started");
                 System.out.flush();
             }
 
@@ -170,7 +168,7 @@ public class MockRenderer implements GTRenderer {
         } finally {
             lock.unlock();
         }
-        
+
         boolean wasCancelled = false;
         try {
             wasCancelled = paintLatch.await(paintTime, TimeUnit.MILLISECONDS);
@@ -180,12 +178,11 @@ public class MockRenderer implements GTRenderer {
 
         if (verbose) {
             if (wasCancelled) {
-                System.out.println("mock paint cancelled");
+                // System.out.println("mock paint cancelled");
             } else {
-                System.out.println("mock paint finished");
+                // System.out.println("mock paint finished");
             }
             System.out.flush();
         }
     }
-    
 }

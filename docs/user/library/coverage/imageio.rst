@@ -1,11 +1,11 @@
 ImageIO-EXT GDAL Plugin
 -----------------------
 
-The ImageIO-EXT plug-in allows geotools to make use of the additional formats provided via the
+The ImageIO-EXT plug-in allows GeoTools to make use of the additional formats provided via the
 Java Extension ImageIO-EXT.
 
 The Java ImageIO library comes with a few formats out of the box (such as PNG, etc...) the
-imageio-ext project provides support for additional geospatial formats.
+ImageIO-EXT project provides support for additional geospatial formats.
 
 **References**
 
@@ -26,7 +26,7 @@ At the GeoTools level, the set of formats supported by the GeoTools ImageIO-Ext 
 is composed of:
 
 * DTED Elevation Raster
-* ESRI .hdr labelled
+* ESRI ``.hdr`` labeled
 * Erdas Imagine Images
 * NITF: National Imagery Transmission Format
 * ECW: ERMapper Compressed Wavelets
@@ -43,10 +43,14 @@ file formats:
 
 * Arc/Info ASCII Grid
 * Arc/Info Binary Grid
-* ENVI .hdr Labelled
+* ENVI ``.hdr`` labeled
 * ENVISAT Image Format
+* GDAL VRT
 * GeoTIFF
+* IDRISI
 * JPEG
+* RPF TOC
+* SRP (ASRP/USRP) formats
 
 The ImageIO-EXT website includes ready to use ImageIO-Ext binaries including GDAL libraries. See
 "Release Information" for more info about the list of supported formats and available drivers.
@@ -120,5 +124,15 @@ parameters::
           .getFormat()).USE_JAI_IMAGEREAD.createValue();
   useJaiRead.setValue(true);
   
+  // //
+  //
+  // Setting the footprint behavior
+  //
+  // For this example, there should be a C:/testdata/sampledata.wkt file containing 
+  // the footprint, so that the masking can occur
+  // //
+  final ParameterValue<String> footprint = AbstractGridFormat.FOOTPRINT_BEHAVIOR.createValue();
+  footprint.setValue(FootprintBehavior.Transparent.toString());
+  
   GridCoverage gc = (GridCoverage2D) reader.read(new GeneralParameterValue[] { gg,
-          policy, mt, tilesize, useJaiRead });
+          policy, mt, tilesize, useJaiRead, footprint});

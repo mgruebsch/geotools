@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2014, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -20,54 +20,38 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
-
-import javax.imageio.spi.ServiceRegistry;
-
-import org.geotools.data.wfs.impl.WFSDataStoreFactory;
-import org.geotools.factory.FactoryNotFoundException;
+import org.geotools.data.wfs.WFSDataStoreFactory;
+import org.geotools.util.factory.FactoryNotFoundException;
 
 /**
  * Utility class to look up for a parser that can deal with a given WFS response and process it.
- * <p>
- * This class uses the usual GeoTools SPI (Service Provider Interface) mechanism to find out a
+ *
+ * <p>This class uses the usual GeoTools SPI (Service Provider Interface) mechanism to find out a
  * {@link WFSResponseFactory} for a given {@link WFSResponse}. As such, {@link WFSResponseFactory}
  * implementation may live outside this plugin as long as they're declared in it's own {code
  * /META-INF/services/org.geotools.data.wfs.protocol.wfs.WFSResponseParserFactory} text file.
- * </p>
- * 
+ *
  * @author Gabriel Roldan (OpenGeo)
- * @version $Id$
  * @since 2.6
- * 
- * 
- * 
- * @source $URL$
- *         http://svn.osgeo.org/geotools/trunk/modules/unsupported/wfs/src/main/java/org/geotools
- *         /data/wfs/protocol/wfs/WFSExtensions.java $
  */
 @SuppressWarnings("nls")
 public class WFSExtensions {
-    /**
-     * The service registry for this manager. Will be initialized only when first needed.
-     */
-    private static Set<WFSResponseFactory> registry;
+    /** The service registry for this manager. Will be initialized only when first needed. */
+    private static volatile Set<WFSResponseFactory> registry;
 
     /**
      * Processes the result of a WFS operation and returns the parsed object.
-     * <p>
-     * The result can either be:
+     *
+     * <p>The result can either be:
+     *
      * <ul>
-     * <li>a {@link WFSException} exception if the WFS response was an exception report
-     * <li>a {@link GetFeatureParser} if the WFS returned a FeatureCollection
-     * </p>
-     * 
-     * @param request
-     *            the WFS request that originated the given response
-     * @param response
-     *            the handle to the WFS response contents
-     * @return
-     * @throws IOException
+     *   <li>a {@link WFSException} exception if the WFS response was an exception report
+     *   <li>a {@link GetParser<SimpleFeature>} if the WFS returned a FeatureCollection
+     *
+     * @param request the WFS request that originated the given response
+     * @param response the handle to the WFS response contents
      */
     // public static Object process(WFSResponse response) throws IOException {
     //
@@ -80,15 +64,9 @@ public class WFSExtensions {
     // return result;
     // }
 
-    /**
-     * @param contentType
-     * @param requestType
-     * @param outputFormat
-     * @return
-     * @throws FactoryNotFoundException
-     */
-    public static WFSResponseFactory findResponseFactory(final WFSRequest originatingRequest,
-            final String contentType) {
+    /** */
+    public static WFSResponseFactory findResponseFactory(
+            final WFSRequest originatingRequest, final String contentType) {
 
         Iterator<WFSResponseFactory> serviceProviders;
         serviceProviders = getServiceProviders();
@@ -102,8 +80,12 @@ public class WFSExtensions {
                 }
             }
         }
-        throw new FactoryNotFoundException("Can't find a response parser factory for "
-                + originatingRequest.getOperation() + "/'" + contentType + "'");
+        throw new FactoryNotFoundException(
+                "Can't find a response parser factory for "
+                        + originatingRequest.getOperation()
+                        + "/'"
+                        + contentType
+                        + "'");
     }
 
     public static List<WFSResponseFactory> findResponseFactories(final WFSOperationType operation) {
@@ -136,19 +118,21 @@ public class WFSExtensions {
                      */
                     final ClassLoader current = Thread.currentThread().getContextClassLoader();
                     try {
-                        final ClassLoader tempClassLoader = WFSDataStoreFactory.class
-                                .getClassLoader();
+                        final ClassLoader tempClassLoader =
+                                WFSDataStoreFactory.class.getClassLoader();
                         Thread.currentThread().setContextClassLoader(tempClassLoader);
                         /*
                          * Now that we're on the correct classloader lets perform the lookup
                          */
                         Iterator<WFSResponseFactory> providers;
-                        providers = ServiceRegistry.lookupProviders(WFSResponseFactory.class);
-                        registry = new HashSet<WFSResponseFactory>();
+
+                        providers = ServiceLoader.load(WFSResponseFactory.class).iterator();
+                        Set<WFSResponseFactory> tmp = new HashSet<>();
                         while (providers.hasNext()) {
                             WFSResponseFactory provider = providers.next();
-                            registry.add(provider);
+                            tmp.add(provider);
                         }
+                        registry = tmp;
                     } finally {
                         /*
                          * And finally restore the original thread's class loader
@@ -160,5 +144,4 @@ public class WFSExtensions {
         }
         return registry.iterator();
     }
-
 }

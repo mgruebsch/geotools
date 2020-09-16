@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,18 +16,23 @@
  */
 package org.geotools.sld.bindings;
 
-import org.picocontainer.MutablePicoContainer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import java.util.List;
 import javax.xml.namespace.QName;
-import org.geotools.xml.*;
-
+import org.geotools.styling.NormalizeContrastMethodStrategy;
+import org.geotools.styling.StyleFactory;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * Binding object for the element http://www.opengis.net/sld:Normalize.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:element name="Normalize"&gt;
  *      &lt;xsd:complexType/&gt;
@@ -35,23 +40,24 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class SLDNormalizeBinding extends AbstractComplexBinding {
-    /**
-     * @generated
-     */
+    StyleFactory styleFactory;
+    FilterFactory filterFactory;
+
+    public SLDNormalizeBinding(StyleFactory styleFactory, FilterFactory filterFactory) {
+        this.styleFactory = styleFactory;
+        this.filterFactory = filterFactory;
+    }
+    /** @generated */
     public QName getTarget() {
         return SLD.NORMALIZE;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -62,33 +68,44 @@ public class SLDNormalizeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
     public Class getType() {
-        return null;
+        return NormalizeContrastMethodStrategy.class;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {
-    }
+    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {}
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //TODO: implement
-        return null;
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+
+        NormalizeContrastMethodStrategy ret = new NormalizeContrastMethodStrategy();
+        if (node.getChildValue("Algorithm") != null) {
+            Expression algor = (Expression) node.getChildValue("Algorithm");
+            ret.setAlgorithm(algor);
+        }
+        List<Node> params = node.getChildren("Parameter");
+        for (Node param : params) {
+            String key = (String) param.getAttributeValue("name");
+            ret.addParameter(key, (Expression) param.getValue());
+        }
+        return ret;
     }
 }

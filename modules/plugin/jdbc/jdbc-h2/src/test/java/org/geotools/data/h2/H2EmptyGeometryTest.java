@@ -16,19 +16,13 @@
  */
 package org.geotools.data.h2;
 
-import org.geotools.jdbc.JDBCEmptyGeometryTest;
+import org.geotools.jdbc.JDBCEmptyGeometryOnlineTest;
 import org.geotools.jdbc.JDBCEmptyGeometryTestSetup;
 
-/**
- * 
- *
- * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/jdbc/jdbc-postgis/src/test/java/org/geotools/data/postgis/PostGISEmptyGeometryTest.java $
- */
-public class H2EmptyGeometryTest extends JDBCEmptyGeometryTest {
+public class H2EmptyGeometryTest extends JDBCEmptyGeometryOnlineTest {
 
     @Override
     protected JDBCEmptyGeometryTestSetup createTestSetup() {
         return new H2EmptyGeometryTestSetup(new H2TestSetup());
     }
-
 }

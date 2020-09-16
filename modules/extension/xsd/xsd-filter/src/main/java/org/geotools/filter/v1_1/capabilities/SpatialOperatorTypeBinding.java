@@ -17,18 +17,20 @@
 package org.geotools.filter.v1_1.capabilities;
 
 import javax.xml.namespace.QName;
+import org.geotools.filter.v1_1.OGC;
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.capability.GeometryOperand;
 import org.opengis.filter.capability.SpatialOperator;
-import org.geotools.filter.v1_1.OGC;
-import org.geotools.xml.*;
-
 
 /**
  * Binding object for the type http://www.opengis.net/ogc:SpatialOperatorType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="SpatialOperatorType"&gt;
  *      &lt;xsd:sequence&gt;
@@ -39,13 +41,8 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class SpatialOperatorTypeBinding extends AbstractComplexBinding {
     FilterFactory factory;
@@ -54,14 +51,13 @@ public class SpatialOperatorTypeBinding extends AbstractComplexBinding {
         this.factory = factory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return OGC.SpatialOperatorType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -72,22 +68,22 @@ public class SpatialOperatorTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
-        //&lt;xsd:element minOccurs="0" name="GeometryOperands" type="ogc:GeometryOperandsType"/&gt;
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
+        // &lt;xsd:element minOccurs="0" name="GeometryOperands"
+        // type="ogc:GeometryOperandsType"/&gt;
         GeometryOperand[] gos = (GeometryOperand[]) node.getChildValue(GeometryOperand[].class);
 
-        //&lt;xsd:attribute name="name" type="ogc:SpatialOperatorNameType"/&gt;
+        // &lt;xsd:attribute name="name" type="ogc:SpatialOperatorNameType"/&gt;
         return factory.spatialOperator((String) node.getAttributeValue("name"), gos);
     }
 
-    public Object getProperty(Object object, QName name)
-        throws Exception {
+    public Object getProperty(Object object, QName name) throws Exception {
         SpatialOperator sop = (SpatialOperator) object;
 
         if ("GeometryOperands".equals(name.getLocalPart())) {

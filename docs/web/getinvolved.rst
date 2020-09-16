@@ -17,7 +17,7 @@ Participation
 
   The `developer list <https://lists.sourceforge.net/lists/listinfo/geotools-devel>`_
   is meant for discussions that pertaining to the actual
-  development of the geotools library. If you have a patch you would like to 
+  development of the GeoTools library. If you have a patch you would like to 
   contribute, or an issue with a plug-in you are working on, discuss it on this 
   list. This is list is also open to anyone who would like to take part in the
   more day to day development discussion.
@@ -27,9 +27,9 @@ Participation
 
 * Bug Tracker
   
-  GeoTools uses an issue tracker known as `JIRA <http://jira.codehaus.org/browse/GEOT>`_ to manage
+  GeoTools uses an issue tracker known as `JIRA <https://osgeo-org.atlassian.net/projects/GEOT>`_ to manage
   bugs, issues, and new features. If you have found a bug, or if there is a feature that you would
-  like to see implemented in GeoToools, please report it in JIRA.
+  like to see implemented in GeoTools, please report it in JIRA.
 
 Development
 -----------

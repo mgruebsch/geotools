@@ -1,24 +1,39 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 package org.geotools.wcs.bindings;
 
 import javax.xml.namespace.QName;
-
 import net.opengis.wcs10.InterpolationMethodType;
-
 import org.geotools.wcs.WCS;
-import org.geotools.xml.AbstractSimpleBinding;
-import org.geotools.xml.InstanceComponent;
+import org.geotools.xsd.AbstractSimpleBinding;
+import org.geotools.xsd.InstanceComponent;
 
 /**
- * Binding object for the type
- * http://www.opengis.net/wcs:InterpolationMethodType.
- * 
+ * Binding object for the type http://www.opengis.net/wcs:InterpolationMethodType.
+ *
  * <p>
- * 
+ *
  * <pre>
- *	 <code>
+ *  <code>
  *  &lt;simpleType name=&quot;InterpolationMethodType&quot;&gt;
  *      &lt;annotation&gt;
- *          &lt;documentation&gt;Codes that identify interpolation methods. The meanings of these codes are defined in Annex B of ISO 19123: Geographic information — Schema for coverage geometry and functions. &lt;/documentation&gt;
+ *          &lt;documentation&gt;Codes that identify interpolation methods. The meanings of these codes are defined in Annex B of ISO 19123: Geographic information  Schema for coverage geometry and functions. &lt;/documentation&gt;
  *      &lt;/annotation&gt;
  *      &lt;restriction base=&quot;string&quot;&gt;
  *          &lt;enumeration value=&quot;nearest neighbor&quot;/&gt;
@@ -32,30 +47,25 @@ import org.geotools.xml.InstanceComponent;
  *              &lt;/annotation&gt;
  *          &lt;/enumeration&gt;
  *      &lt;/restriction&gt;
- *  &lt;/simpleType&gt; 
- * 	
+ *  &lt;/simpleType&gt;
+ *
  * </code>
- *	 </pre>
- * 
- * </p>
- * 
+ * </pre>
+ *
  * @generated
- *
- *
- * @source $URL$
  */
 public class InterpolationMethodTypeBinding extends AbstractSimpleBinding {
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return WCS.InterpolationMethodType;
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
     public Class getType() {
@@ -63,14 +73,14 @@ public class InterpolationMethodTypeBinding extends AbstractSimpleBinding {
     }
 
     /**
-     * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     *
      * @generated modifiable
      */
-    public Object parse(InstanceComponent instance, Object value)
-            throws Exception {
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
 
         return InterpolationMethodType.get((String) value);
     }
-
 }

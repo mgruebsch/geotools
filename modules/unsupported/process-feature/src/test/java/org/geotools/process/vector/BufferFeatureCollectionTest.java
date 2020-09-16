@@ -18,7 +18,6 @@
 package org.geotools.process.vector;
 
 import junit.framework.TestCase;
-
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -27,15 +26,13 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.process.vector.BufferFeatureCollection;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.FilterFactory;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 public class BufferFeatureCollectionTest extends TestCase {
 
@@ -56,7 +53,7 @@ public class BufferFeatureCollectionTest extends TestCase {
             b.add(i);
             features.add(b.buildFeature(i + ""));
         }
-        Double distance = new Double(500);
+        Double distance = Double.valueOf(500);
         BufferFeatureCollection process = new BufferFeatureCollection();
         SimpleFeatureCollection output = process.execute(features, distance, null);
         assertEquals(2, output.size());
@@ -67,7 +64,7 @@ public class BufferFeatureCollectionTest extends TestCase {
             SimpleFeature sf = iterator.next();
             assertTrue(expected.equals((Geometry) sf.getDefaultGeometry()));
         }
-        
+
         assertEquals(new ReferencedEnvelope(-500, 501, -500, 501, null), output.getBounds());
         assertEquals(2, output.size());
     }
@@ -93,7 +90,7 @@ public class BufferFeatureCollectionTest extends TestCase {
             b.add(0);
             features.add(b.buildFeature(numFeatures + ""));
         }
-        Double distance = new Double(500);
+        Double distance = Double.valueOf(500);
         BufferFeatureCollection process = new BufferFeatureCollection();
         SimpleFeatureCollection output = process.execute(features, distance, null);
         assertEquals(5, output.size());
@@ -109,7 +106,7 @@ public class BufferFeatureCollectionTest extends TestCase {
             SimpleFeature sf = iterator.next();
             assertTrue(expected.equals((Geometry) sf.getDefaultGeometry()));
         }
-        
+
         assertEquals(new ReferencedEnvelope(-500, 507, -500, 507, null), output.getBounds());
         assertEquals(5, output.size());
     }
@@ -132,12 +129,12 @@ public class BufferFeatureCollectionTest extends TestCase {
                 j++;
             }
             array[3] = new Coordinate(numFeatures, numFeatures);
-            LinearRing shell = new LinearRing(array, new PrecisionModel(), 0);
+            LinearRing shell = gf.createLinearRing(new CoordinateArraySequence(array));
             b.add(gf.createPolygon(shell, null));
             b.add(0);
             features.add(b.buildFeature(numFeatures + ""));
         }
-        Double distance = new Double(500);
+        Double distance = Double.valueOf(500);
         BufferFeatureCollection process = new BufferFeatureCollection();
         SimpleFeatureCollection output = process.execute(features, distance, null);
         assertEquals(5, output.size());
@@ -150,13 +147,13 @@ public class BufferFeatureCollectionTest extends TestCase {
                 j++;
             }
             array[3] = new Coordinate(numFeatures, numFeatures);
-            LinearRing shell = new LinearRing(array, new PrecisionModel(), 0);
+            LinearRing shell = gf.createLinearRing(new CoordinateArraySequence(array));
             Geometry expected = gf.createPolygon(shell, null).buffer(distance);
 
             SimpleFeature sf = iterator.next();
             assertTrue(expected.equals((Geometry) sf.getDefaultGeometry()));
         }
-        
+
         assertEquals(new ReferencedEnvelope(-500, 506, -500, 506, null), output.getBounds());
         assertEquals(5, output.size());
     }
@@ -180,7 +177,7 @@ public class BufferFeatureCollectionTest extends TestCase {
                 j++;
             }
             array[3] = new Coordinate(numFeatures, numFeatures);
-            LinearRing shell = new LinearRing(array, new PrecisionModel(), 0);
+            LinearRing shell = gf.createLinearRing(new CoordinateArraySequence(array));
             b.add(gf.createPolygon(shell, null));
             b.add(0);
             b.add(numFeatures + 1);
@@ -191,7 +188,8 @@ public class BufferFeatureCollectionTest extends TestCase {
         SimpleFeatureCollection output = process.execute(features, null, "buffer");
         assertEquals(5, output.size());
         SimpleFeatureIterator iterator = output.features();
-        ReferencedEnvelope expectedBounds = new ReferencedEnvelope(output.getSchema().getCoordinateReferenceSystem());
+        ReferencedEnvelope expectedBounds =
+                new ReferencedEnvelope(output.getSchema().getCoordinateReferenceSystem());
         for (int numFeatures = 0; numFeatures < 5; numFeatures++) {
             Coordinate[] array = new Coordinate[4];
             int j = 0;
@@ -200,14 +198,14 @@ public class BufferFeatureCollectionTest extends TestCase {
                 j++;
             }
             array[3] = new Coordinate(numFeatures, numFeatures);
-            LinearRing shell = new LinearRing(array, new PrecisionModel(), 0);
+            LinearRing shell = gf.createLinearRing(new CoordinateArraySequence(array));
             Geometry expected = gf.createPolygon(shell, null).buffer(numFeatures + 1);
             expectedBounds.expandToInclude(expected.getEnvelopeInternal());
 
             SimpleFeature sf = iterator.next();
             assertTrue(expected.equals((Geometry) sf.getDefaultGeometry()));
         }
-        
+
         assertEquals(expectedBounds, output.getBounds());
         assertEquals(5, output.size());
     }

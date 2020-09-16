@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2007-2013, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2007 - 2016, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,21 +18,31 @@ package org.geotools.gce.imagemosaic;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.media.jai.Interpolation;
-
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.DecimationPolicy;
+import org.geotools.coverage.grid.io.GranuleSource;
 import org.geotools.coverage.grid.io.OverviewPolicy;
-import org.geotools.data.DataSourceException;
-import org.geotools.factory.Hints;
+import org.geotools.coverage.grid.io.footprint.FootprintBehavior;
+import org.geotools.coverage.grid.io.imageio.ReadType;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.gce.imagemosaic.SpatialRequestHelper.CoverageProperties;
+import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
+import org.geotools.util.factory.Hints;
+import org.locationtech.jts.geom.Geometry;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.metadata.Identifier;
 import org.opengis.parameter.GeneralParameterDescriptor;
@@ -40,134 +50,199 @@ import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterDescriptor;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.ReferenceIdentifier;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 /**
  * A class to handle coverage requests to a reader for a single 2D layer..
- * 
+ *
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini, GeoSolutions
  */
 @SuppressWarnings("rawtypes")
-class RasterLayerRequest {
-	/** Logger. */
-    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(RasterLayerRequest.class);
+public class RasterLayerRequest {
+    /** Logger. */
+    private static final Logger LOGGER =
+            org.geotools.util.logging.Logging.getLogger(RasterLayerRequest.class);
 
-    private ReadType readType = AbstractGridFormat.USE_JAI_IMAGEREAD.getDefaultValue()?ReadType.JAI_IMAGEREAD:ReadType.DIRECT_READ;
+    private static final int DEFAULT_PADDING = 10;
+
+    private ReadType readType =
+            AbstractGridFormat.USE_JAI_IMAGEREAD.getDefaultValue()
+                    ? ReadType.JAI_IMAGEREAD
+                    : ReadType.DIRECT_READ;
 
     SpatialRequestHelper spatialRequestHelper;
-    
+
     /** The desired decimation Policy for this request */
     private DecimationPolicy decimationPolicy;
-    
+
     /** The desired overview Policy for this request */
     private OverviewPolicy overviewPolicy;
-    
+
     /** The Interpolation required to serve this request */
     private Interpolation interpolation;
 
     private FootprintBehavior footprintBehavior = FootprintBehavior.None;
-    
+
     private int defaultArtifactsFilterThreshold = Integer.MIN_VALUE;;
-    
+
     private double artifactsFilterPTileThreshold;
-    
-    private boolean heterogeneousGranules = false; 
+
+    private double[] virtualNativeResolution;
+
+    private boolean heterogeneousGranules = false;
+
+    private boolean heterogeneousCRS = false;
+
+    private boolean useAlternativeCRS = false;
 
     RasterManager rasterManager;
-    
-	private Color inputTransparentColor=AbstractGridFormat.INPUT_TRANSPARENT_COLOR.getDefaultValue();;
 
-	private boolean blend=ImageMosaicFormat.FADING.getDefaultValue();
-	
-	/** Specifies the behavior for the merging of the final mosaic.*/
-	private MergeBehavior mergeBehavior=MergeBehavior.getDefault();
+    private Color inputTransparentColor =
+            AbstractGridFormat.INPUT_TRANSPARENT_COLOR.getDefaultValue();;
 
-	private Color outputTransparentColor=ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.getDefaultValue();;
+    private boolean blend = ImageMosaicFormat.FADING.getDefaultValue();
 
-	/**
-	 * Max number of tiles that this plugin will load.
-	 * 
-	 * If this number is exceeded, i.e. we request an area which is too large
-	 * instead of getting stuck with opening thousands of files I give you back a
-	 * fake coverage. 
-	 */
-	private int maximumNumberOfGranules=ImageMosaicFormat.MAX_ALLOWED_TILES.getDefaultValue().intValue();
+    /** Specifies the behavior for the merging of the final mosaic. */
+    private MergeBehavior mergeBehavior = MergeBehavior.getDefault();
 
-	private double[] backgroundValues;
+    private Color outputTransparentColor =
+            ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.getDefaultValue();;
 
-	private Dimension tileDimensions;
+    /**
+     * Max number of tiles that this plugin will load.
+     *
+     * <p>If this number is exceeded, i.e. we request an area which is too large instead of getting
+     * stuck with opening thousands of files I give you back a fake coverage.
+     */
+    private int maximumNumberOfGranules =
+            ImageMosaicFormat.MAX_ALLOWED_TILES.getDefaultValue().intValue();
 
-	private boolean multithreadingAllowed;
+    private double[] backgroundValues;
 
-	private List<?> requestedTimes;
+    private Dimension tileDimensions;
 
-	private List<?> elevation;
-	
-	private Filter filter;
+    private boolean multithreadingAllowed;
+
+    private List<?> requestedTimes;
+
+    private List<?> elevation;
+
+    protected Filter filter;
 
     private boolean accurateResolution;
-	
-        private final Map<String,List> requestedAdditionalDomains = new HashMap<String,List>();
 
-	/** Sort clause on shapefile attributes.*/
-	private String sortClause;
+    /** The geometry to be used as geometry mask on the final mosaic */
+    private Geometry geometryMask;
 
-	public List<?> getElevation() {
-		return elevation;
-	}
+    /**
+     * The optional buffer to be applied to the provided geometryMask. Buffer size is expressed in
+     * raster coordinates
+     */
+    private double maskingBufferPixels;
 
-	public String getSortClause() {
-		return sortClause;
-	}
+    /** Flag specifying whether we need to set the ROI in any case in the output mosaic */
+    private boolean setRoiProperty;
 
-	public void setSortClause(String sortClause) {
-		this.sortClause = sortClause;
-	}
+    private final Map<String, List> requestedAdditionalDomains = new HashMap<String, List>();
 
-	public Filter getFilter() {
-		return filter;
-	}
-	
-	public List<?> getRequestedTimes() {
-		return requestedTimes;
-	}
+    // the bands parameter define the order and which bands should be returned
+    private int[] bands;
 
-	public boolean isMultithreadingAllowed() {
-		return multithreadingAllowed;
-	}
+    /** Sort clause on data source. */
+    private String sortClause;
 
-	public DecimationPolicy getDecimationPolicy() {
-	        return decimationPolicy;
-	}
-	
+    /*
+     * Enables/disables excess granule removal
+     */
+    private ExcessGranulePolicy excessGranuleRemovalPolicy;
+
+    /** Enables/disables pixel rescaling if the image metadata contains such information */
+    private boolean rescalingEnabled = true;
+
+    private GeneralParameterValue[] params;
+
+    private Envelope2D requestedBounds;
+
+    private GridGeometry2D requestedGridGeometry;
+
+    public List<?> getElevation() {
+        return elevation;
+    }
+
+    public String getSortClause() {
+        return sortClause;
+    }
+
+    public GeneralParameterValue[] getParams() {
+        return params;
+    }
+
+    public void setSortClause(String sortClause) {
+        this.sortClause = sortClause;
+    }
+
+    public Filter getFilter() {
+        return filter;
+    }
+
+    public Envelope2D getRequestedBounds() {
+        return requestedBounds;
+    }
+
+    public List<?> getRequestedTimes() {
+        return requestedTimes;
+    }
+
+    public boolean isMultithreadingAllowed() {
+        return multithreadingAllowed;
+    }
+
+    public DecimationPolicy getDecimationPolicy() {
+        return decimationPolicy;
+    }
+
     public boolean isHeterogeneousGranules() {
         return heterogeneousGranules;
+    }
+
+    public boolean isUseAlternativeCRS() {
+        return useAlternativeCRS;
+    }
+
+    public ExcessGranulePolicy getExcessGranuleRemovalPolicy() {
+        return excessGranuleRemovalPolicy;
+    }
+
+    public void setExcessGranuleRemovalPolicy(ExcessGranulePolicy policy) {
+        this.excessGranuleRemovalPolicy = policy;
     }
 
     public void setHeterogeneousGranules(final boolean heterogeneousGranules) {
         this.heterogeneousGranules = heterogeneousGranules;
     }
 
-    RasterManager getRasterManager() {
+    public RasterManager getRasterManager() {
         return rasterManager;
     }
-    
+
     public Map<String, List> getRequestedAdditionalDomains() {
         return new HashMap<String, List>(requestedAdditionalDomains);
     }
 
-	 
-	/**
+    /**
      * Build a new {@code CoverageRequest} given a set of input parameters.
-     * 
-     * @param params
-     *                The {@code GeneralParameterValue}s to initialize this
-     *                request
-     * @param baseGridCoverage2DReader 
-	 * @throws DataSourceException 
+     *
+     * @param params The {@code GeneralParameterValue}s to initialize this request
      */
-    public RasterLayerRequest(final GeneralParameterValue[] params, final RasterManager rasterManager) throws DataSourceException {
+    public RasterLayerRequest(
+            final GeneralParameterValue[] params, final RasterManager rasterManager)
+            throws IOException {
+
+        this.params = params;
 
         // //
         //
@@ -176,16 +251,20 @@ class RasterLayerRequest {
         // //
         this.rasterManager = rasterManager;
         this.heterogeneousGranules = rasterManager.heterogeneousGranules;
-        this.spatialRequestHelper = new SpatialRequestHelper();
+        this.heterogeneousCRS = rasterManager.heterogeneousCRS;
         CoverageProperties coverageProperties = new CoverageProperties();
-        coverageProperties.setBbox(rasterManager.spatialDomainManager.coverageBBox);
+        coverageProperties.setBBox(rasterManager.spatialDomainManager.coverageBBox);
         coverageProperties.setRasterArea(rasterManager.spatialDomainManager.coverageRasterArea);
-        coverageProperties.setFullResolution(rasterManager.spatialDomainManager.coverageFullResolution);
-        coverageProperties.setGridToWorld2D(rasterManager.spatialDomainManager.coverageGridToWorld2D);
+        coverageProperties.setFullResolution(
+                rasterManager.spatialDomainManager.coverageFullResolution);
+        coverageProperties.setGridToWorld2D(
+                rasterManager.spatialDomainManager.coverageGridToWorld2D);
         coverageProperties.setCrs2D(rasterManager.spatialDomainManager.coverageCRS2D);
-        coverageProperties.setGeographicBBox(rasterManager.spatialDomainManager.coverageGeographicBBox);
-        coverageProperties.setGeographicCRS2D(rasterManager.spatialDomainManager.coverageGeographicCRS2D);
-        spatialRequestHelper.setCoverageProperties(coverageProperties);
+        coverageProperties.setGeographicBBox(
+                rasterManager.spatialDomainManager.coverageGeographicBBox);
+        coverageProperties.setGeographicCRS2D(
+                rasterManager.spatialDomainManager.coverageGeographicCRS2D);
+        this.spatialRequestHelper = new SpatialRequestHelper(coverageProperties);
         setDefaultParameterValues();
 
         // //
@@ -203,6 +282,11 @@ class RasterLayerRequest {
             }
         }
 
+        checkAlternativeCRSIsSupported();
+        computeRequestedGridGeometry();
+        // re-compute bbox now tha we have the read params ready
+        coverageProperties.setBBox(computeCoverageBoundingBox(rasterManager));
+
         // //
         //
         // Set specific imageIO parameters: type of read operation,
@@ -211,229 +295,329 @@ class RasterLayerRequest {
         // //
         checkReadType();
         spatialRequestHelper.setAccurateResolution(accurateResolution);
-        spatialRequestHelper.prepare();
+        spatialRequestHelper.compute();
+    }
+
+    private void checkAlternativeCRSIsSupported() throws IOException {
+        if (heterogeneousCRS && useAlternativeCRS && requestedBounds != null) {
+            CoordinateReferenceSystem requestedCRS = requestedBounds.getCoordinateReferenceSystem();
+            Integer requestedEpsgCode = null;
+            try {
+                requestedEpsgCode = CRS.lookupEpsgCode(requestedCRS, false);
+            } catch (FactoryException e) {
+                throw new IOException(
+                        "Exception occurred while looking for an "
+                                + "epsgCode on the provided crs: "
+                                + requestedCRS,
+                        e);
+            }
+            // Enable alternative CRS Output support only when the requested CRS doesn't match
+            // the coverage's one. In that case, proceed with the standard approach
+            if (rasterManager.hasAlternativeCRS(requestedEpsgCode)
+                    && !CRS.equalsIgnoreMetadata(
+                            requestedCRS, spatialRequestHelper.getReferenceCRS(false))) {
+                // Initialize the alternativeCRS Output Coverage properties
+                spatialRequestHelper.setSupportingAlternativeCRSOutput(true);
+                CoverageProperties alternativeProperties = new CoverageProperties();
+                alternativeProperties.setCrs2D(requestedCRS);
+                alternativeProperties.setBBox(ReferencedEnvelope.reference(requestedBounds));
+                spatialRequestHelper.setAlternativeProperties(alternativeProperties);
+            } else {
+                // We can't support the alternative CRS so let's disable it
+                useAlternativeCRS = false;
+            }
+        }
+    }
+
+    private void computeRequestedGridGeometry() throws IOException {
+        if (requestedGridGeometry != null) {
+            if (heterogeneousCRS && !useAlternativeCRS) {
+                GridEnvelope2D paddedRange =
+                        new GridEnvelope2D(requestedGridGeometry.getGridRange2D());
+                paddedRange.setBounds(
+                        paddedRange.x - DEFAULT_PADDING,
+                        paddedRange.y - DEFAULT_PADDING,
+                        paddedRange.width + DEFAULT_PADDING * 2,
+                        paddedRange.height + DEFAULT_PADDING * 2);
+
+                GridGeometry2D padded =
+                        new GridGeometry2D(
+                                paddedRange,
+                                requestedGridGeometry.getGridToCRS(),
+                                requestedGridGeometry.getCoordinateReferenceSystem());
+                spatialRequestHelper.setRequestedGridGeometry(padded.toCanonical());
+            } else {
+                // Do not apply any padding if we are going to produce output in requested CRS.
+                // It will result in no reprojection
+                spatialRequestHelper.setRequestedGridGeometry(requestedGridGeometry.toCanonical());
+            }
+        }
+    }
+
+    protected ReferencedEnvelope computeCoverageBoundingBox(final RasterManager rasterManager)
+            throws IOException {
+        try {
+            ReferencedEnvelope queryBounds = null;
+            if (requestedBounds != null) {
+                try {
+                    ReferencedEnvelope re = ReferencedEnvelope.reference(requestedBounds);
+                    queryBounds =
+                            re.transform(rasterManager.spatialDomainManager.coverageCRS2D, true);
+                } catch (TransformException | FactoryException e) {
+                    LOGGER.log(
+                            Level.FINE,
+                            "Failed to reproject requested envelope in native, skipping spatial filter in output bounds computation",
+                            e);
+                }
+            }
+            MosaicQueryBuilder builder = new MosaicQueryBuilder(this, queryBounds);
+            Query query = builder.build();
+            query.setSortBy(null); // no need to actually sort on anything here
+            GranuleSource granules = rasterManager.getGranuleSource(true, null);
+            // ... load only the default geometry if possible
+            final GeometryDescriptor gd = granules.getSchema().getGeometryDescriptor();
+            if (gd != null) {
+                query.setPropertyNames(new String[] {gd.getLocalName()});
+            }
+            SimpleFeatureCollection features = granules.getGranules(query);
+            ReferencedEnvelope envelope = DataUtilities.bounds(features);
+            if (envelope != null && !envelope.isEmpty()) {
+                return envelope;
+            }
+        } catch (TransformException | FactoryException e) {
+            throw new IOException(e);
+        }
+
+        // fallback on cached bbox
+        return rasterManager.spatialDomainManager.coverageBBox;
     }
 
     private void setDefaultParameterValues() {
-        
-        // get the read parameters for this format plus the ones for the basic format and set them to the default
-    	final ParameterValueGroup readParams = this.rasterManager.parentReader.getFormat().getReadParameters();
-    	if (readParams == null) {
-    		if(LOGGER.isLoggable(Level.FINER))
-    			LOGGER.finer("No default values for the read parameters!");
-    		return;
-    	}
-    	final List<GeneralParameterDescriptor> parametersDescriptors = readParams.getDescriptor().descriptors();
-    	for(GeneralParameterDescriptor descriptor:parametersDescriptors){
-    		
-    		// we canc get the default vale only with the ParameterDescriptor class
-    		if(!(descriptor instanceof ParameterDescriptor))
-    			continue;
-    		
-    		// get name and default value
-    		final ParameterDescriptor desc=(ParameterDescriptor) descriptor;
-	    	final ReferenceIdentifier name = desc.getName();
-	    	final Object value= desc.getDefaultValue();
-	    	
-	        // //
-	        //
-	        // Requested GridGeometry2D parameter
-	        //
-	        // //
-	        if (descriptor.getName().equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName())) {
-	        	if (value == null)
-	        		continue;
-	            final GridGeometry2D gg = (GridGeometry2D)value;
-	            
-	            spatialRequestHelper.setRequestedGridGeometry(gg);
-	            continue;
-	        }
-	
-	        // //
-	        //
-	        // Use JAI ImageRead parameter
-	        //
-	        // //
-	        if (name.equals(AbstractGridFormat.USE_JAI_IMAGEREAD.getName())) {
-	        	if (value == null)
-	        		continue;
-	            readType = ((Boolean)value)? ReadType.JAI_IMAGEREAD: ReadType.DIRECT_READ;
-	            continue;
-	        }
-	
-	
-	        // //
-	        //
-	        // Overview Policy parameter
-	        //
-	        // //
-	        if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName())) {
-	            if (value == null)
-	                continue;
-	            overviewPolicy = (OverviewPolicy) value;
-	            continue;
-	        }
-	        
-	        // //
-                //
-                // Decimation Policy parameter
-                //
-                // //
-                if (name.equals(AbstractGridFormat.DECIMATION_POLICY.getName())) {
-                    if (value == null)
-                            continue;
-                    decimationPolicy = (DecimationPolicy) value;
+
+        // get the read parameters for this format plus the ones for the basic format and set them
+        // to the default
+        final ParameterValueGroup readParams =
+                this.rasterManager.parentReader.getFormat().getReadParameters();
+        if (readParams == null) {
+            if (LOGGER.isLoggable(Level.FINER))
+                LOGGER.finer("No default values for the read parameters!");
+            return;
+        }
+        final List<GeneralParameterDescriptor> parametersDescriptors =
+                readParams.getDescriptor().descriptors();
+        for (GeneralParameterDescriptor descriptor : parametersDescriptors) {
+
+            // we canc get the default vale only with the ParameterDescriptor class
+            if (!(descriptor instanceof ParameterDescriptor)) continue;
+
+            // get name and default value
+            final ParameterDescriptor desc = (ParameterDescriptor) descriptor;
+            final ReferenceIdentifier name = desc.getName();
+            final Object value = desc.getDefaultValue();
+
+            // //
+            //
+            // Requested GridGeometry2D parameter
+            //
+            // //
+            if (descriptor.getName().equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName())) {
+                if (value == null) continue;
+                final GridGeometry2D gg = (GridGeometry2D) value;
+
+                spatialRequestHelper.setRequestedGridGeometry(gg);
+                continue;
+            }
+
+            // //
+            //
+            // Use JAI ImageRead parameter
+            //
+            // //
+            if (name.equals(AbstractGridFormat.USE_JAI_IMAGEREAD.getName())) {
+                if (value == null) continue;
+                readType = ((Boolean) value) ? ReadType.JAI_IMAGEREAD : ReadType.DIRECT_READ;
+                continue;
+            }
+
+            // //
+            //
+            // Overview Policy parameter
+            //
+            // //
+            if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName())) {
+                if (value == null) continue;
+                overviewPolicy = (OverviewPolicy) value;
+                continue;
+            }
+
+            // //
+            //
+            // Decimation Policy parameter
+            //
+            // //
+            if (name.equals(AbstractGridFormat.DECIMATION_POLICY.getName())) {
+                if (value == null) continue;
+                decimationPolicy = (DecimationPolicy) value;
+                continue;
+            }
+
+            // //
+            //
+            // Interpolation parameter
+            //
+            // //
+            if (name.equals(ImageMosaicFormat.INTERPOLATION.getName())) {
+                if (value == null) {
                     continue;
                 }
-	
-                // //
-                //
-                // Interpolation parameter
-                //
-                // //
-                if (name.equals(ImageMosaicFormat.INTERPOLATION.getName())) {
-                    if (value == null) {
-                            continue;
-                    }
-                    interpolation = (Interpolation) value;
-                    continue;
-                }
-                
-                
-	        if (name.equals(AbstractGridFormat.INPUT_TRANSPARENT_COLOR.getName())) {
-	        	if(value==null)
-	        		continue;
-				inputTransparentColor = (Color) value;
-				// paranoiac check on the provided transparent color
-				inputTransparentColor = new Color(
-						inputTransparentColor.getRed(),
-						inputTransparentColor.getGreen(), 
-						inputTransparentColor.getBlue());
-				continue;
-	
-			} 
-	
-			if (name.equals(ImageMosaicFormat.FADING.getName())) {
-	        	if(value==null)
-	        		continue;
-				blend = ((Boolean) value).booleanValue();
-				continue;
-	
-			} 
-			if (name.equals(
-					ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.getName())) {
-	        	if(value==null)
-	        		continue;
-				outputTransparentColor = (Color) value;
-				// paranoiac check on the provided transparent color
-				outputTransparentColor = new Color(
-						outputTransparentColor.getRed(),
-						outputTransparentColor.getGreen(), 
-						outputTransparentColor.getBlue());
-				continue;
-	
-			}
-			
-			if (name.equals(
-					ImageMosaicFormat.BACKGROUND_VALUES.getName())) {
-	        	if(value==null)
-	        		continue;
-				backgroundValues = (double[]) value;
-				continue;
-	
-			}		
-		
-			if (name.equals(ImageMosaicFormat.MAX_ALLOWED_TILES.getName())) {
-	        	if(value==null)
-	        		continue;
-				maximumNumberOfGranules=(Integer)value;
-				continue;
-			}	 
-			
-			if (name.equals(ImageMosaicFormat.DEFAULT_ARTIFACTS_FILTER_THRESHOLD.getName())) {
-	                        if (value==null)
-	                                continue;
-	                        defaultArtifactsFilterThreshold =(Integer)value;
-	                        continue;
-	                }     
-			
-			if (name.equals(ImageMosaicFormat.ARTIFACTS_FILTER_PTILE_THRESHOLD.getName())) {
-                            if (value==null)
-                                    continue;
-                            artifactsFilterPTileThreshold =(Double)value;
-                            continue;
-                    }     
-			
-			
-			if (name.equals(ImageMosaicFormat.ALLOW_MULTITHREADING.getName())) {
-	        	if(value==null)
-	        		continue;
-				multithreadingAllowed = ((Boolean) value).booleanValue();
-				continue;
-			}	 	
-			
-            if (name.equals(ImageMosaicFormat.FOOTPRINT_BEHAVIOR.getName())) {
-                if (value == null)
-                    continue;
+                interpolation = (Interpolation) value;
+                continue;
+            }
+
+            if (name.equals(AbstractGridFormat.INPUT_TRANSPARENT_COLOR.getName())) {
+                if (value == null) continue;
+                inputTransparentColor = (Color) value;
+                // paranoiac check on the provided transparent color
+                inputTransparentColor =
+                        new Color(
+                                inputTransparentColor.getRed(),
+                                inputTransparentColor.getGreen(),
+                                inputTransparentColor.getBlue());
+                continue;
+            }
+
+            if (name.equals(ImageMosaicFormat.FADING.getName())) {
+                if (value == null) continue;
+                blend = ((Boolean) value).booleanValue();
+                continue;
+            }
+            if (name.equals(ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.getName())) {
+                if (value == null) continue;
+                outputTransparentColor = (Color) value;
+                // paranoiac check on the provided transparent color
+                outputTransparentColor =
+                        new Color(
+                                outputTransparentColor.getRed(),
+                                outputTransparentColor.getGreen(),
+                                outputTransparentColor.getBlue());
+                continue;
+            }
+
+            if (name.equals(ImageMosaicFormat.BACKGROUND_VALUES.getName())) {
+                if (value == null) continue;
+                backgroundValues = (double[]) value;
+                continue;
+            }
+
+            if (name.equals(ImageMosaicFormat.MAX_ALLOWED_TILES.getName())) {
+                if (value == null) continue;
+                maximumNumberOfGranules = (Integer) value;
+                continue;
+            }
+
+            if (name.equals(ImageMosaicFormat.DEFAULT_ARTIFACTS_FILTER_THRESHOLD.getName())) {
+                if (value == null) continue;
+                defaultArtifactsFilterThreshold = (Integer) value;
+                continue;
+            }
+
+            if (name.equals(ImageMosaicFormat.ARTIFACTS_FILTER_PTILE_THRESHOLD.getName())) {
+                if (value == null) continue;
+                artifactsFilterPTileThreshold = (Double) value;
+                continue;
+            }
+
+            if (name.equals(ImageMosaicFormat.VIRTUAL_NATIVE_RESOLUTION.getName())) {
+                if (value == null) continue;
+                virtualNativeResolution = (double[]) value;
+                return;
+            }
+
+            if (name.equals(ImageMosaicFormat.ALLOW_MULTITHREADING.getName())) {
+                if (value == null) continue;
+                multithreadingAllowed = ((Boolean) value).booleanValue();
+                continue;
+            }
+
+            if (name.equals(AbstractGridFormat.FOOTPRINT_BEHAVIOR.getName())) {
+                if (value == null) continue;
                 footprintBehavior = FootprintBehavior.valueOf((String) value);
                 continue;
             }
-			
-	       
-	        // //
-	        //
-	        // Suggested tile size parameter. It must be specified with
-	        // the syntax: "TileWidth,TileHeight" (without quotes where TileWidth
-	        // and TileHeight are integer values)
-	        //
-	        // //
-	        if (name.equals(AbstractGridFormat.SUGGESTED_TILE_SIZE.getName())) {
-	            final String suggestedTileSize = (String) value;
-	
-	            // Preliminary checks on parameter value
-	            if ((suggestedTileSize != null)
-	                    && (suggestedTileSize.trim().length() > 0)) {
-	
-	                if (suggestedTileSize
-	                        .contains(AbstractGridFormat.TILE_SIZE_SEPARATOR)) {
-	                    final String[] tilesSize = suggestedTileSize
-	                            .split(AbstractGridFormat.TILE_SIZE_SEPARATOR);
-	                    if (tilesSize.length == 2) {
-	                        try {
-	                            // Getting suggested tile size
-	                            final int tileWidth = Integer.valueOf(tilesSize[0] .trim());
-	                            final int tileHeight = Integer.valueOf(tilesSize[1].trim());
-	                            tileDimensions= new Dimension(tileWidth,tileHeight);
-	                        } catch (NumberFormatException nfe) {
-	                            if (LOGGER.isLoggable(Level.WARNING)) {
-	                                LOGGER.log(Level.WARNING, "Unable to parse "
-	                                        + "suggested tile size parameter");
-	                            }
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        
+
+            // //
+            //
+            // Suggested tile size parameter. It must be specified with
+            // the syntax: "TileWidth,TileHeight" (without quotes where TileWidth
+            // and TileHeight are integer values)
+            //
+            // //
+            if (name.equals(AbstractGridFormat.SUGGESTED_TILE_SIZE.getName())) {
+                final String suggestedTileSize = (String) value;
+
+                // Preliminary checks on parameter value
+                if ((suggestedTileSize != null) && (suggestedTileSize.trim().length() > 0)) {
+
+                    if (suggestedTileSize.contains(AbstractGridFormat.TILE_SIZE_SEPARATOR)) {
+                        final String[] tilesSize =
+                                suggestedTileSize.split(AbstractGridFormat.TILE_SIZE_SEPARATOR);
+                        if (tilesSize.length == 2) {
+                            try {
+                                // Getting suggested tile size
+                                final int tileWidth = Integer.valueOf(tilesSize[0].trim());
+                                final int tileHeight = Integer.valueOf(tilesSize[1].trim());
+                                tileDimensions = new Dimension(tileWidth, tileHeight);
+                            } catch (NumberFormatException nfe) {
+                                if (LOGGER.isLoggable(Level.WARNING)) {
+                                    LOGGER.log(
+                                            Level.WARNING,
+                                            "Unable to parse " + "suggested tile size parameter");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             if (name.equals(ImageMosaicFormat.ACCURATE_RESOLUTION.getName())) {
-                if (value == null)
-                    continue;
+                if (value == null) continue;
                 accurateResolution = ((Boolean) value).booleanValue();
                 return;
             }
-    	}
-		
-	}
 
-	/**
+            if (name.equals(ImageMosaicFormat.EXCESS_GRANULE_REMOVAL.getName())) {
+                if (value == null) continue;
+                excessGranuleRemovalPolicy = (ExcessGranulePolicy) value;
+                return;
+            }
+
+            if (name.equals(ImageMosaicFormat.GEOMETRY_MASK.getName())) {
+                if (value == null) continue;
+                geometryMask = (Geometry) value;
+                return;
+            }
+
+            if (name.equals(ImageMosaicFormat.MASKING_BUFFER_PIXELS.getName())) {
+                if (value == null) continue;
+                maskingBufferPixels = (Float) value;
+                continue;
+            }
+
+            if (name.equals(ImageMosaicFormat.SET_ROI_PROPERTY.getName())) {
+                if (value == null) continue;
+                setRoiProperty = ((Boolean) value).booleanValue();
+                continue;
+            }
+        }
+    }
+
+    /**
      * Set proper fields from the specified input parameter.
-     * 
-     * @param param
-     *                the input {@code ParamaterValue} object
-     * @param name
-     *                the name of the parameter
+     *
+     * @param param the input {@code ParamaterValue} object
+     * @param name the name of the parameter
      */
-	private void extractParameter(ParameterValue<?> param, Identifier name) {
+    private void extractParameter(ParameterValue<?> param, Identifier name) throws IOException {
 
         // //
         //
@@ -441,24 +625,28 @@ class RasterLayerRequest {
         //
         // //
         if (name.equals(AbstractGridFormat.READ_GRIDGEOMETRY2D.getName())) {
-        	final Object value = param.getValue();
-        	if (value == null)
-        		return;
-            final GridGeometry2D gg = (GridGeometry2D) value;
-            spatialRequestHelper.setRequestedGridGeometry(gg);
+            final Object value = param.getValue();
+            if (value == null) return;
+            this.requestedGridGeometry = (GridGeometry2D) value;
+            this.requestedBounds = requestedGridGeometry.getEnvelope2D();
             return;
         }
 
+        if (name.equals(ImageMosaicFormat.OUTPUT_TO_ALTERNATIVE_CRS.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            useAlternativeCRS = ((Boolean) value).booleanValue();
+            return;
+        }
         // //
         //
         // Use JAI ImageRead parameter
         //
         // //
         if (name.equals(AbstractGridFormat.USE_JAI_IMAGEREAD.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-            readType = param.booleanValue() ? ReadType.JAI_IMAGEREAD: ReadType.DIRECT_READ;
+            final Object value = param.getValue();
+            if (value == null) return;
+            readType = param.booleanValue() ? ReadType.JAI_IMAGEREAD : ReadType.DIRECT_READ;
             return;
         }
 
@@ -469,8 +657,7 @@ class RasterLayerRequest {
         // //
         if (name.equals(ImageMosaicFormat.SORT_BY.getName())) {
             final Object value = param.getValue();
-            if(value==null)
-                return;
+            if (value == null) return;
             sortClause = param.stringValue();
             return;
         }
@@ -482,8 +669,7 @@ class RasterLayerRequest {
         // //
         if (name.equals(ImageMosaicFormat.MERGE_BEHAVIOR.getName())) {
             final Object value = param.getValue();
-            if(value==null)
-                return;
+            if (value == null) return;
             mergeBehavior = MergeBehavior.valueOf(param.stringValue().toUpperCase());
             return;
         }
@@ -495,134 +681,134 @@ class RasterLayerRequest {
         // //
         if (name.equals(AbstractGridFormat.OVERVIEW_POLICY.getName())) {
             final Object value = param.getValue();
-            if (value == null)
-                return;
+            if (value == null) return;
             overviewPolicy = (OverviewPolicy) value;
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Requested OverviewPolicy: " + overviewPolicy);
+            }
             return;
         }
-        
+
         // //
         //
         // Decimation Policy parameter
         //
         // //
         if (name.equals(AbstractGridFormat.DECIMATION_POLICY.getName())) {
-                final Object value = param.getValue();
-                if(value==null)
-                        return;
+            final Object value = param.getValue();
+            if (value == null) return;
             decimationPolicy = (DecimationPolicy) value;
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Requested DecimationPolicy: " + decimationPolicy);
+            }
             return;
         }
-        
+
         // //
         //
         // Interpolation parameter
         //
         // //
         if (name.equals(ImageMosaicFormat.INTERPOLATION.getName())) {
-                final Object value = param.getValue();
-                if(value==null)
-                        return;
+            final Object value = param.getValue();
+            if (value == null) return;
             interpolation = (Interpolation) value;
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Requested interpolation: " + interpolation);
+            }
             return;
         }
 
         if (name.equals(AbstractGridFormat.INPUT_TRANSPARENT_COLOR.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-			inputTransparentColor = (Color) value;
-			// paranoiac check on the provided transparent color
-			inputTransparentColor = new Color(
-					inputTransparentColor.getRed(),
-					inputTransparentColor.getGreen(), 
-					inputTransparentColor.getBlue());
-			return;
-
-		} 
-
-		if (name.equals(ImageMosaicFormat.FADING.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-			blend = ((Boolean) value).booleanValue();
-			return;
-
-		} 
-		if (name.equals(
-				ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-			outputTransparentColor = (Color) value;
-			// paranoiac check on the provided transparent color
-			outputTransparentColor = new Color(
-					outputTransparentColor.getRed(),
-					outputTransparentColor.getGreen(), 
-					outputTransparentColor.getBlue());
-			return;
-
-		}
-		
-		if (name.equals(
-				ImageMosaicFormat.BACKGROUND_VALUES.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-			backgroundValues = (double[]) value;
-			return;
-
-		}		
-	
-		if (name.equals(ImageMosaicFormat.MAX_ALLOWED_TILES.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-			maximumNumberOfGranules=param.intValue();
-			return;
-		}	 
-		
-		if (name.equals(ImageMosaicFormat.DEFAULT_ARTIFACTS_FILTER_THRESHOLD.getName())) {
-		        final Object value = param.getValue();
-	                if(value==null)
-	                        return;
-	                defaultArtifactsFilterThreshold = param.intValue();
-	                return;
-	        }
-		
-		if (name.equals(ImageMosaicFormat.ARTIFACTS_FILTER_PTILE_THRESHOLD.getName())) {
-                    final Object value = param.getValue();
-                    if(value==null)
-                            return;
-                    artifactsFilterPTileThreshold = param.doubleValue();
-                    return;
-                }
-		
-		if (name.equals(ImageMosaicFormat.ALLOW_MULTITHREADING.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
-			multithreadingAllowed = ((Boolean) value).booleanValue();
-			return;
-		}	 	
-		
-        if (name.equals(ImageMosaicFormat.FOOTPRINT_BEHAVIOR.getName())) {
             final Object value = param.getValue();
-            if (value == null)
-                return;
+            if (value == null) return;
+            inputTransparentColor = (Color) value;
+            // paranoiac check on the provided transparent color
+            inputTransparentColor =
+                    new Color(
+                            inputTransparentColor.getRed(),
+                            inputTransparentColor.getGreen(),
+                            inputTransparentColor.getBlue());
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.FADING.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            blend = ((Boolean) value).booleanValue();
+            return;
+        }
+        if (name.equals(ImageMosaicFormat.OUTPUT_TRANSPARENT_COLOR.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            outputTransparentColor = (Color) value;
+            // paranoiac check on the provided transparent color
+            outputTransparentColor =
+                    new Color(
+                            outputTransparentColor.getRed(),
+                            outputTransparentColor.getGreen(),
+                            outputTransparentColor.getBlue());
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.BACKGROUND_VALUES.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            backgroundValues = (double[]) value;
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.MAX_ALLOWED_TILES.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            maximumNumberOfGranules = param.intValue();
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.DEFAULT_ARTIFACTS_FILTER_THRESHOLD.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            defaultArtifactsFilterThreshold = param.intValue();
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.ARTIFACTS_FILTER_PTILE_THRESHOLD.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            artifactsFilterPTileThreshold = param.doubleValue();
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.VIRTUAL_NATIVE_RESOLUTION.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            virtualNativeResolution = (double[]) value;
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.ALLOW_MULTITHREADING.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            multithreadingAllowed = ((Boolean) value).booleanValue();
+            return;
+        }
+
+        if (name.equals(AbstractGridFormat.FOOTPRINT_BEHAVIOR.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
             footprintBehavior = FootprintBehavior.valueOf((String) value);
             return;
         }
-		
+
         if (name.equals(ImageMosaicFormat.ACCURATE_RESOLUTION.getName())) {
             final Object value = param.getValue();
             if (value == null) {
-                    return;
+                return;
             }
             accurateResolution = ((Boolean) value).booleanValue();
             return;
-        } 
-       
+        }
+
         // //
         //
         // Suggested tile size parameter. It must be specified with
@@ -634,60 +820,57 @@ class RasterLayerRequest {
             final String suggestedTileSize = (String) param.getValue();
 
             // Preliminary checks on parameter value
-            if ((suggestedTileSize != null)
-                    && (suggestedTileSize.trim().length() > 0)) {
+            if ((suggestedTileSize != null) && (suggestedTileSize.trim().length() > 0)) {
 
-                if (suggestedTileSize
-                        .contains(AbstractGridFormat.TILE_SIZE_SEPARATOR)) {
-                    final String[] tilesSize = suggestedTileSize
-                            .split(AbstractGridFormat.TILE_SIZE_SEPARATOR);
+                if (suggestedTileSize.contains(AbstractGridFormat.TILE_SIZE_SEPARATOR)) {
+                    final String[] tilesSize =
+                            suggestedTileSize.split(AbstractGridFormat.TILE_SIZE_SEPARATOR);
                     if (tilesSize.length == 2) {
                         try {
                             // Getting suggested tile size
-                            final int tileWidth = Integer.valueOf(tilesSize[0] .trim());
+                            final int tileWidth = Integer.valueOf(tilesSize[0].trim());
                             final int tileHeight = Integer.valueOf(tilesSize[1].trim());
-                            tileDimensions = new Dimension(tileWidth,tileHeight);
+                            tileDimensions = new Dimension(tileWidth, tileHeight);
                         } catch (NumberFormatException nfe) {
                             if (LOGGER.isLoggable(Level.WARNING)) {
-                                LOGGER.log(Level.WARNING, "Unable to parse "
-                                        + "suggested tile size parameter");
+                                LOGGER.log(
+                                        Level.WARNING,
+                                        "Unable to parse " + "suggested tile size parameter");
                             }
                         }
                     }
                 }
             }
-        }		
-        
+        }
+
         // //
         //
         // Time parameter
         //
         // //
         if (name.equals(ImageMosaicFormat.TIME.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
+            final Object value = param.getValue();
+            if (value == null) return;
             final List<?> dates = (List<?>) value;
-            if (dates==null|| dates.size()<=0) {
+            if (dates == null || dates.size() <= 0) {
                 return;
             }
 
-            requestedTimes=dates;
+            requestedTimes = dates;
             return;
-        }      
-        
+        }
+
         //
         //
         // Elevation parameter
         //
         // //
         if (name.equals(ImageMosaicFormat.ELEVATION.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
+            final Object value = param.getValue();
+            if (value == null) return;
             elevation = (List<?>) value;
             return;
-        }            
+        }
 
         // //
         //
@@ -695,12 +878,11 @@ class RasterLayerRequest {
         //
         // //
         if (name.equals(ImageMosaicFormat.FILTER.getName())) {
-        	final Object value = param.getValue();
-        	if(value==null)
-        		return;
+            final Object value = param.getValue();
+            if (value == null) return;
             filter = (Filter) value;
             return;
-        }            
+        }
 
         // //
         //
@@ -708,42 +890,78 @@ class RasterLayerRequest {
         //
         // //
         String paramName = name.getCode();
-        if (rasterManager.domainsManager != null && rasterManager.domainsManager.isParameterSupported(name)) {
+        if (rasterManager.domainsManager != null
+                && rasterManager.domainsManager.isParameterSupported(name)) {
             final Object value = param.getValue();
-            if (value == null){
+            if (value == null) {
                 return;
             }
             if (value instanceof List) {
                 List values = (List) value; // we are assuming it is a list !!!
                 // remove last comma
                 requestedAdditionalDomains.put(paramName, values);
-                               
             }
+            return;
+        }
+
+        // setup the the bands parameter which defines the order and the bands that should be
+        // returned
+        if (name.equals(ImageMosaicFormat.BANDS.getName())) {
+            // if the parameter is NULL no problem
+            bands = (int[]) param.getValue();
+        }
+
+        // see if we have to perform excess granule removal
+        if (name.equals(ImageMosaicFormat.EXCESS_GRANULE_REMOVAL.getName())) {
+            final Object value = param.getValue();
+            if (value == null) {
+                return;
+            }
+            excessGranuleRemovalPolicy = (ExcessGranulePolicy) value;
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.GEOMETRY_MASK.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            geometryMask = (Geometry) value;
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.MASKING_BUFFER_PIXELS.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            maskingBufferPixels = (double) param.doubleValue();
+            return;
+        }
+
+        if (name.equals(ImageMosaicFormat.SET_ROI_PROPERTY.getName())) {
+            final Object value = param.getValue();
+            if (value == null) return;
+            setRoiProperty = ((Boolean) value).booleanValue();
+            return;
+        }
+
+        if (name.equals(AbstractGridFormat.RESCALE_PIXELS.getName())) {
+            rescalingEnabled = Boolean.TRUE.equals(param.getValue());
             return;
         }
     }
 
-    /**
-     * @return the accurateResolution
-     */
+    /** @return the accurateResolution */
     public boolean isAccurateResolution() {
         return accurateResolution;
     }
 
-    /**
-     * @param accurateResolution the accurateResolution to set
-     */
+    /** @param accurateResolution the accurateResolution to set */
     public void setAccurateResolution(boolean accurateResolution) {
         this.accurateResolution = accurateResolution;
-    }            
+    }
 
-	/**
-     * Check the type of read operation which will be performed and return
-     * {@code true} if a JAI imageRead operation need to be performed or
-     * {@code false} if a simple read operation is needed.
-     * 
-     * @return {@code true} if the read operation will use a JAI ImageRead
-     *         operation instead of a simple {@code ImageReader.read(...)} call.
+    /**
+     * Check the type of read operation which will be performed and return {@code true} if a JAI
+     * imageRead operation need to be performed or {@code false} if a simple read operation is
+     * needed.
      */
     private void checkReadType() {
         // //
@@ -752,8 +970,7 @@ class RasterLayerRequest {
         // request parameters
         //
         // //
-        if (readType != ReadType.UNSPECIFIED)
-            return ;
+        if (readType != ReadType.UNSPECIFIED) return;
 
         // //
         //
@@ -761,11 +978,11 @@ class RasterLayerRequest {
         // hints.
         //
         // //
-        final Hints hints=rasterManager.getHints();
+        final Hints hints = rasterManager.getHints();
         if (hints != null) {
             final Object o = hints.get(Hints.USE_JAI_IMAGEREAD);
             if (o != null) {
-            	readType=(ReadType) o;
+                readType = (ReadType) o;
             }
         }
 
@@ -777,42 +994,51 @@ class RasterLayerRequest {
         readType = ReadType.getDefault();
     }
 
-	public Color getInputTransparentColor() {
-		return inputTransparentColor;
-	}
+    public double[] getVirtualNativeResolution() {
+        return virtualNativeResolution;
+    }
 
-	public Color getOutputTransparentColor() {
-		return outputTransparentColor;
-	}
+    public Color getInputTransparentColor() {
+        return inputTransparentColor;
+    }
 
-	public int getMaximumNumberOfGranules() {
-		return maximumNumberOfGranules;
-	}
-	
-	public FootprintBehavior getFootprintBehavior() {
-            return footprintBehavior;
+    public Color getOutputTransparentColor() {
+        return outputTransparentColor;
+    }
+
+    public int getMaximumNumberOfGranules() {
+        return maximumNumberOfGranules;
+    }
+
+    public FootprintBehavior getFootprintBehavior() {
+        return footprintBehavior;
     }
 
     public int getDefaultArtifactsFilterThreshold() {
         return defaultArtifactsFilterThreshold;
     }
 
+    void setFootprintBehavior(FootprintBehavior footprintBehavior) {
+        this.footprintBehavior = footprintBehavior;
+    }
+
     public double getArtifactsFilterPTileThreshold() {
         return artifactsFilterPTileThreshold;
     }
-	public boolean isBlend() {
-		return blend;
-	}
-	
-	public ReadType getReadType() {
-		return readType;
-	}
 
-	public double[] getBackgroundValues() {
-		return backgroundValues;
-	}
+    public boolean isBlend() {
+        return blend;
+    }
 
-	public void setInterpolation(Interpolation interpolation) {
+    public ReadType getReadType() {
+        return readType;
+    }
+
+    public double[] getBackgroundValues() {
+        return backgroundValues;
+    }
+
+    public void setInterpolation(Interpolation interpolation) {
         this.interpolation = interpolation;
     }
 
@@ -820,18 +1046,9 @@ class RasterLayerRequest {
         return interpolation;
     }
 
-	public Dimension getTileDimensions() {
-		return tileDimensions;
-	}
-	
-	@Override
-	public String toString() {
-		final StringBuilder builder= new StringBuilder();
-		builder.append("RasterLayerRequest description: \n");
-		builder.append(spatialRequestHelper).append("\n");
-		builder.append("\tReadType=").append(readType);
-		return builder.toString();
-	}
+    public Dimension getTileDimensions() {
+        return tileDimensions;
+    }
 
     public MergeBehavior getMergeBehavior() {
         return mergeBehavior;
@@ -844,5 +1061,45 @@ class RasterLayerRequest {
     public boolean isEmpty() {
         return spatialRequestHelper.isEmpty();
     }
-   
+
+    public int[] getBands() {
+        return bands;
+    }
+
+    public Geometry getGeometryMask() {
+        return geometryMask;
+    }
+
+    public void setGeometryMask(Geometry geometryMask) {
+        this.geometryMask = geometryMask;
+    }
+
+    public double getMaskingBufferPixels() {
+        return maskingBufferPixels;
+    }
+
+    public void setMaskingBufferPixels(double maskingBufferPixels) {
+        this.maskingBufferPixels = maskingBufferPixels;
+    }
+
+    public boolean isSetRoiProperty() {
+        return setRoiProperty;
+    }
+
+    public void setSetRoiProperty(boolean setRoiProperty) {
+        this.setRoiProperty = setRoiProperty;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("RasterLayerRequest description: \n");
+        builder.append(spatialRequestHelper).append("\n");
+        builder.append("\tReadType=").append(readType);
+        return builder.toString();
+    }
+
+    public boolean isRescalingEnabled() {
+        return rescalingEnabled;
+    }
 }

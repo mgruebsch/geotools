@@ -13,6 +13,7 @@
 
 import sys, os
 import re
+import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -23,7 +24,16 @@ import re
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.todo']
+extensions = ['sphinx.ext.todo','sphinx.ext.extlinks']
+
+extlinks = { 
+    'wiki': ('https://github.com/geotools/geotools/wiki/%s',''),
+    'website': ('http://geotools.org/%s',''),
+    'geoserver': ('http://docs.geoserver.org/latest/en/user/%s',''),
+    'developer': ('http://docs.geotools.org/latest/developer/%s',''),
+    'user': ('http://docs.geotools.org/latest/userguide/%s',''),
+    'geot': ('https://osgeo-org.atlassian.net/browse/GEOT-%s','GEOT-')
+}
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
@@ -38,18 +48,24 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # exclude
-exclude_patterns = ['**/.svn']
+exclude_patterns = ['**/.gitignore']
 
 # General information about the project.
 project = u'GeoTools'
-copyright = u'2012, GeoTools'
+
+#Current year
+now = datetime.datetime.now()
+year = now.year
+
+#Copyright
+copyright = u'{} Open Source Geospatial Foundation'.format(year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = '10-SNAPSHOT'
+release = '25-SNAPSHOT'
 
 # The short X.Y version.
 version = release
@@ -96,6 +112,11 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Spelling options
+
+spelling_lang='en_US'
+spelling_show_suggestions=True
+spelling_word_list_filename='./spelling/local.dict'
 
 # -- Options for HTML output ---------------------------------------------------
 

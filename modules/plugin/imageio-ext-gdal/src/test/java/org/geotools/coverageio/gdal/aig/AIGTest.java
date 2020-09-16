@@ -23,17 +23,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
-
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
-
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.GridFormatFactorySpi;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverageio.gdal.BaseGDALGridCoverage2DReader;
 import org.geotools.coverageio.gdal.GDALTestCase;
-import org.geotools.factory.Hints;
 import org.geotools.test.TestData;
+import org.geotools.util.factory.Hints;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
@@ -43,25 +41,14 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @author Andrea Antonello (www.hydrologis.com)
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
- * 
- * Testing {@link IDRISIReader}
- *
- *
- *
- * @source $URL$
+ *     <p>Testing {@link IDRISIReader}
  */
 public final class AIGTest extends GDALTestCase {
-     /**
-     * file name of a valid AIG sample data to be used for tests.
-     */
-//     private final static String fileName = "abc3x1/hdr.adf";
-     private final static String fileName = "hdr.adf";
+    /** file name of a valid AIG sample data to be used for tests. */
+    //     private final static String fileName = "abc3x1/hdr.adf";
+    private static final String fileName = "hdr.adf";
 
-    /**
-     * Creates a new instance of {@code IDRISIReader}
-     * 
-     * @param name
-     */
+    /** Creates a new instance of {@code IDRISIReader} */
     public AIGTest() {
         super("Aig", new AIGFormatFactory());
     }
@@ -95,7 +82,7 @@ public final class AIGTest extends GDALTestCase {
         final Object source = url;
         final BaseGDALGridCoverage2DReader reader = new AIGReader(source, hints);
         checkReader(reader);
-        
+
         // Testing the getSource method
         Assert.assertEquals(reader.getSource(), source);
 
@@ -120,7 +107,7 @@ public final class AIGTest extends GDALTestCase {
         boolean found = false;
         GridFormatFactorySpi fac = null;
 
-        while( list.hasNext() ) {
+        while (list.hasNext()) {
             fac = (GridFormatFactorySpi) list.next();
 
             if (fac instanceof AIGFormatFactory) {

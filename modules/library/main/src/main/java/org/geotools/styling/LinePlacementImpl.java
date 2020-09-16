@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -17,32 +17,29 @@
 package org.geotools.styling;
 
 import java.util.logging.Logger;
-
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.factory.GeoTools;
 import org.geotools.util.Utilities;
+import org.geotools.util.factory.GeoTools;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
 import org.opengis.util.Cloneable;
-
 
 /**
  * Default implementation of LinePlacement.
  *
  * @author Ian Turton, CCG
  * @author Johann Sorel (Geomatys)
- *
- *
- * @source $URL$
  * @version $Id$
  */
 public class LinePlacementImpl implements LinePlacement, Cloneable {
     /** The logger for the default core module. */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.core");
+    private static final Logger LOGGER =
+            org.geotools.util.logging.Logging.getLogger(LinePlacementImpl.class);
+
     private FilterFactory filterFactory;
-    
-    private Expression perpendicularOffset;    
+
+    private Expression perpendicularOffset;
     private boolean generalized;
     private boolean aligned;
     private boolean repeated;
@@ -50,7 +47,7 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
     private Expression initialGap;
 
     public LinePlacementImpl() {
-        this( CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
+        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
     }
 
     public LinePlacementImpl(org.opengis.style.LinePlacement placement) {
@@ -59,14 +56,20 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
         this.generalized = placement.isGeneralizeLine();
         this.perpendicularOffset = placement.getPerpendicularOffset();
         this.repeated = placement.isRepeated();
-        this.aligned = placement.IsAligned();
+        this.aligned = placement.isAligned();
     }
-    
+
     public LinePlacementImpl(FilterFactory factory) {
-        this(factory,false,false,false, null,null);
+        this(factory, false, false, false, null, null);
     }
-    
-    public LinePlacementImpl(FilterFactory factory,boolean aligned, boolean repeated, boolean generalized, Expression gap, Expression initialGap) {
+
+    public LinePlacementImpl(
+            FilterFactory factory,
+            boolean aligned,
+            boolean repeated,
+            boolean generalized,
+            Expression gap,
+            Expression initialGap) {
         filterFactory = factory;
         this.gap = gap;
         this.initialGap = initialGap;
@@ -76,15 +79,7 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
         init();
     }
 
-    @Deprecated
-    public void setFilterFactory(FilterFactory factory) {
-        filterFactory = factory;
-        init();
-    }
-
-    /**
-     * Creates a new instance of DefaultLinePlacement
-     */
+    /** Creates a new instance of DefaultLinePlacement */
     private void init() {
         try {
             perpendicularOffset = filterFactory.literal(0);
@@ -123,26 +118,22 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
         return repeated;
     }
 
-    public boolean IsAligned() {
-        return aligned;
-    }
-
     public boolean isAligned() {
         return aligned;
     }
-    
+
     public boolean isGeneralizeLine() {
         return generalized;
     }
 
     public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this,data);
+        return visitor.visit(this, data);
     }
 
     public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
-    
+
     /* (non-Javadoc)
      * @see Cloneable#clone()
      */
@@ -165,13 +156,12 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
         if (obj instanceof LinePlacementImpl) {
             LinePlacementImpl other = (LinePlacementImpl) obj;
 
-            return 
-                Utilities.equals(perpendicularOffset,other.perpendicularOffset)
-                && Utilities.equals(repeated,other.repeated)
-                && Utilities.equals(generalized,other.generalized)
-                && Utilities.equals(aligned,other.aligned)
-                && Utilities.equals(initialGap,other.initialGap)
-                && Utilities.equals(gap,other.gap);
+            return Utilities.equals(perpendicularOffset, other.perpendicularOffset)
+                    && Utilities.equals(repeated, other.repeated)
+                    && Utilities.equals(generalized, other.generalized)
+                    && Utilities.equals(aligned, other.aligned)
+                    && Utilities.equals(initialGap, other.initialGap)
+                    && Utilities.equals(gap, other.gap);
         }
 
         return false;
@@ -187,31 +177,29 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
         if (perpendicularOffset != null) {
             result = (result * PRIME) + perpendicularOffset.hashCode();
         }
-        
+
         if (gap != null) {
             result = (result * PRIME) + gap.hashCode();
         }
-        
+
         if (initialGap != null) {
             result = (result * PRIME) + initialGap.hashCode();
         }
-        
-        result = (result * PRIME) + new Boolean(generalized).hashCode();
-        result = (result * PRIME) + new Boolean(aligned).hashCode();
-        result = (result * PRIME) + new Boolean(repeated).hashCode();
-        
+
+        result = (result * PRIME) + Boolean.valueOf(generalized).hashCode();
+        result = (result * PRIME) + Boolean.valueOf(aligned).hashCode();
+        result = (result * PRIME) + Boolean.valueOf(repeated).hashCode();
+
         return result;
     }
 
     static LinePlacementImpl cast(org.opengis.style.LabelPlacement placement) {
-        if( placement == null ){
+        if (placement == null) {
             return null;
-        }
-        else if (placement instanceof LinePlacementImpl){
+        } else if (placement instanceof LinePlacementImpl) {
             return (LinePlacementImpl) placement;
-        }
-        else if (placement instanceof LinePlacement){
-            LinePlacementImpl copy = new LinePlacementImpl( (LinePlacement)placement );
+        } else if (placement instanceof LinePlacement) {
+            LinePlacementImpl copy = new LinePlacementImpl((LinePlacement) placement);
             return copy;
         }
         return null;
@@ -235,5 +223,5 @@ public class LinePlacementImpl implements LinePlacement, Cloneable {
 
     public void setInitialGap(Expression initialGap) {
         this.initialGap = initialGap;
-    }   
+    }
 }

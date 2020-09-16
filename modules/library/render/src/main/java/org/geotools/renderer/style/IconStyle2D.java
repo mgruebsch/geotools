@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -17,21 +17,14 @@
 package org.geotools.renderer.style;
 
 import java.awt.Composite;
-import java.awt.geom.AffineTransform;
-
 import javax.swing.Icon;
 
 /**
  * Represents a {@link Style2D} backed by an {@link Icon}
- * 
+ *
  * @author milton
- *
- *
- * @source $URL$
  */
-public class IconStyle2D extends Style2D {
-    private static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
-
+public class IconStyle2D extends Style2D implements PointStyle2D {
     private Icon icon;
 
     private float rotation;
@@ -42,67 +35,47 @@ public class IconStyle2D extends Style2D {
 
     private float displacementY;
 
-    /**
-     * Constructor.
-     * 
-     * @param renderer
-     *            GlyphRenderer to be used for rendering this GlyphStyle2D
-     * @param graphic
-     *            Graphic for defining the glyph.
-     * @param externalGraphic
-     *            ExternalGraphic for defining the glyph.
-     * @param The
-     *            rotation of the icon
-     * @param The
-     *            opacity of the icon
-     */
-    public IconStyle2D(Icon icon, Object feature, float displacementX, float displacementY,
-            float rotation, Composite composite) {
+    private float anchorPointX = 0.5f;
+
+    private float anchorPointY = 0.5f;
+
+    public IconStyle2D(
+            Icon icon, Object feature, float displacementX, float displacementY, float rotation) {
         this.icon = icon;
         this.rotation = rotation;
-        this.composite = composite;
         this.displacementX = displacementX;
         this.displacementY = displacementY;
     }
 
+    public IconStyle2D(Icon icon, Object feature) {
+        this.icon = icon;
+    }
+
     /**
      * The Icon rotation, in radians.
-     * 
+     *
      * @return icon rotation, in radians.
      */
     public float getRotation() {
         return rotation;
     }
 
-    /**
-     * The icon composite
-     * @return
-     */
+    /** The icon composite */
     public Composite getComposite() {
         return composite;
     }
 
-    /**
-     * The icon x displacement
-     * @return
-     */
+    /** The icon x displacement */
     public float getDisplacementX() {
         return displacementX;
     }
 
-    /**
-     * The icon y displacement
-     * @return
-     */
+    /** The icon y displacement */
     public float getDisplacementY() {
         return displacementY;
     }
 
-    /**
-     * Returns the icon backing this style
-     * 
-     * @return
-     */
+    /** Returns the icon backing this style */
     public Icon getIcon() {
         return icon;
     }
@@ -125,5 +98,21 @@ public class IconStyle2D extends Style2D {
 
     public void setDisplacementY(float displacementY) {
         this.displacementY = displacementY;
+    }
+
+    public float getAnchorPointX() {
+        return anchorPointX;
+    }
+
+    public void setAnchorPointX(float anchorPointX) {
+        this.anchorPointX = anchorPointX;
+    }
+
+    public float getAnchorPointY() {
+        return anchorPointY;
+    }
+
+    public void setAnchorPointY(float anchorPointY) {
+        this.anchorPointY = anchorPointY;
     };
 }

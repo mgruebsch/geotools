@@ -17,17 +17,10 @@
 package org.geotools.gml2.bindings;
 
 import org.geotools.gml2.GML;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.w3c.dom.Document;
 
-import com.vividsolutions.jts.geom.MultiPolygon;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLMultiPolygonTypeBinding2Test extends GMLTestSupport {
     public void testType() {
         assertEquals(MultiPolygon.class, binding(GML.MultiPolygonType).getType());
@@ -47,7 +40,9 @@ public class GMLMultiPolygonTypeBinding2Test extends GMLTestSupport {
     public void testEncode() throws Exception {
         Document doc = encode(GML2MockData.multiPolygon(), GML.MultiPolygon);
 
-        assertEquals(2,
-            doc.getElementsByTagNameNS(GML.NAMESPACE, GML.polygonMember.getLocalPart()).getLength());
+        assertEquals(
+                2,
+                doc.getElementsByTagNameNS(GML.NAMESPACE, GML.polygonMember.getLocalPart())
+                        .getLength());
     }
 }

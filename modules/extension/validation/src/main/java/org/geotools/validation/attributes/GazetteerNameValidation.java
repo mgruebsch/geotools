@@ -18,14 +18,11 @@ package org.geotools.validation.attributes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.geotools.validation.DefaultFeatureValidation;
 import org.geotools.validation.ValidationResults;
 import org.opengis.feature.simple.SimpleFeature;
@@ -36,36 +33,25 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-
 /**
  * GazetteerNameValidation purpose.
- * 
- * <p>
- * Description of GazetteerNameValidation ...
- * </p>
- * 
- * <p>
- * Capabilities:
- * </p>
- * 
+ *
+ * <p>Description of GazetteerNameValidation ...
+ *
+ * <p>Capabilities:
+ *
  * <ul>
- * <li>
- * Feature: description
- * </li>
+ *   <li>Feature: description
  * </ul>
- * 
- * <p>
- * Example Use:
- * </p>
+ *
+ * <p>Example Use:
+ *
  * <pre><code>
  * GazetteerNameValidation x = new GazetteerNameValidation(...);
  * </code></pre>
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- *
- *
- * @source $URL$
  * @version $Id$
  */
 public class GazetteerNameValidation extends DefaultFeatureValidation {
@@ -77,17 +63,16 @@ public class GazetteerNameValidation extends DefaultFeatureValidation {
 
     /**
      * GazetteerNameValidation constructor.
-     * 
-     * <p>
-     * Does nothing
-     * </p>
+     *
+     * <p>Does nothing
      */
     public GazetteerNameValidation() {
         super();
 
         try {
-            gazetteer = new URL(
-                    "http://cgdi-dev.geoconnections.org/cgi-bin/prototypes/cgdigaz/cgdigaz.cgi?version=1.0&request=GetPlacenameGeometry&wildcards=false&geomtype=bbox");
+            gazetteer =
+                    new URL(
+                            "http://cgdi-dev.geoconnections.org/cgi-bin/prototypes/cgdigaz/cgdigaz.cgi?version=1.0&request=GetPlacenameGeometry&wildcards=false&geomtype=bbox");
         } catch (MalformedURLException e) {
         }
     }
@@ -95,17 +80,13 @@ public class GazetteerNameValidation extends DefaultFeatureValidation {
     /**
      * Implementation of validate.
      *
-     * @param feature
-     * @param type
-     * @param results
-     *
-     *
      * @see org.geotools.validation.FeatureValidation#validate(org.geotools.feature.Feature,
-     *      org.geotools.feature.FeatureType,
-     *      org.geotools.validation.ValidationResults)
+     *     org.geotools.feature.FeatureType, org.geotools.validation.ValidationResults)
      */
-    public boolean validate(SimpleFeature feature, SimpleFeatureType type,
-        ValidationResults results) { // throws Exception {
+    public boolean validate(
+            SimpleFeature feature,
+            SimpleFeatureType type,
+            ValidationResults results) { // throws Exception {
 
         String place = (String) feature.getAttribute(attributeName);
         URL gazetteerURL = null;
@@ -118,63 +99,61 @@ public class GazetteerNameValidation extends DefaultFeatureValidation {
             return false;
         }
 
-        InputStream gazetteerInputStream = null;
-
         try {
-            HttpURLConnection gazetteerConnection = (HttpURLConnection) gazetteerURL
-                .openConnection();
+            HttpURLConnection gazetteerConnection =
+                    (HttpURLConnection) gazetteerURL.openConnection();
 
             if (!("OK".equals(gazetteerConnection.getResponseMessage()))) {
-                results.error(feature,
-                    "An error occured creating the connection to the Gazetteer.");
+                results.error(
+                        feature, "An error occured creating the connection to the Gazetteer.");
             }
 
-            gazetteerInputStream = gazetteerConnection.getInputStream();
+            try (BufferedReader reader =
+                    new BufferedReader(
+                            new InputStreamReader(gazetteerConnection.getInputStream()))) {
+                InputSource gazetteerInputSource = new InputSource(reader);
+                DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+                dfactory.setNamespaceAware(true);
+
+                // TODO turn on validation
+                dfactory.setValidating(false);
+                dfactory.setIgnoringComments(true);
+                dfactory.setCoalescing(true);
+                dfactory.setIgnoringElementContentWhitespace(true);
+
+                Document serviceDoc = null;
+
+                try {
+                    serviceDoc = dfactory.newDocumentBuilder().parse(gazetteerInputSource);
+                } catch (Exception e) {
+                    results.error(feature, e.toString());
+                    return false;
+                }
+
+                Element elem = serviceDoc.getDocumentElement();
+
+                // elem == SimpleFeatureCollection at this point
+                elem = getChildElement(elem, "queryInfo");
+
+                if (elem == null) {
+                    results.error(feature, "Invalid DOM tree returned by gazetteer.");
+                    return false;
+                }
+
+                // this number is the number of instances found.
+                int number = Integer.parseInt(getChildText(elem, "numberOfResults"));
+
+                return number > 0;
+            }
         } catch (IOException e) {
             results.error(feature, e.toString());
 
             return false;
         }
-
-        InputStreamReader gazetteerInputStreamReader = new InputStreamReader(gazetteerInputStream);
-        BufferedReader gazetteerBufferedReader = new BufferedReader(gazetteerInputStreamReader);
-
-        InputSource gazetteerInputSource = new InputSource(gazetteerBufferedReader);
-        DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
-        dfactory.setNamespaceAware(true);
-
-        // TODO turn on validation
-        dfactory.setValidating(false);
-        dfactory.setIgnoringComments(true);
-        dfactory.setCoalescing(true);
-        dfactory.setIgnoringElementContentWhitespace(true);
-
-        Document serviceDoc = null;
-
-        try {
-            serviceDoc = dfactory.newDocumentBuilder().parse(gazetteerInputSource);
-        } catch (Exception e) {
-            results.error(feature, e.toString());
-        }
-
-        Element elem = serviceDoc.getDocumentElement();
-
-        // elem == SimpleFeatureCollection at this point
-        elem = getChildElement(elem, "queryInfo");
-
-        if (elem == null) {
-            results.error(feature, "Invalid DOM tree returned by gazetteer.");
-        }
-
-        // this number is the number of instances found.
-        int number = Integer.parseInt(getChildText(elem, "numberOfResults"));
-
-        return number > 0;
     }
 
     /**
      * Implementation of getPriority.
-     *
      *
      * @see org.geotools.validation.Validation#getPriority()
      */
@@ -220,17 +199,13 @@ public class GazetteerNameValidation extends DefaultFeatureValidation {
 
     /**
      * getChildElement purpose.
-     * 
-     * <p>
-     * Used to help with XML manipulations. Returns the first child element of
-     * the specified name.
-     * </p>
+     *
+     * <p>Used to help with XML manipulations. Returns the first child element of the specified
+     * name.
      *
      * @param root The root element to look for children in.
      * @param name The name of the child element to look for.
-     *
      * @return The child element found, null if not found.
-     *
      * @see getChildElement(Element,String,boolean)
      */
     private static Element getChildElement(Element root, String name) {
@@ -251,15 +226,12 @@ public class GazetteerNameValidation extends DefaultFeatureValidation {
 
     /**
      * getChildText purpose.
-     * 
-     * <p>
-     * Used to help with XML manipulations. Returns the first child text value
-     * of the specified element name.
-     * </p>
+     *
+     * <p>Used to help with XML manipulations. Returns the first child text value of the specified
+     * element name.
      *
      * @param root The root element to look for children in.
      * @param childName The name of the attribute to look for.
-     *
      * @return The value if the child was found, the null otherwise.
      */
     private static String getChildText(Element root, String childName) {

@@ -19,16 +19,16 @@ package org.geotools.xs.bindings;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import javax.xml.namespace.QName;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.SimpleBinding;
 import org.geotools.xs.XS;
-
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.SimpleBinding;
 
 /**
  * Binding object for the type http://www.w3.org/2001/XMLSchema:decimal.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xs:simpleType name="decimal" id="decimal"&gt;
  *      &lt;xs:annotation&gt;
@@ -56,23 +56,17 @@ import org.geotools.xs.XS;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class XSDecimalBinding implements SimpleBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return XS.DECIMAL;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -83,6 +77,7 @@ public class XSDecimalBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * This binding returns objects of type {@link BigDecimal}.
      * <!-- end-user-doc -->
@@ -94,18 +89,17 @@ public class XSDecimalBinding implements SimpleBinding {
     }
 
     /**
-     *         /**
+     * /**
      * <!-- begin-user-doc -->
-     * This is AFTER so value contains element.text after processing by AnySimpleType.
-     * This binding returns objects of type {@link Calendar}.
+     * This is AFTER so value contains element.text after processing by AnySimpleType. This binding
+     * returns objects of type {@link Calendar}.
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(InstanceComponent instance, Object value)
-        throws Exception {
-        //DatatypeConverter.setDatatypeConverter(DatatypeConverterImpl.theInstance);
-        //BigDecimal decimal = DatatypeConverter.parseDecimal((String) value);
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
+        // DatatypeConverter.setDatatypeConverter(DatatypeConverterImpl.theInstance);
+        // BigDecimal decimal = DatatypeConverter.parseDecimal((String) value);
         String text = (String) value;
 
         if (text.startsWith("+")) {
@@ -114,27 +108,31 @@ public class XSDecimalBinding implements SimpleBinding {
 
         BigDecimal decimal = new BigDecimal(text);
 
-        //		// TODO: facet checks to be done by framework 
+        //		// TODO: facet checks to be done by framework
         //		XSDSimpleTypeDefinition simple = (XSDSimpleTypeDefinition) instance.getTypeDefinition();
-        //		
+        //
         //		BigDecimal maxInc = (BigDecimal) simple.getMaxInclusiveFacet().getValue();
         //		if (decimal.compareTo(maxInc) > 0) {
-        //			throw new ValidationException("Decimal value is outside the inclusive max bounds of " + maxInc);
+        //			throw new ValidationException("Decimal value is outside the inclusive max bounds of " +
+        // maxInc);
         //		}
-        //		
+        //
         //		BigDecimal maxExc = (BigDecimal) simple.getMaxExclusiveFacet().getValue();
         //		if (decimal.compareTo(maxExc) >= 0) {
-        //			throw new ValidationException("Decimal value is outside the exclusive max bounds of " + maxExc);
+        //			throw new ValidationException("Decimal value is outside the exclusive max bounds of " +
+        // maxExc);
         //		}
-        //		
+        //
         //		BigDecimal minInc = (BigDecimal) simple.getMinInclusiveFacet().getValue();
         //		if (decimal.compareTo(minInc) < 0) {
-        //			throw new ValidationException("Decimal value is outside the inclusive min bounds of " + minInc);
+        //			throw new ValidationException("Decimal value is outside the inclusive min bounds of " +
+        // minInc);
         //		}
-        //		
+        //
         //		BigDecimal minExc = (BigDecimal) simple.getMinExclusiveFacet().getValue();
         //		if (decimal.compareTo(minExc) <= 0) {
-        //			throw new ValidationException("Decimal value is outside the exclusive min bounds of " + minExc);
+        //			throw new ValidationException("Decimal value is outside the exclusive min bounds of " +
+        // minExc);
         //		}
 
         //		int precision = decimal.precision();
@@ -147,6 +145,7 @@ public class XSDecimalBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -155,6 +154,6 @@ public class XSDecimalBinding implements SimpleBinding {
     public String encode(Object object, String value) {
         BigDecimal decimal = (BigDecimal) object;
 
-        return decimal.toString();
+        return decimal.toPlainString();
     }
 }

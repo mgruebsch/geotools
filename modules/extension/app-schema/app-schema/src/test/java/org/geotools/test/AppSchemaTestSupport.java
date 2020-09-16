@@ -17,23 +17,18 @@
 
 package org.geotools.test;
 
+import org.geotools.appschema.resolver.xml.AppSchemaXSDRegistry;
 import org.geotools.data.complex.AppSchemaDataAccessRegistry;
 import org.geotools.data.complex.DataAccessRegistry;
-import org.geotools.xml.AppSchemaXSDRegistry;
 import org.junit.AfterClass;
 
-/**
- * @author Niels Charlier (Curtin University of Technology)
- *
- * @source $URL$
- */
+/** @author Niels Charlier (Curtin University of Technology) */
 public class AppSchemaTestSupport {
-    
+
     @AfterClass
     public static void oneTimeTearDown() throws Exception {
         DataAccessRegistry.unregisterAndDisposeAll();
         AppSchemaDataAccessRegistry.clearAppSchemaProperties();
         AppSchemaXSDRegistry.getInstance().dispose();
     }
-
 }

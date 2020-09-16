@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,9 @@
  */
 package org.geotools.data.shapefile;
 
-import static org.geotools.data.shapefile.files.ShpFileType.*;
+import static org.geotools.data.shapefile.files.ShpFileType.DBF;
+import static org.geotools.data.shapefile.files.ShpFileType.SHP;
+import static org.geotools.data.shapefile.files.ShpFileType.SHX;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -24,7 +26,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
@@ -37,27 +38,31 @@ import org.geotools.data.shapefile.shp.ShapeHandler;
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.data.shapefile.shp.ShapefileException;
 import org.geotools.data.shapefile.shp.ShapefileWriter;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * A FeatureWriter for ShapefileDataStore. Uses a write and annotate technique to avoid buffering
  * attributes and geometries. Because the shapefile and dbf require header information which can
  * only be obtained by reading the entire series of Features, the headers are updated after the
  * initial write completes.
- * 
+ *
  * @author Jesse Eichar
- * 
- * 
- * 
- * @source $URL$
  */
 class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFeature> {
+
+    /** Shapefile uses signed integer offsets, so it cannot grow past this size */
+    static final long DEFAULT_MAX_SHAPE_SIZE = Integer.MAX_VALUE;
+
+    /**
+     * Many systems use signed integer offsets to handle the position in a DBF, making this a safe
+     * limit
+     */
+    static final long DEFAULT_MAX_DBF_SIZE = Integer.MAX_VALUE;
 
     // the FeatureReader<SimpleFeatureType, SimpleFeature> to obtain the current Feature from
     protected ShapefileFeatureReader featureReader;
@@ -111,8 +116,17 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
 
     private boolean guessShapeType;
 
-    public ShapefileFeatureWriter(ShpFiles shpFiles, ShapefileFeatureReader featureReader,
-            Charset charset, TimeZone timezone) throws IOException {
+    private long maxShpSize = DEFAULT_MAX_SHAPE_SIZE;
+
+    private long maxDbfSize = DEFAULT_MAX_DBF_SIZE;
+
+    @SuppressWarnings("PMD.CloseResource") // closeables are managed as fields
+    public ShapefileFeatureWriter(
+            ShpFiles shpFiles,
+            ShapefileFeatureReader featureReader,
+            Charset charset,
+            TimeZone timezone)
+            throws IOException {
         this.shpFiles = shpFiles;
         this.dbfCharset = charset;
         this.dbfTimeZone = timezone;
@@ -147,7 +161,7 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
         FileChannel shxChannel = storageFiles.get(SHX).getWriteChannel();
         shpWriter = new ShapefileWriter(shpChannel, shxChannel);
 
-        dbfHeader = ShapefileDataStore.createDbaseHeader(featureType);
+        dbfHeader = ShapefileDataStore.createDbaseHeader(featureType, dbfCharset);
         dbfChannel = storageFiles.get(DBF).getWriteChannel();
         dbfWriter = new DbaseFileWriter(dbfHeader, dbfChannel, dbfCharset, dbfTimeZone);
 
@@ -159,11 +173,15 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
         shpWriter.writeHeaders(bounds, shapeType, records, shapefileLength);
     }
 
-    /**
-     * Go back and update the headers with the required info.
-     * 
-     * @throws IOException DOCUMENT ME!
-     */
+    void setMaxShpSize(long maxShapeSize) {
+        this.maxShpSize = maxShapeSize;
+    }
+
+    void setMaxDbfSize(long maxDbfSize) {
+        this.maxDbfSize = maxDbfSize;
+    }
+
+    /** Go back and update the headers with the required info. */
     protected void flush() throws IOException {
         // not sure the check for records <=0 is necessary,
         // but if records > 0 and shapeType is null there's probably
@@ -181,11 +199,8 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
         dbfHeader.writeHeader(dbfChannel);
     }
 
-    /**
-     * In case someone doesn't close me.
-     * 
-     * @throws Throwable DOCUMENT ME!
-     */
+    /** In case someone doesn't close me. */
+    @SuppressWarnings("deprecation") // finalize is deprecated in Java 9
     protected void finalize() throws Throwable {
         if (featureReader != null) {
             try {
@@ -196,65 +211,60 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
         }
     }
 
-    /**
-     * Clean up our temporary write if there was one
-     * 
-     * @throws IOException DOCUMENT ME!
-     */
+    /** Clean up our temporary write if there was one */
     protected void clean() throws IOException {
         StorageFile.replaceOriginals(storageFiles.values().toArray(new StorageFile[0]));
     }
 
-    /**
-     * Release resources and flush the header information.
-     * 
-     * @throws IOException DOCUMENT ME!
-     */
+    /** Release resources and flush the header information. */
     public void close() throws IOException {
         if (featureReader == null) {
-            throw new IOException("Writer closed");
+            // already closed
+            return;
         }
 
-        // make sure to write the last feature...
-        if (currentFeature != null) {
-            write();
-        }
-        // make sure we also write whatever feature the reader might still have around
-        if(featureReader.nextFeature != null) {
-            currentFeature = featureReader.nextFeature ;
-            write();
-        }
-
-        // if the attribute reader is here, that means we may have some
-        // additional tail-end file flushing to do if the Writer was closed
-        // before the end of the file
-        if (featureReader != null) {
-            handler = shapeType.getShapeHandler(gf);
-
-            // handle the case where zero records have been written, but the
-            // stream is closed and the headers are not there
-            if (records == 0) {
-                shpWriter.writeHeaders(bounds, shapeType, 0, 0);
+        try {
+            // make sure to write the last feature...
+            if (currentFeature != null) {
+                write();
+            }
+            // make sure we also write whatever feature the reader might still have around
+            if (featureReader.nextFeature != null) {
+                currentFeature = featureReader.nextFeature;
+                write();
             }
 
-            // copy array for bounds
-            double[] env = new double[4];
+            // if the attribute reader is here, that means we may have some
+            // additional tail-end file flushing to do if the Writer was closed
+            // before the end of the file
+            if (featureReader != null) {
+                handler = shapeType.getShapeHandler(gf);
 
-            while (featureReader.filesHaveMore()) {
-                // transfer bytes from shapefile
-                shapefileLength += featureReader.shp.transferTo(shpWriter, ++records, env);
+                // handle the case where zero records have been written, but the
+                // stream is closed and the headers are not there
+                if (records == 0) {
+                    shpWriter.writeHeaders(bounds, shapeType, 0, 0);
+                }
 
-                // bounds update
-                bounds.expandToInclude(env[0], env[1]);
-                bounds.expandToInclude(env[2], env[3]);
+                // copy array for bounds
+                double[] env = new double[4];
 
-                // transfer dbf bytes
-                featureReader.dbf.transferTo(dbfWriter);
+                while (featureReader.filesHaveMore()) {
+                    // transfer bytes from shapefile
+                    shapefileLength += featureReader.shp.transferTo(shpWriter, ++records, env);
+
+                    // bounds update
+                    bounds.expandToInclude(env[0], env[1]);
+                    bounds.expandToInclude(env[2], env[3]);
+
+                    // transfer dbf bytes
+                    featureReader.dbf.transferTo(dbfWriter);
+                }
             }
+        } finally {
+            doClose();
+            clean();
         }
-
-        doClose();
-        clean();
     }
 
     protected void doClose() throws IOException {
@@ -281,7 +291,7 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
 
     public boolean hasNext() throws IOException {
         if (featureReader == null) {
-            throw new IOException("Writer closed");
+            return false; // writer has been closed
         }
 
         return featureReader.hasNext();
@@ -311,7 +321,7 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
 
     /**
      * Called when a new feature is being created and a new fid is required
-     * 
+     *
      * @return a fid for the new feature
      */
     protected String nextFeatureId() {
@@ -351,8 +361,9 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
                     int dims = JTSUtilities.guessCoorinateDims(g.getCoordinates());
                     shapeType = JTSUtilities.getShapeType(g, dims);
                 } else {
-                    shapeType = JTSUtilities.getShapeType(currentFeature.getType()
-                            .getGeometryDescriptor());
+                    shapeType =
+                            JTSUtilities.getShapeType(
+                                    currentFeature.getType().getGeometryDescriptor());
                 }
 
                 // we must go back and annotate this after writing
@@ -365,7 +376,13 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
         }
 
         // convert geometry
-        g = JTSUtilities.convertToCollection(g, shapeType);
+        if (g != null) {
+            if (g.isEmpty()) {
+                g = null;
+            } else {
+                g = JTSUtilities.convertToCollection(g, shapeType);
+            }
+        }
 
         // bounds calculations
         if (g != null) {
@@ -377,10 +394,25 @@ class ShapefileFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleF
         }
 
         // file length update
-        if (g != null)
+        if (g != null) {
             shapefileLength += (handler.getLength(g) + 8);
-        else
+        } else {
             shapefileLength += (4 + 8);
+        }
+
+        if (shapefileLength > maxShpSize) {
+            currentFeature = null;
+            throw new ShapefileSizeException(
+                    "Writing this feature will make the shapefile exceed the maximum size of "
+                            + maxShpSize
+                            + " bytes");
+        } else if (dbfWriter.getHeader().getLengthForRecords(records + 1) > maxDbfSize) {
+            currentFeature = null;
+            throw new ShapefileSizeException(
+                    "Writing this feature will make the DBF exceed the maximum size of "
+                            + maxDbfSize
+                            + " bytes");
+        }
 
         // write it
         shpWriter.writeGeometry(g);

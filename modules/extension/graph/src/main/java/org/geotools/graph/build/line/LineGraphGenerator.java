@@ -19,31 +19,21 @@ package org.geotools.graph.build.line;
 import org.geotools.graph.build.GraphGenerator;
 import org.geotools.graph.structure.Edge;
 import org.geotools.graph.structure.Node;
+import org.locationtech.jts.geom.Coordinate;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
-/**
- * Builds a graph representing a line network.
- *
- *
- * @source $URL$
- */
+/** Builds a graph representing a line network. */
 public interface LineGraphGenerator extends GraphGenerator {
     /**
      * Look up a Node for the provided coordinate.
-     * 
-     * @param coordinate
+     *
      * @return Node
      */
     public Node getNode(Coordinate coordinate);
 
     /**
      * Retrieve edge between the two coordinates.
-     * 
-     * @param coordinate1
-     * @param coordinate2
+     *
      * @return Edge
      */
     public Edge getEdge(Coordinate coordinate1, Coordinate coordinate2);
-
 }

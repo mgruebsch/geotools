@@ -18,34 +18,28 @@ package org.geotools.wfs.bindings;
 
 import java.math.BigInteger;
 import java.net.URL;
-
 import javax.xml.namespace.QName;
-
 import net.opengis.wfs.ActionType;
 import net.opengis.wfs.InsertResultsType;
 import net.opengis.wfs.InsertedFeatureType;
 import net.opengis.wfs.TransactionResponseType;
 import net.opengis.wfs.TransactionResultsType;
 import net.opengis.wfs.TransactionSummaryType;
-
 import org.geotools.filter.v1_1.OGC;
 import org.geotools.test.TestData;
-import org.geotools.wfs.WFS;
 import org.geotools.wfs.WFSTestSupport;
-import org.geotools.xml.Binding;
+import org.geotools.wfs.v1_1.WFS;
+import org.geotools.xsd.Binding;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
  * Unit test suite for {@link TransactionResponseTypeBinding}
- * 
+ *
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
- *
- *
- * @source $URL$
  */
 public class TransactionResponseTypeBindingTest extends WFSTestSupport {
 
@@ -119,8 +113,8 @@ public class TransactionResponseTypeBindingTest extends WFSTestSupport {
         Element totalDeleted = getElementByQName(summary, new QName(WFS.NAMESPACE, "totalDeleted"));
         assertEquals("2", totalDeleted.getFirstChild().getNodeValue());
 
-        Element totalInserted = getElementByQName(summary,
-                new QName(WFS.NAMESPACE, "totalInserted"));
+        Element totalInserted =
+                getElementByQName(summary, new QName(WFS.NAMESPACE, "totalInserted"));
         assertEquals("3", totalInserted.getFirstChild().getNodeValue());
 
         Element totalUpdated = getElementByQName(summary, new QName(WFS.NAMESPACE, "totalUpdated"));

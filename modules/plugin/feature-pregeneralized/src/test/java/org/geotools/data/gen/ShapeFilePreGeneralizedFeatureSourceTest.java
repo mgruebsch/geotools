@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -19,18 +19,17 @@ package org.geotools.data.gen;
 
 import org.geotools.data.Repository;
 
-/**
- * 
- *
- * @source $URL$
- */
-public class ShapeFilePreGeneralizedFeatureSourceTest extends
-        AbstractPreGeneralizedFeatureSourceTest {
+public class ShapeFilePreGeneralizedFeatureSourceTest
+        extends AbstractPreGeneralizedFeatureSourceTest {
 
     static final String ConfigName = "src/test/resources/geninfo_shapefile.xml";
 
     protected Repository getRepository() {
         return new DSFinderRepository();
+    }
+
+    public void testPropertySelection() {
+        testPropertySelection(ConfigName);
     }
 
     public void testGetCount() {
@@ -76,5 +75,4 @@ public class ShapeFilePreGeneralizedFeatureSourceTest extends
     public void testGetSchema() {
         testGetSchema(ConfigName);
     }
-
 }

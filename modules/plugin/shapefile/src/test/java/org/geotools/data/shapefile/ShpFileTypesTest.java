@@ -21,16 +21,10 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import org.geotools.data.shapefile.files.ShpFileType;
 import org.junit.Test;
 
-/**
- * 
- *
- * @source $URL$
- */
-public class ShpFileTypesTest  {
+public class ShpFileTypesTest {
 
     @Test
     public void testToFileBase() {
@@ -39,7 +33,6 @@ public class ShpFileTypesTest  {
         for (ShpFileType value : values) {
             assertToFileBase(value);
         }
-
     }
 
     @Test
@@ -49,7 +42,6 @@ public class ShpFileTypesTest  {
         for (ShpFileType value : values) {
             assertToURLBase(value);
         }
-
     }
 
     private void assertToURLBase(ShpFileType type) throws MalformedURLException {
@@ -108,5 +100,4 @@ public class ShpFileTypesTest  {
         File file = new File("Beebop.dBf");
         assertEquals("Beebop", ShpFileType.DBF.toBase(file));
     }
-
 }

@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
- *    (C) 2003-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
+ *    (C) 2003-2016, Open Source Geospatial Foundation (OSGeo)
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -17,95 +17,89 @@
 package org.geotools.data.memory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.logging.Level;
-
-import org.geotools.data.AbstractDataStore;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
-import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.Transaction;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.store.ContentDataStore;
+import org.geotools.data.store.ContentEntry;
+import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.Feature;
-import org.opengis.feature.FeatureVisitor;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.FeatureTypes;
+import org.geotools.util.SuppressFBWarnings;
 import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.Filter;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-
+import org.opengis.feature.type.Name;
 
 /**
  * This is an example implementation of a DataStore used for testing.
- * 
- * <p>
- * It serves as an example implementation of:
- * </p>
- * 
+ *
+ * <p>It serves as an example implementation of:
+ *
  * <ul>
- * <li>
- * FeatureListenerManager use: allows handling of FeatureEvents
- * </li>
+ *   <li>FeatureListenerManager use: allows handling of FeatureEvents
  * </ul>
- * 
- * <p>
- * This class will also illustrate the use of In-Process locking when the time comes.
- * </p>
+ *
+ * <p>This class will also illustrate the use of In-Process locking when the time comes.
  *
  * @author jgarnett
- *
- *
- * @source $URL$
  */
-public class MemoryDataStore extends AbstractDataStore {
-    /** Memory holds Map of Feature by fid by typeName. */
-    protected Map<String,Map<String,SimpleFeature>> memory = new LinkedHashMap<String,Map<String,SimpleFeature>>();
-
-    /** Schema holds FeatureType by typeName */
-    protected Map<String,SimpleFeatureType> schema = new HashMap<String,SimpleFeatureType>();
+// This code synchronizes on a ConcurrentHashMap, which does not seem very sensible (the structure
+// is designed for concurrent access...). May want to revisit
+@SuppressFBWarnings("JLM_JSR166_UTILCONCURRENT_MONITORENTER")
+public class MemoryDataStore extends ContentDataStore {
 
     public MemoryDataStore() {
-        super(true);
+        super();
+    }
+
+    /** Use MemoryState to manage internal storage. */
+    protected MemoryState createContentState(ContentEntry entry) {
+        return new MemoryState((MemoryEntry) entry);
     }
 
     /**
      * Construct an MemoryDataStore around an empty collection of the provided SimpleFeatureType
-     * @param schema An empty feature collection of this type will be made available
+     *
+     * @param featureType The initial feature type for the memory data store, an empty feature
+     *     collection of this type will be made available
      */
     public MemoryDataStore(SimpleFeatureType featureType) {
-        Map<String,SimpleFeature> featureMap = new LinkedHashMap<String,SimpleFeature>();
-        String typeName = featureType.getTypeName();
-        schema.put(typeName, featureType);
-        memory.put(typeName, featureMap);
+        try {
+            // creates new entry for FeatureType
+            entry(featureType);
+        } catch (IOException e) {
+            LOGGER.log(Level.FINER, e.getMessage(), e);
+        }
     }
-    public MemoryDataStore(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) {
+
+    public MemoryDataStore(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
         addFeatures(collection);
     }
+
     public MemoryDataStore(SimpleFeatureCollection collection) {
         addFeatures(collection);
     }
 
-    public MemoryDataStore(SimpleFeature[] array){
+    public MemoryDataStore(SimpleFeature[] array) {
         addFeatures(array);
     }
 
-    public MemoryDataStore(FeatureReader <SimpleFeatureType, SimpleFeature> reader) throws IOException {
+    public MemoryDataStore(FeatureReader<SimpleFeatureType, SimpleFeature> reader)
+            throws IOException {
         addFeatures(reader);
     }
+
     public MemoryDataStore(SimpleFeatureIterator reader) throws IOException {
         addFeatures(reader);
     }
@@ -114,43 +108,30 @@ public class MemoryDataStore extends AbstractDataStore {
      * Configures MemoryDataStore with FeatureReader.
      *
      * @param reader New contents to add
-     *
      * @throws IOException If problems are encountered while adding
      * @throws DataSourceException See IOException
      */
-    public void addFeatures(FeatureReader <SimpleFeatureType, SimpleFeature> reader) throws IOException {
+    public void addFeatures(FeatureReader<SimpleFeatureType, SimpleFeature> reader)
+            throws IOException {
         try {
-            SimpleFeatureType featureType;
-            // use an order preserving map, so that features are returned in the same
-            // order as they were inserted. This is important for repeatable rendering
-            // of overlapping features.
-            Map<String,SimpleFeature> featureMap = new LinkedHashMap<String,SimpleFeature>();
-            String typeName;
-            SimpleFeature feature;
-
-            feature = reader.next();
+            SimpleFeature feature = reader.next();
 
             if (feature == null) {
-                throw new IllegalArgumentException("Provided  FeatureReader<SimpleFeatureType, SimpleFeature> is closed");
+                throw new IllegalArgumentException(
+                        "Provided  FeatureReader<SimpleFeatureType, SimpleFeature> is closed");
             }
 
-            featureType = feature.getFeatureType();
-            typeName = featureType.getTypeName();
-
-            featureMap.put(feature.getID(), feature);
+            addFeatureInternal(feature);
 
             while (reader.hasNext()) {
                 feature = reader.next();
-                featureMap.put(feature.getID(), feature);
+                addFeatureInternal(feature);
             }
 
-            schema.put(typeName, featureType);
-            memory.put(typeName, featureMap);
         } catch (IllegalAttributeException e) {
             throw new DataSourceException("Problem using reader", e);
-        }
-        finally {
-        	reader.close();
+        } finally {
+            reader.close();
         }
     }
 
@@ -158,76 +139,56 @@ public class MemoryDataStore extends AbstractDataStore {
      * Configures MemoryDataStore with FeatureReader.
      *
      * @param reader New contents to add
-     *
      * @throws IOException If problems are encountered while adding
      * @throws DataSourceException See IOException
      */
     public void addFeatures(SimpleFeatureIterator reader) throws IOException {
         try {
-            SimpleFeatureType featureType;
-            Map<String,SimpleFeature> featureMap = new LinkedHashMap<String,SimpleFeature>();
-            String typeName;
-            SimpleFeature feature;
-
-            feature = reader.next();
+            SimpleFeature feature = reader.next();
 
             if (feature == null) {
-                throw new IllegalArgumentException("Provided  FeatureReader<SimpleFeatureType, SimpleFeature> is closed");
+                throw new IllegalArgumentException(
+                        "Provided  FeatureReader<SimpleFeatureType, SimpleFeature> is closed");
             }
 
-            featureType = feature.getFeatureType();
-            typeName = featureType.getTypeName();
-
-            featureMap.put(feature.getID(), feature);
+            addFeatureInternal(feature);
 
             while (reader.hasNext()) {
                 feature = reader.next();
-                featureMap.put(feature.getID(), feature);
+                addFeatureInternal(feature);
             }
-
-            schema.put(typeName, featureType);
-            memory.put(typeName, featureMap);
-        }
-        finally {
+        } finally {
             reader.close();
         }
     }
     /**
      * Configures MemoryDataStore with Collection.
-     * 
-     * <p>
-     * You may use this to create a MemoryDataStore from a FeatureCollection.
-     * </p>
+     *
+     * <p>You may use this to create a MemoryDataStore from a FeatureCollection.
      *
      * @param collection Collection of features to add
-     *
      * @throws IllegalArgumentException If provided collection is empty
      */
     public void addFeatures(Collection<?> collection) {
         if ((collection == null) || collection.isEmpty()) {
-            throw new IllegalArgumentException("Provided SimpleFeatureCollection is empty");
+            throw new IllegalArgumentException("Provided Collection is empty");
         }
-
-        synchronized (memory) {
-            for (Iterator<?> i = collection.iterator(); i.hasNext();) {
-                addFeatureInternal((SimpleFeature) i.next());
+        synchronized (entries) {
+            for (Object item : collection) {
+                addFeatureInternal((SimpleFeature) item);
             }
         }
     }
-    public void addFeatures(FeatureCollection<SimpleFeatureType,SimpleFeature> collection) {
-        if ((collection == null) ) {
-            throw new IllegalArgumentException("Provided SimpleFeatureCollection is empty");
+
+    public void addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+        if ((collection == null)) {
+            throw new IllegalArgumentException("Provided FeatureCollection is empty");
         }
-        synchronized (memory) {
-            try {
-                collection.accepts( new FeatureVisitor(){
-                    public void visit(Feature feature) {
-                        addFeatureInternal( (SimpleFeature) feature );
-                    }                
-                }, null );
-            }
-            catch( IOException ignore){
-                LOGGER.log( Level.FINE, "Unable to add all features", ignore );
+        synchronized (entries) {
+            try (FeatureIterator<SimpleFeature> iterator = collection.features()) {
+                while (iterator.hasNext()) {
+                    addFeatureInternal(iterator.next());
+                }
             }
         }
     }
@@ -235,15 +196,13 @@ public class MemoryDataStore extends AbstractDataStore {
      * Configures MemoryDataStore with feature array.
      *
      * @param features Array of features to add
-     *
      * @throws IllegalArgumentException If provided feature array is empty
      */
     public void addFeatures(SimpleFeature[] features) {
         if ((features == null) || (features.length == 0)) {
             throw new IllegalArgumentException("Provided features are empty");
         }
-
-        synchronized (memory) {
+        synchronized (entries) {
             for (int i = 0; i < features.length; i++) {
                 addFeatureInternal(features[i]);
             }
@@ -252,20 +211,16 @@ public class MemoryDataStore extends AbstractDataStore {
 
     /**
      * Adds a single Feature to the correct typeName entry.
-     * 
-     * <p>
-     * This is an internal opperation used for setting up MemoryDataStore - please use
-     * FeatureWriter for generatl use.
-     * </p>
-     * 
-     * <p>
-     * This method is willing to create new FeatureTypes for MemoryDataStore.
-     * </p>
+     *
+     * <p>This is an internal operation used for setting up MemoryDataStore - please use
+     * FeatureWriter for general use.
+     *
+     * <p>This method is willing to create new FeatureTypes for MemoryDataStore.
      *
      * @param feature Individual feature to add
      */
     public void addFeature(SimpleFeature feature) {
-        synchronized (memory) {
+        synchronized (entries) {
             addFeatureInternal(feature);
         }
     }
@@ -274,375 +229,130 @@ public class MemoryDataStore extends AbstractDataStore {
         if (feature == null) {
             throw new IllegalArgumentException("Provided Feature is empty");
         }
-
-        SimpleFeatureType featureType;
-        featureType = feature.getFeatureType();
-
-        String typeName = featureType.getTypeName();
-
-        Map<String,SimpleFeature> featuresMap;
-
-        if (!memory.containsKey(typeName)) {
-            try {
-                createSchema(featureType);
-            } catch (IOException e) {
-                // this should not of happened ?!?
-                // only happens if typeNames is taken and
-                // we just checked                    
-            }
+        SimpleFeatureType featureType = feature.getFeatureType();
+        try {
+            MemoryEntry entry = entry(featureType);
+            entry.addFeature(feature);
+        } catch (IOException e) {
+            LOGGER.log(Level.FINER, e.getMessage(), e);
         }
-
-        featuresMap = memory.get(typeName);
-        featuresMap.put(feature.getID(), feature);
     }
 
     /**
-     * Access featureMap for typeName.
+     * Access MemoryState for typeName.
      *
-     * @param typeName
+     * <p>Technically this is accessing the MemoryState for {@link Transaction#AUTO_COMMIT}, which
+     * is the definitive storage for the feature content.
      *
-     * @return A Map of Features by FID
-     *
+     * @return MemoryState storing feature (by FeatureID)
      * @throws IOException If typeName cannot be found
      */
-    protected Map<String,SimpleFeature> features(String typeName) throws IOException {
-        synchronized (memory) {
-            if (memory.containsKey(typeName)) {
-                return memory.get(typeName);
+    protected MemoryEntry entry(String typeName) throws IOException {
+        synchronized (entries) {
+            for (ContentEntry entry : this.entries.values()) {
+                if (entry.getName().getLocalPart().equals(typeName)) {
+                    return (MemoryEntry) entry;
+                }
             }
         }
-
         throw new IOException("Type name " + typeName + " not found");
+    }
+
+    /**
+     * Access to entry to store content of the provided schema, will create new entry if needed.
+     *
+     * <p>
+     *
+     * @return MemoryState used for content storage
+     * @throws IOException If new entry could not be created due to typeName conflict
+     */
+    protected MemoryEntry entry(SimpleFeatureType schema) throws IOException {
+        Name typeName = schema.getName();
+        synchronized (entries) {
+            if (entries.containsKey(typeName)) {
+                MemoryEntry entry = (MemoryEntry) entries.get(typeName);
+                if (FeatureTypes.equals(entry.schema, schema)) {
+                    return entry;
+                } else {
+                    throw new IOException(
+                            "Entry "
+                                    + typeName
+                                    + " schema "
+                                    + entry.schema
+                                    + " incompatible with provided "
+                                    + schema);
+                }
+            } else {
+                MemoryEntry entry = new MemoryEntry(this, schema);
+                entries.put(typeName, entry);
+                return entry;
+            }
+        }
     }
 
     /**
      * List of available types provided by this DataStore.
      *
-     * @return Array of type names
-     *
-     * @see org.geotools.data.AbstractDataStore#getFeatureTypes()
+     * @return List of type names
+     * @see org.geotools.data.ContentDataStore#getFeatureTypes()
      */
-    public String[] getTypeNames() {
-        synchronized (memory) {
-            String[] types = new String[schema.size()];
-            int index = 0;
-
-            for (Iterator<String> i = schema.keySet().iterator(); i.hasNext(); index++) {
-                types[index] = i.next();
-            }
-
-            return types;
-        }
+    protected List<Name> createTypeNames() {
+        List<Name> names = new ArrayList<Name>(this.entries.keySet());
+        Collections.sort(
+                names,
+                new Comparator<Name>() {
+                    public int compare(Name n1, Name n2) {
+                        return n1.toString().compareTo(n2.toString());
+                    }
+                });
+        return names;
     }
 
-    /**
-     * SimpleFeatureType access by <code>typeName</code>.
-     *
-     * @param typeName
-     *
-     * @return SimpleFeatureType for <code>typeName</code>
-     *
-     * @throws IOException
-     * @throws SchemaNotFoundException DOCUMENT ME!
-     *
-     * @see org.geotools.data.AbstractDataStore#getSchema(java.lang.String)
-     */
-    public SimpleFeatureType getSchema(String typeName) throws IOException {
-        synchronized (memory) {
-            if (schema.containsKey(typeName)) {
-                return schema.get(typeName);
-            }
-                throw new SchemaNotFoundException(typeName);
-        }
+    protected ContentFeatureSource createFeatureSource(ContentEntry entry) {
+        return createFeatureSource(entry, Query.ALL);
+    }
+
+    protected ContentFeatureSource createFeatureSource(ContentEntry entry, Query query) {
+        return new MemoryFeatureStore(entry, query);
     }
 
     /**
      * Adds support for a new featureType to MemoryDataStore.
-     * 
-     * <p>
-     * FeatureTypes are stored by typeName, an IOException will be thrown if the requested typeName
-     * is already in use.
-     * </p>
+     *
+     * <p>FeatureTypes are stored by typeName, an IOException will be thrown if the requested
+     * typeName is already in use.
      *
      * @param featureType SimpleFeatureType to be added
-     *
      * @throws IOException If featureType already exists
-     *
      * @see org.geotools.data.DataStore#createSchema(org.geotools.feature.SimpleFeatureType)
      */
     public void createSchema(SimpleFeatureType featureType) throws IOException {
-        String typeName = featureType.getTypeName();
-
-        if (memory.containsKey(typeName)) {
+        Name typeName = featureType.getName();
+        if (entries.containsKey(typeName)) {
             // we have a conflict
             throw new IOException(typeName + " already exists");
         }
-            // insertion order preserving map
-            Map<String,SimpleFeature> featuresMap = new LinkedHashMap<String,SimpleFeature>();
-            schema.put(typeName, featureType);
-            memory.put(typeName, featuresMap);
+        MemoryEntry entry = new MemoryEntry(this, featureType);
+        entries.put(typeName, entry);
     }
 
-    /**
-     * Provides  FeatureReader<SimpleFeatureType, SimpleFeature> over the entire contents of <code>typeName</code>.
-     * 
-     * <p>
-     * Implements getFeatureReader contract for AbstractDataStore.
-     * </p>
-     *
-     * @param typeName
-     *
-     *
-     * @throws IOException If typeName could not be found
-     * @throws DataSourceException See IOException
-     *
-     * @see org.geotools.data.AbstractDataStore#getFeatureSource(java.lang.String)
-     */
-    public  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(final String typeName)
-        throws IOException {
-        return new FeatureReader<SimpleFeatureType, SimpleFeature>() {
-                SimpleFeatureType featureType = getSchema(typeName);
-                Iterator<SimpleFeature> iterator = features(typeName).values().iterator();
-
-                public SimpleFeatureType getFeatureType() {
-                    return featureType;
-                }
-
-                public SimpleFeature next()
-                    throws IOException, IllegalAttributeException, NoSuchElementException {
-                    if (iterator == null) {
-                        throw new IOException("Feature Reader has been closed");
-                    }
-
-                    try {
-                        return SimpleFeatureBuilder.copy((SimpleFeature) iterator.next());
-                    } catch (NoSuchElementException end) {
-                        throw new DataSourceException("There are no more Features", end);
-                    }
-                }
-
-                public boolean hasNext(){
-                    return (iterator != null) && iterator.hasNext();
-                }
-
-                public void close(){
-                    if (iterator != null) {
-                        iterator = null;
-                    }
-
-                    if (featureType != null) {
-                        featureType = null;
-                    }
-                }
-            };
-    }
-
-    /**
-     * Provides FeatureWriter over the entire contents of <code>typeName</code>.
-     * 
-     * <p>
-     * Implements getFeatureWriter contract for AbstractDataStore.
-     * </p>
-     *
-     * @param typeName name of FeatureType we wish to modify
-     *
-     * @return FeatureWriter of entire contents of typeName
-     *
-     * @throws IOException If writer cannot be obtained for typeName
-     * @throws DataSourceException See IOException
-     *
-     * @see org.geotools.data.AbstractDataStore#getFeatureSource(java.lang.String)
-     */
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> createFeatureWriter(final String typeName, final Transaction transaction)
-        throws IOException {
-        return new FeatureWriter<SimpleFeatureType, SimpleFeature>() {
-                SimpleFeatureType featureType = getSchema(typeName);
-                Map<String,SimpleFeature> contents = features(typeName);
-                Iterator<SimpleFeature> iterator = contents.values().iterator();
-                SimpleFeature live = null;
-
-                SimpleFeature current = null; // current Feature returned to user        
-
-                public SimpleFeatureType getFeatureType() {
-                    return featureType;
-                }
-
-                public SimpleFeature next() throws IOException, NoSuchElementException {
-                    if (hasNext()) {
-                        // existing content
-                        live = iterator.next();
-
-                        try {
-                            current = SimpleFeatureBuilder.copy(live);
-                        } catch (IllegalAttributeException e) {
-                            throw new DataSourceException("Unable to edit " + live.getID() + " of "
-                                + typeName);
-                        }
-                    } else {
-                        // new content
-                        live = null;
-
-                        try {
-                            current = SimpleFeatureBuilder.template(featureType, null);
-                        } catch (IllegalAttributeException e) {
-                            throw new DataSourceException("Unable to add additional Features of "
-                                + typeName);
-                        }
-                    }
-
-                    return current;
-                }
-
-                public void remove() throws IOException {
-                    if (contents == null) {
-                        throw new IOException("FeatureWriter has been closed");
-                    }
-
-                    if (current == null) {
-                        throw new IOException("No feature available to remove");
-                    }
-
-                    if (live != null) {
-                        // remove existing content
-                        iterator.remove();
-                        listenerManager.fireFeaturesRemoved(typeName, transaction,
-                            new ReferencedEnvelope(live.getBounds()), true);
-                        live = null;
-                        current = null;
-                    } else {
-                        // cancel add new content
-                        current = null;
-                    }
-                }
-
-                public void write() throws IOException {
-                    if (contents == null) {
-                        throw new IOException("FeatureWriter has been closed");
-                    }
-
-                    if (current == null) {
-                        throw new IOException("No feature available to write");
-                    }
-
-                    if (live != null) {
-                        if (live.equals(current)) {
-                            // no modifications made to current
-                            //
-                            live = null;
-                            current = null;
-                        } else {
-                            // accept modifications
-                            //
-                            try {
-                                live.setAttributes(current.getAttributes());
-                            } catch (Exception e) {
-                                throw new DataSourceException("Unable to accept modifications to "
-                                    + live.getID() + " on " + typeName);
-                            }
-
-                            ReferencedEnvelope bounds = new ReferencedEnvelope();
-                            bounds.expandToInclude(new ReferencedEnvelope(live.getBounds()));
-                            bounds.expandToInclude(new ReferencedEnvelope(current.getBounds()));
-                            listenerManager.fireFeaturesChanged(typeName, transaction,
-                                bounds, true);
-                            live = null;
-                            current = null;
-                        }
-                    } else {
-                        // add new content
-                        //
-                        contents.put(current.getID(), current);
-                        listenerManager.fireFeaturesAdded(typeName, transaction,
-                        		new ReferencedEnvelope(current.getBounds()), true);
-                        current = null;
-                    }
-                }
-
-                public boolean hasNext() throws IOException {
-                    if (contents == null) {
-                        throw new IOException("FeatureWriter has been closed");
-                    }
-
-                    return (iterator != null) && iterator.hasNext();
-                }
-
-                public void close(){
-                    if (iterator != null) {
-                        iterator = null;
-                    }
-
-                    if (featureType != null) {
-                        featureType = null;
-                    }
-
-                    contents = null;
-                    current = null;
-                    live = null;
-                }
-            };
-    }
-
-    /**
-     * @see org.geotools.data.AbstractDataStore#getBounds(java.lang.String,
-     *      org.geotools.data.Query)
-     */
-    protected ReferencedEnvelope getBounds(Query query)
-        throws IOException {
-        String typeName = query.getTypeName();
-        Map<String,SimpleFeature> contents = features(typeName);
-        Iterator<SimpleFeature> iterator = contents.values().iterator();
-
-        CoordinateReferenceSystem coordinateSystem = query.getCoordinateSystem();
-        if (coordinateSystem == null) {
-            SimpleFeatureType type = schema.get(typeName);
-            if (type != null) {
-                coordinateSystem = type.getCoordinateReferenceSystem();
+    @Override
+    public void removeSchema(String typeName) throws IOException {
+        for (Name name : entries.keySet()) {
+            if (name.getLocalPart().equals(typeName)) {
+                removeSchema(name);
+                return;
             }
         }
-        ReferencedEnvelope envelope = null;
-        
-        Filter filter = query.getFilter();
-        
-        int count = 0;
-        while(iterator.hasNext() && (count < query.getMaxFeatures())) {
-            count ++;
-            SimpleFeature feature = iterator.next();
-            if(filter.evaluate(feature)) {
-                count++;
-                if (null == envelope) {
-                    envelope = new ReferencedEnvelope(coordinateSystem);
-                }
-                Geometry geom = (Geometry) feature.getDefaultGeometry();
-                Envelope env = geom != null ? geom.getEnvelopeInternal() : null;
-                if (env != null) {
-                    envelope.expandToInclude(env);
-                }
-            }
-        }
-
-        return envelope;
     }
 
-    /**
-     * @see org.geotools.data.AbstractDataStore#getCount(java.lang.String, org.geotools.data.Query)
-     */
-    protected int getCount(Query query)
-        throws IOException {
-        String typeName = query.getTypeName();
-        Map<String,SimpleFeature> contents = features(typeName);
-        Iterator<SimpleFeature> iterator = contents.values().iterator();
-
-        int count = 0;
-
-        Filter filter = query.getFilter();
-
-        while (iterator.hasNext() && (count < query.getMaxFeatures())) {
-            if (filter.evaluate(iterator.next())) {
-                count++;
+    @Override
+    public void removeSchema(Name typeName) throws IOException {
+        if (typeName != null) {
+            // graceful remove, its fine if the type has never been registered
+            synchronized (entries) {
+                entries.remove(typeName);
             }
         }
-
-        return count;
     }
-
 }

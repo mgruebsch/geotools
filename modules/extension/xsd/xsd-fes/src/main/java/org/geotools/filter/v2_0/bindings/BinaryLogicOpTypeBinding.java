@@ -17,10 +17,8 @@
 package org.geotools.filter.v2_0.bindings;
 
 import javax.xml.namespace.QName;
-
 import org.geotools.filter.v1_0.OGCBinaryLogicOpTypeBinding;
 import org.geotools.filter.v2_0.FES;
-import org.opengis.filter.FilterFactory;
 
 /**
  * <pre>
@@ -34,19 +32,14 @@ import org.opengis.filter.FilterFactory;
  *     &lt;/xsd:complexContent>
  *  &lt;/xsd:complexType>
  *  <pre>
- *  
+ *
  * @author Justin Deoliveira, OpenGeo
  *
  */
 public class BinaryLogicOpTypeBinding extends OGCBinaryLogicOpTypeBinding {
 
-    public BinaryLogicOpTypeBinding(FilterFactory factory) {
-        super(factory);
-    }
-
     @Override
     public QName getTarget() {
         return FES.BinaryLogicOpType;
     }
-
 }

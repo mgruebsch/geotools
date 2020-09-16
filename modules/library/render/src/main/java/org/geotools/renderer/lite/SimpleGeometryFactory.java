@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,34 +16,36 @@
  */
 package org.geotools.renderer.lite;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateFilter;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.CoordinateSequenceComparator;
-import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
-import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryComponentFilter;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.GeometryFilter;
-import com.vividsolutions.jts.geom.IntersectionMatrix;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
+import org.geotools.util.SuppressFBWarnings;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateFilter;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateSequenceComparator;
+import org.locationtech.jts.geom.CoordinateSequenceFactory;
+import org.locationtech.jts.geom.CoordinateSequenceFilter;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryComponentFilter;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.GeometryFilter;
+import org.locationtech.jts.geom.IntersectionMatrix;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
 
 /**
  * A subclass of {@link GeometryFactory} with special optimizations for geometry collections made of
  * a single element (a typical case in shapefiles and data imported from shapefiles)
- * 
+ *
  * @author Andrea Aime
  */
 @SuppressWarnings("serial")
+@SuppressFBWarnings("EQ_CHECK_FOR_OPERAND_NOT_COMPATIBLE_WITH_THIS")
 class SimpleGeometryFactory extends GeometryFactory {
 
     public SimpleGeometryFactory(CoordinateSequenceFactory csFactory) {
@@ -112,10 +114,6 @@ class SimpleGeometryFactory extends GeometryFactory {
 
         public Geometry buffer(double distance) {
             return geometry.buffer(distance);
-        }
-
-        public Object clone() {
-            return geometry.clone();
         }
 
         public int compareTo(Object o, CoordinateSequenceComparator comp) {
@@ -302,8 +300,8 @@ class SimpleGeometryFactory extends GeometryFactory {
             return geometry.relate(g);
         }
 
-        public Geometry reverse() {
-            return geometry.reverse();
+        public GeometryCollection reverse() {
+            return new GeometryCollection(new Geometry[] {geometry.reverse()}, factory);
         }
 
         public void setSRID(int SRID) {
@@ -341,7 +339,6 @@ class SimpleGeometryFactory extends GeometryFactory {
         public boolean within(Geometry g) {
             return geometry.within(g);
         }
-
     }
 
     static class SingleLineCollection extends MultiLineString {
@@ -379,10 +376,6 @@ class SimpleGeometryFactory extends GeometryFactory {
 
         public Geometry buffer(double distance) {
             return lineString.buffer(distance);
-        }
-
-        public Object clone() {
-            return lineString.clone();
         }
 
         public int compareTo(Object o, CoordinateSequenceComparator comp) {
@@ -429,6 +422,7 @@ class SimpleGeometryFactory extends GeometryFactory {
             return lineString.equalsTopo(g);
         }
 
+        @SuppressFBWarnings("EQ_CHECK_FOR_OPERAND_NOT_COMPATIBLE_WITH_THIS")
         public boolean equals(Object obj) {
             return lineString.equals(obj);
         }
@@ -601,8 +595,8 @@ class SimpleGeometryFactory extends GeometryFactory {
             return lineString.relate(g);
         }
 
-        public Geometry reverse() {
-            return lineString.reverse();
+        public MultiLineString reverse() {
+            return new MultiLineString(new LineString[] {lineString.reverse()}, factory);
         }
 
         public void setSRID(int SRID) {
@@ -677,10 +671,6 @@ class SimpleGeometryFactory extends GeometryFactory {
 
         public Geometry buffer(double distance) {
             return polygon.buffer(distance);
-        }
-
-        public Object clone() {
-            return polygon.clone();
         }
 
         public int compareTo(Object o, CoordinateSequenceComparator comp) {
@@ -879,8 +869,8 @@ class SimpleGeometryFactory extends GeometryFactory {
             return polygon.relate(g);
         }
 
-        public Geometry reverse() {
-            return polygon.reverse();
+        public MultiPolygon reverse() {
+            return new MultiPolygon(new Polygon[] {polygon.reverse()}, factory);
         }
 
         public void setSRID(int SRID) {
@@ -918,7 +908,6 @@ class SimpleGeometryFactory extends GeometryFactory {
         public boolean within(Geometry g) {
             return polygon.within(g);
         }
-
     }
 
     static class SinglePointCollection extends MultiPoint {
@@ -955,10 +944,6 @@ class SimpleGeometryFactory extends GeometryFactory {
 
         public Geometry buffer(double distance) {
             return point.buffer(distance);
-        }
-
-        public Object clone() {
-            return point.clone();
         }
 
         public int compareTo(Object o, CoordinateSequenceComparator comp) {
@@ -1157,8 +1142,8 @@ class SimpleGeometryFactory extends GeometryFactory {
             return point.relate(g);
         }
 
-        public Geometry reverse() {
-            return point.reverse();
+        public MultiPoint reverse() {
+            return new MultiPoint(new Point[] {point.reverse()}, factory);
         }
 
         public void setSRID(int SRID) {
@@ -1196,7 +1181,5 @@ class SimpleGeometryFactory extends GeometryFactory {
         public boolean within(Geometry g) {
             return point.within(g);
         }
-
     }
-
 }

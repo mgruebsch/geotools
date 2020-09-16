@@ -5,14 +5,14 @@ The objects defined in the referencing module can be compared in a number of dif
 
 Related:
 
-* http://home.gdal.org/projects/opengis/wktproblems.html
+* http://gdal.org/wktproblems.html
 
 Compare Identifier
 ^^^^^^^^^^^^^^^^^^
 
-You can use the identifier name to compare two CoordinateReferenceSystem objects.
+You can use the identifier name to compare two ``CoordinateReferenceSystem`` objects.
 
-A ReferenceIdentifier is often composed of two parts:
+A ``ReferenceIdentifier`` is often composed of two parts:
 
 * Authority: assigned by by an authority body such as the European Petroleum Standards Group
 * Code: uniquely identifiers the referencing object according to the authority body 
@@ -20,7 +20,7 @@ A ReferenceIdentifier is often composed of two parts:
 
 Here is what that looks like::
   
-  CoordinateReferenceSystem crs1 = shapefile.getSchema().getDefaultGeometry().getCoordianteRefernceSystem();
+  CoordinateReferenceSystem crs1 = shapefile.getSchema().getDefaultGeometry().getCoordinateReferenceSystem();
   CoordinateReferenceSystem crs2 = CRS.decode("EPSG:4326");
   
   if( crs1.getName().equals( crs2.getName() ){
@@ -32,15 +32,15 @@ Here is what that looks like::
      ...
   }
 
-In this case you are only comparing the name (ie metadata) of the two objects. You are trusting that the two objects are the same, if they are called the same name.
+In this case you are only comparing the name (i.e. metadata) of the two objects. You are trusting that the two objects are the same, if they are called the same name.
 
 Compare Equals
 ^^^^^^^^^^^^^^
 
-Equals comparison is used to check when a CoordinateReferenceSystem, and all its component parts such as Datum, are exactly equal.::
+Equals comparison is used to check when a ``CoordinateReferenceSystem``, and all its component parts such as ``Datum``, are exactly equal.::
   
-  CoordinateReferenceSystem crs1 = shapefile.getSchema().getDefaultGeometry().getCoordianteRefernceSystem();
-  CoordianteReferenceSystem crs2 = CRS.decode("EPSG:4326");
+  CoordinateReferenceSystem crs1 = shapefile.getSchema().getDefaultGeometry().getCoordinateReferenceSystem();
+  CoordinateReferenceSystem crs2 = CRS.decode("EPSG:4326");
   
   if( crs1.equals( crs2 ){
      // The CoordinateReferenceSystem objects are exactly the same data structure
@@ -49,30 +49,30 @@ Equals comparison is used to check when a CoordinateReferenceSystem, and all its
 
 While the above makes sense, if it not often exactly what you want.
 
-Often it does not matter what name (ie metadata) the data structure goes by, so far it numerically represents the same idea.
+Often it does not matter what name (i.e. metadata) the data structure goes by, so far it numerically represents the same idea.
 
-You can check if two objects are equal, while ignoring metadata (such as the exact name used for the CoordinateReferenceSystem). This technique compares significant values only, i.e. mostly (with a few exception) the ones that would changes the numerical results when transforming a position from one CRS to the other.::
+You can check if two objects are equal, while ignoring metadata (such as the exact name used for the ``CoordinateReferenceSystem``). This technique compares significant values only, i.e. mostly (with a few exception) the ones that would changes the numerical results when transforming a position from one CRS to the other.::
   
-  if( crs1.equals( crs2, false ) ){
+  if( CRS.equalsIgnoreMetadata(crs1, crs2)){
       
   }
 
 The name is usually ignored, with only 2 exceptions:
 
-* Datum - The reason that we cannot ignore the name for a Datum is that it is the only
+* Datum - The reason that we cannot ignore the name for a ``Datum`` is that it is the only
   way to differentiate between datum. We can have many datum using the same Ellipsoid and
-  PrimeMeridian, and still be different datum (because AbstractDatum do not stores all
+  ``PrimeMeridian``, and still be different datum (because ``AbstractDatum`` do not stores all
   the geodesy work behind the datum definition - it would be complex and out of ISO 19111
   scope anyway).
   
-  In order to still allow a relaxed check we make use of a DatumAlias class, which help
-  the referencing engine to recognise for example that "WGS84" and "D_WGS84" are
+  In order to still allow a relaxed check we make use of a ``DatumAlias`` class, which help
+  the referencing engine to recognize for example that "WGS84" and "D_WGS84" are
   synonymous.
 
-* CoordinateSystemAxis - CoordinateSystemAxis is clearly defined by ISO19111, but some
-  variation is still seen in the wild. The DefaultCoordinateSystemAxis implementation
+* ``CoordinateSystemAxis`` - ``CoordinateSystemAxis`` is clearly defined by ISO19111, but some
+  variation is still seen in the wild. The ``DefaultCoordinateSystemAxis`` implementation
   handles a couple of alias as well (much less than Datum however).
   
   We have be unable to define an alias for "x" and "y" up to date, because "x" (for
   example) can means too many different things: "Easting" in a map projection,
-  "Geocentric X" in a GeocentricCRS, "Column" in an ImageCRS, etc...
+  "Geocentric X" in a ``GeocentricCRS``, "Column" in an ``ImageCRS``, etc...

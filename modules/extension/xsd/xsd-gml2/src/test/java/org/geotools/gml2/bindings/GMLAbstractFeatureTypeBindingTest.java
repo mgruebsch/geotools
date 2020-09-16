@@ -19,28 +19,22 @@ package org.geotools.gml2.bindings;
 import org.geotools.gml2.GML;
 import org.geotools.gml2.TEST;
 import org.geotools.gml2.TestConfiguration;
-import org.geotools.xml.Binding;
-import org.geotools.xml.Configuration;
+import org.geotools.xsd.Binding;
+import org.geotools.xsd.Configuration;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.vividsolutions.jts.geom.Point;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLAbstractFeatureTypeBindingTest extends GMLTestSupport {
     protected Configuration createConfiguration() {
         return new TestConfiguration();
     }
 
-    protected void registerNamespaces(Element root) {
-        super.registerNamespaces(root);
-        root.setAttribute("xmlns:test", TEST.NAMESPACE);
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        registerNamespaceMapping("test", TEST.NAMESPACE);
     }
 
     public void testType() {
@@ -72,8 +66,8 @@ public class GMLAbstractFeatureTypeBindingTest extends GMLTestSupport {
 
     public void testEncode() throws Exception {
         Document dom = encode(GML2MockData.feature(), TEST.TestFeature);
-        print(dom);
-        
+        // print(dom);
+
         assertEquals(1, dom.getElementsByTagName("gml:boundedBy").getLength());
         assertEquals(1, dom.getElementsByTagName("test:geom").getLength());
         assertEquals(1, dom.getElementsByTagName("test:count").getLength());

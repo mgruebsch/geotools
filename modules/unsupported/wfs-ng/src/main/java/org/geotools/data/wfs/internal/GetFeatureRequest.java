@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2014, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,16 +18,18 @@ package org.geotools.data.wfs.internal;
 
 import static org.geotools.data.wfs.internal.WFSOperationType.GET_FEATURE;
 
+import net.opengis.wfs20.StoredQueryDescriptionType;
+import org.geotools.util.factory.Hints;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
-/**
- */
+/** */
 public class GetFeatureRequest extends WFSRequest {
 
     public enum ResultType {
-        RESULTS, HITS;
+        RESULTS,
+        HITS;
     }
 
     private String[] propertyNames;
@@ -46,23 +48,18 @@ public class GetFeatureRequest extends WFSRequest {
 
     private FeatureType queryType;
 
-    private Filter unsupportedFilter;;
+    private Filter unsupportedFilter;
+
+    private boolean storedQuery;
+
+    private StoredQueryDescriptionType storedQueryDescriptionType;
+
+    private Hints hints;
 
     GetFeatureRequest(WFSConfig config, WFSStrategy strategy) {
         super(GET_FEATURE, config, strategy);
         resultType = ResultType.RESULTS;
     }
-
-    //
-    // public GetFeatureRequest(GetFeatureRequest query) {
-    // setFilter(query.getFilter());
-    // setMaxFeatures(query.getMaxFeatures());
-    // setOutputFormat(query.getOutputFormat());
-    // setPropertyNames(query.getPropertyNames());
-    // setResultType(query.getResultType());
-    // setSortBy(query.getSortBy());
-    // setSrsName(query.getSrsName());
-    // }
 
     public String[] getPropertyNames() {
         return propertyNames;
@@ -88,50 +85,32 @@ public class GetFeatureRequest extends WFSRequest {
         return sortBy;
     }
 
-    /**
-     * @param propertyNames
-     *            the propertyNames to set
-     */
+    /** @param propertyNames the propertyNames to set */
     public void setPropertyNames(String[] propertyNames) {
         this.propertyNames = propertyNames;
     }
 
-    /**
-     * @param srsName
-     *            the srsName to set
-     */
+    /** @param srsName the srsName to set */
     public void setSrsName(String srsName) {
         this.srsName = srsName;
     }
 
-    /**
-     * @param filter
-     *            the filter to set
-     */
+    /** @param filter the filter to set */
     public void setFilter(Filter filter) {
         this.filter = filter;
     }
 
-    /**
-     * @param maxFeatures
-     *            the maxFeatures to set
-     */
+    /** @param maxFeatures the maxFeatures to set */
     public void setMaxFeatures(Integer maxFeatures) {
         this.maxFeatures = maxFeatures;
     }
 
-    /**
-     * @param resultType
-     *            the resultType to set
-     */
+    /** @param resultType the resultType to set */
     public void setResultType(ResultType resultType) {
         this.resultType = resultType;
     }
 
-    /**
-     * @param sortBy
-     *            the sortBy to set
-     */
+    /** @param sortBy the sortBy to set */
     public void setSortBy(SortBy[] sortBy) {
         this.sortBy = sortBy;
     }
@@ -158,5 +137,29 @@ public class GetFeatureRequest extends WFSRequest {
 
     public Filter getUnsupportedFilter() {
         return unsupportedFilter == null ? Filter.INCLUDE : unsupportedFilter;
+    }
+
+    public boolean isStoredQuery() {
+        return storedQuery;
+    }
+
+    public void setStoredQuery(boolean storedQuery) {
+        this.storedQuery = storedQuery;
+    }
+
+    public void setHints(Hints hints) {
+        this.hints = hints;
+    }
+
+    public Hints getHints() {
+        return hints;
+    }
+
+    public StoredQueryDescriptionType getStoredQueryDescriptionType() {
+        return storedQueryDescriptionType;
+    }
+
+    public void setStoredQueryDescriptionType(StoredQueryDescriptionType desc) {
+        this.storedQueryDescriptionType = desc;
     }
 }

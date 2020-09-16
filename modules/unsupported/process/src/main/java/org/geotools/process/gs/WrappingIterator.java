@@ -18,16 +18,13 @@
 package org.geotools.process.gs;
 
 import java.util.Iterator;
-
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**
  * An iterator wrapping a {@link SimpleFeatureIterator} and exposing its close method.
- * 
- * @author Andrea Aime - OpenGeo
  *
- * @source $URL$
+ * @author Andrea Aime - OpenGeo
  */
 public class WrappingIterator implements Iterator<SimpleFeature>, SimpleFeatureIterator {
     SimpleFeatureIterator delegate;

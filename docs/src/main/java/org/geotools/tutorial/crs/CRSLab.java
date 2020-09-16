@@ -2,7 +2,25 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2006-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2019, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2006-2014, Open Source Geospatial Foundation (OSGeo)
  *
  *    This file is hereby placed into the Public Domain. This means anyone is
  *    free to do whatever they wish with this file. Use it well and enjoy!
@@ -15,15 +33,11 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingWorker;
-
-import com.vividsolutions.jts.geom.Geometry;
-
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DefaultTransaction;
@@ -49,6 +63,7 @@ import org.geotools.swing.JMapFrame;
 import org.geotools.swing.JProgressWindow;
 import org.geotools.swing.action.SafeAction;
 import org.geotools.swing.data.JFileDataStoreChooser;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
@@ -58,9 +73,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.util.ProgressListener;
 
-/**
- * This is a visual example of changing the coordinate reference system of a feature layer.
- */
+/** This is a visual example of changing the coordinate reference system of a feature layer. */
 public class CRSLab {
 
     private File sourceFile;
@@ -75,10 +88,11 @@ public class CRSLab {
     // docs end main
     /**
      * This method:
+     *
      * <ol type="1">
-     * <li>Prompts the user for a shapefile to display
-     * <li>Creates a JMapFrame with custom toolbar buttons
-     * <li>Displays the shapefile
+     *   <li>Prompts the user for a shapefile to display
+     *   <li>Creates a JMapFrame with custom toolbar buttons
+     *   <li>Displays the shapefile
      * </ol>
      */
     // docs start display
@@ -143,19 +157,21 @@ public class CRSLab {
 
         // And create a new Shapefile with a slight modified schema
         DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
-        Map<String, Serializable> create = new HashMap<String, Serializable>();
+        Map<String, Serializable> create = new HashMap<>();
         create.put("url", file.toURI().toURL());
         create.put("create spatial index", Boolean.TRUE);
         DataStore dataStore = factory.createNewDataStore(create);
         SimpleFeatureType featureType = SimpleFeatureTypeBuilder.retype(schema, worldCRS);
         dataStore.createSchema(featureType);
 
+        // Get the name of the new Shapefile, which will be used to open the FeatureWriter
+        String createdName = dataStore.getTypeNames()[0];
+
         // carefully open an iterator and writer to process the results
         Transaction transaction = new DefaultTransaction("Reproject");
-        FeatureWriter<SimpleFeatureType, SimpleFeature> writer =
-                        dataStore.getFeatureWriterAppend(featureType.getTypeName(), transaction);
-        SimpleFeatureIterator iterator = featureCollection.features();
-        try {
+        try (FeatureWriter<SimpleFeatureType, SimpleFeature> writer =
+                        dataStore.getFeatureWriterAppend(createdName, transaction);
+                SimpleFeatureIterator iterator = featureCollection.features()) {
             while (iterator.hasNext()) {
                 // copy the contents of each feature and transform the geometry
                 SimpleFeature feature = iterator.next();
@@ -175,8 +191,6 @@ public class CRSLab {
             transaction.rollback();
             JOptionPane.showMessageDialog(null, "Export to shapefile failed");
         } finally {
-            writer.close();
-            iterator.close();
             transaction.close();
         }
     }
@@ -200,8 +214,8 @@ public class CRSLab {
 
         File file = chooser.getSelectedFile();
         if (file.equals(sourceFile)) {
-            JOptionPane.showMessageDialog(null, "Cannot replace " + file, "File warning",
-                            JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    null, "Cannot replace " + file, "File warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
         // We can now query to retrieve a FeatureCollection in the desired crs
@@ -213,7 +227,7 @@ public class CRSLab {
         // And create a new Shapefile with the results
         DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
 
-        Map<String, Serializable> create = new HashMap<String, Serializable>();
+        Map<String, Serializable> create = new HashMap<>();
         create.put("url", file.toURI().toURL());
         create.put("create spatial index", Boolean.TRUE);
         DataStore newDataStore = factory.createNewDataStore(create);
@@ -226,13 +240,16 @@ public class CRSLab {
         try {
             featureStore.addFeatures(featureCollection);
             transaction.commit();
-            JOptionPane.showMessageDialog(null, "Export to shapefile complete", "Export",
-                            JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Export to shapefile complete",
+                    "Export",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception problem) {
             transaction.rollback();
             problem.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Export to shapefile failed", "Export",
-                            JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    null, "Export to shapefile failed", "Export", JOptionPane.ERROR_MESSAGE);
         } finally {
             transaction.close();
         }
@@ -242,10 +259,10 @@ public class CRSLab {
     /**
      * Check the Geometry (point, line or polygon) of each feature to make sure that it is
      * topologically valid and report on any errors found.
-     * <p>
-     * See also the nested ValidateGeometryAction class below which runs this method in a background
-     * thread and reports on the results
-     * 
+     *
+     * <p>See also the nested ValidateGeometryAction class below which runs this method in a
+     * background thread and reports on the results
+     *
      * @return the number of invalid geometries found
      */
     // docs start validate
@@ -255,6 +272,7 @@ public class CRSLab {
         // Rather than use an iterator, create a FeatureVisitor to check each fature
         class ValidationVisitor implements FeatureVisitor {
             public int numInvalidGeometries = 0;
+
             public void visit(Feature f) {
                 SimpleFeature feature = (SimpleFeature) f;
                 Geometry geom = (Geometry) feature.getDefaultGeometry();
@@ -284,6 +302,7 @@ public class CRSLab {
             super("Export...");
             putValue(Action.SHORT_DESCRIPTION, "Export using current crs");
         }
+
         public void action(ActionEvent e) throws Throwable {
             exportToShapefile();
         }
@@ -300,6 +319,7 @@ public class CRSLab {
             super("Validate geometry");
             putValue(Action.SHORT_DESCRIPTION, "Check each geometry");
         }
+
         public void action(ActionEvent e) throws Throwable {
             int numInvalid = validateFeatureGeometry(null);
             String msg;
@@ -308,8 +328,8 @@ public class CRSLab {
             } else {
                 msg = "Invalid geometries: " + numInvalid;
             }
-            JOptionPane.showMessageDialog(null, msg, "Geometry results",
-                            JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    null, msg, "Geometry results", JOptionPane.INFORMATION_MESSAGE);
         }
     }
     // docs end validate action
@@ -324,32 +344,38 @@ public class CRSLab {
             super("Validate geometry");
             putValue(Action.SHORT_DESCRIPTION, "Check each geometry");
         }
+
         public void action(ActionEvent e) throws Throwable {
             // Here we use the SwingWorker helper class to run the validation routine in a
             // background thread, otherwise the GUI would wait and the progress bar would not be
             // displayed properly
-            SwingWorker worker = new SwingWorker<String, Object>() {
-                protected String doInBackground() throws Exception {
-                    // For shapefiles with many features its nice to display a progress bar
-                    final JProgressWindow progress = new JProgressWindow(null);
-                    progress.setTitle("Validating feature geometry");
+            SwingWorker worker =
+                    new SwingWorker<String, Object>() {
+                        protected String doInBackground() throws Exception {
+                            // For shapefiles with many features its nice to display a progress bar
+                            final JProgressWindow progress = new JProgressWindow(null);
+                            progress.setTitle("Validating feature geometry");
 
-                    int numInvalid = validateFeatureGeometry(progress);
-                    if (numInvalid == 0) {
-                        return "All feature geometries are valid";
-                    } else {
-                        return "Invalid geometries: " + numInvalid;
-                    }
-                }
-                protected void done() {
-                    try {
-                        Object result = get();
-                        JOptionPane.showMessageDialog(null, result, "Geometry results",
+                            int numInvalid = validateFeatureGeometry(progress);
+                            if (numInvalid == 0) {
+                                return "All feature geometries are valid";
+                            } else {
+                                return "Invalid geometries: " + numInvalid;
+                            }
+                        }
+
+                        protected void done() {
+                            try {
+                                Object result = get();
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        result,
+                                        "Geometry results",
                                         JOptionPane.INFORMATION_MESSAGE);
-                    } catch (Exception ignore) {
-                    }
-                }
-            };
+                            } catch (Exception ignore) {
+                            }
+                        }
+                    };
             // This statement runs the validation method in a background thread
             worker.execute();
         }

@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -26,54 +26,44 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
+import javax.media.jai.GraphicsJAI;
+import javax.media.jai.PlanarImage;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.media.jai.GraphicsJAI;
-import javax.media.jai.PlanarImage;
-
-import org.opengis.util.InternationalString;
-import org.opengis.parameter.ParameterValueGroup;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.processing.CoverageProcessor;
-import org.geotools.resources.Arguments;
-import org.geotools.resources.Classes;
+import org.geotools.util.Arguments;
+import org.geotools.util.Classes;
 import org.geotools.util.Utilities;
-
+import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.util.InternationalString;
 
 /**
- * A very simple viewer for {@link GridCoverage2D}. This viewer provides no zoom
- * capability, no user interaction and ignores the coordinate system. It is just
- * for quick test of grid coverage.
+ * A very simple viewer for {@link GridCoverage2D}. This viewer provides no zoom capability, no user
+ * interaction and ignores the coordinate system. It is just for quick test of grid coverage.
  *
- *
- *
- * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
 @SuppressWarnings("serial")
 public class Viewer extends JPanel {
-    /**
-     * The image to display.
-     */
+    /** The image to display. */
     private final RenderedImage image;
 
     /**
-     * The main sample dimension, or {@code null} if none.
-     * Used by {@link #printPalette} for printing categories.
+     * The main sample dimension, or {@code null} if none. Used by {@link #printPalette} for
+     * printing categories.
      */
     private GridSampleDimension categories;
 
     /**
-     * The transform from grid to coordinate system.
-     * Usually an identity transform for this simple viewer.
+     * The transform from grid to coordinate system. Usually an identity transform for this simple
+     * viewer.
      */
     private final AffineTransform gridToCoordinateSystem = new AffineTransform();
 
-    /**
-     * The location for the next frame window.
-     */
+    /** The location for the next frame window. */
     private static int location;
 
     /**
@@ -110,10 +100,10 @@ public class Viewer extends JPanel {
     }
 
     /**
-     * A convenience method showing an image. The application
-     * will be terminated when the user close the frame.
+     * A convenience method showing an image. The application will be terminated when the user close
+     * the frame.
      *
-     * @param  image The coverage to display.
+     * @param image The coverage to display.
      * @return The viewer, for information.
      */
     public static Viewer show(final RenderedImage image) {
@@ -121,11 +111,11 @@ public class Viewer extends JPanel {
     }
 
     /**
-     * A convenience method showing an image. The application
-     * will be terminated when the user close the frame.
+     * A convenience method showing an image. The application will be terminated when the user close
+     * the frame.
      *
-     * @param  image The coverage to display.
-     * @param  title The windows title, or {@code null} for a default one.
+     * @param image The coverage to display.
+     * @param title The windows title, or {@code null} for a default one.
      * @return The viewer, for information.
      */
     public static Viewer show(final RenderedImage image, final String title) {
@@ -133,10 +123,10 @@ public class Viewer extends JPanel {
     }
 
     /**
-     * A convenience method showing a grid coverage. The application
-     * will be terminated when the user close the frame.
+     * A convenience method showing a grid coverage. The application will be terminated when the
+     * user close the frame.
      *
-     * @param  coverage The coverage to display.
+     * @param coverage The coverage to display.
      * @return The viewer, for information.
      */
     public static Viewer show(final GridCoverage2D coverage) {
@@ -144,11 +134,11 @@ public class Viewer extends JPanel {
     }
 
     /**
-     * A convenience method showing a grid coverage. The application
-     * will be terminated when the user close the frame.
+     * A convenience method showing a grid coverage. The application will be terminated when the
+     * user close the frame.
      *
-     * @param  coverage The coverage to display.
-     * @param  title The window title.
+     * @param coverage The coverage to display.
+     * @param title The window title.
      * @return The viewer, for information.
      */
     public static Viewer show(final GridCoverage2D coverage, final String title) {
@@ -161,20 +151,15 @@ public class Viewer extends JPanel {
         if (name != null) {
             buffer.append(name.toString(JComponent.getDefaultLocale()));
         }
-        if (coverage != coverage.view(ViewType.GEOPHYSICS)) {
-            buffer.append(" (packed)");
-        } else if (coverage != coverage.view(ViewType.RENDERED)) {
-            buffer.append(" (geophysics)");
-        }
         return show(new Viewer(coverage), buffer.toString());
     }
 
     /**
-     * A convenience method showing a grid coverage. The application
-     * will be terminated when the user close the frame.
+     * A convenience method showing a grid coverage. The application will be terminated when the
+     * user close the frame.
      *
-     * @param  viewer The viewer to display.
-     * @param  title  The frame title, or {@code null} if none.
+     * @param viewer The viewer to display.
+     * @param title The frame title, or {@code null} if none.
      * @return The viewer, for convenience.
      */
     private static Viewer show(final Viewer viewer, final String title) {
@@ -189,10 +174,10 @@ public class Viewer extends JPanel {
     }
 
     /**
-     * Prints the color palette to the specified output stream. First, the color model
-     * name is displayed. Next, if the color model is an {@link IndexColorModel}, then the
-     * RGB codes are written for all samples values. Category names or geophysics values,
-     * if any are written after each sample values.
+     * Prints the color palette to the specified output stream. First, the color model name is
+     * displayed. Next, if the color model is an {@link IndexColorModel}, then the RGB codes are
+     * written for all samples values. Category names or geophysics values, if any are written after
+     * each sample values.
      *
      * @param out The writer where to print the palette.
      */
@@ -210,14 +195,18 @@ public class Viewer extends JPanel {
             final byte[] R = new byte[size];
             final byte[] G = new byte[size];
             final byte[] B = new byte[size];
-            palette.getReds  (R);
+            palette.getReds(R);
             palette.getGreens(G);
-            palette.getBlues (B);
-            for (int i=0; i<size; i++) {
-                format(out,   i);  out.print(":    RGB[");
-                format(out, R[i]); out.print(',');
-                format(out, G[i]); out.print(',');
-                format(out, R[i]); out.print(']');
+            palette.getBlues(B);
+            for (int i = 0; i < size; i++) {
+                format(out, i);
+                out.print(":    RGB[");
+                format(out, R[i]);
+                out.print(',');
+                format(out, G[i]);
+                out.print(',');
+                format(out, R[i]);
+                out.print(']');
                 if (categories != null) {
                     final String label = categories.getLabel(i, locale);
                     if (label != null) {
@@ -233,19 +222,19 @@ public class Viewer extends JPanel {
     }
 
     /**
-     * Format a unsigned byte to the specified output stream.
-     * The number will be right-justified in a cell of 3 spaces width.
+     * Format a unsigned byte to the specified output stream. The number will be right-justified in
+     * a cell of 3 spaces width.
      *
      * @param The writer where to print the number.
      * @param value The number to format.
      */
     private static void format(final PrintWriter out, final byte value) {
-        format(out, ((int)value) & 0xFF);
+        format(out, ((int) value) & 0xFF);
     }
 
     /**
-     * Format an integer to the specified output stream.
-     * The number will be right-justified in a cell of 3 spaces width.
+     * Format an integer to the specified output stream. The number will be right-justified in a
+     * cell of 3 spaces width.
      *
      * @param The writer where to print the number.
      * @param value The number to format.
@@ -264,11 +253,10 @@ public class Viewer extends JPanel {
      */
     public static void main(String[] args) throws IOException {
         final Arguments arguments = new Arguments(args);
-        final PrintWriter     out = arguments.out;
-        final Locale       locale = arguments.locale;
-        final String    operation = arguments.getOptionalString ("-operation");
-        final Boolean  geophysics = arguments.getOptionalBoolean("-geophysics");
-        final boolean     palette = arguments.getFlag           ("-palette");
+        final PrintWriter out = arguments.out;
+        final Locale locale = arguments.locale;
+        final String operation = arguments.getOptionalString("-operation");
+        final boolean palette = arguments.getFlag("-palette");
         args = arguments.getRemainingArguments(1);
         if (args.length == 0) {
             out.println("Usage: Viewer [options] example");
@@ -278,19 +266,15 @@ public class Viewer extends JPanel {
             out.println(" inclusive)");
             out.println("and [options] includes:");
             out.println();
-            out.println("  -operation=[s]  An operation name to apply (e.g. \"GradientMagniture\").");
+            out.println(
+                    "  -operation=[s]  An operation name to apply (e.g. \"GradientMagniture\").");
             out.println("                  For a list of available operations, run the following:");
             out.println("                  java org.geotools.coverage.processing.DefaultProcessor");
-            out.println("  -geophysics=[b] Set to 'true' or 'false' for requesting a \"geophysics\"");
-            out.println("                  version of data or an indexed version, respectively.");
             out.println("  -palette        Dumps RGB codes to standard output.");
             out.flush();
             return;
         }
         GridCoverage2D coverage = GridCoverageTestBase.EXAMPLES.get(Integer.parseInt(args[0]));
-        if (geophysics != null) {
-            coverage = coverage.view(geophysics.booleanValue() ? ViewType.GEOPHYSICS : ViewType.RENDERED);
-        }
         if (operation != null) {
             final CoverageProcessor processor = CoverageProcessor.getInstance();
             final ParameterValueGroup param = processor.getOperation(operation).getParameters();

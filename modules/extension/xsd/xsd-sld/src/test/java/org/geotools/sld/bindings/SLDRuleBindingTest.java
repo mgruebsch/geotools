@@ -17,15 +17,8 @@
 package org.geotools.sld.bindings;
 
 import java.util.Locale;
-
 import org.geotools.styling.Rule;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class SLDRuleBindingTest extends SLDTestSupport {
     public void testType() throws Exception {
         assertEquals(Rule.class, new SLDRuleBinding(null).getType());
@@ -38,26 +31,24 @@ public class SLDRuleBindingTest extends SLDTestSupport {
 
         assertNotNull(rule);
         assertEquals("theName", rule.getName());
-        assertEquals("theAbstract", rule.getAbstract());
-        assertEquals("theTitle", rule.getTitle());
+        assertEquals("theAbstract", rule.getDescription().getAbstract().toString());
+        assertEquals("theTitle", rule.getDescription().getTitle().toString());
 
-        assertEquals(1, rule.getLegendGraphic().length);
+        assertNotNull(rule.getLegend());
         assertEquals(1d, rule.getMinScaleDenominator(), 0d);
         assertEquals(1d, rule.getMaxScaleDenominator(), 0d);
-        assertEquals(5, rule.getSymbolizers().length);
+        assertEquals(5, rule.symbolizers().size());
     }
-    
+
     public void testLocalized() throws Exception {
         SLDMockData.localizedRule(document, document);
 
         Rule rule = (Rule) parse();
 
         assertNotNull(rule);
-        
+
         assertEquals("theTitle", rule.getDescription().getTitle().toString());
         assertEquals("english", rule.getDescription().getTitle().toString(Locale.ENGLISH));
         assertEquals("italian", rule.getDescription().getTitle().toString(Locale.ITALIAN));
-
-        
     }
 }

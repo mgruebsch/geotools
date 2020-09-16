@@ -16,8 +16,9 @@
  */
 package org.geotools.graph.traverse.standard;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
-
+import java.util.Queue;
 import org.geotools.graph.structure.DirectedGraphable;
 import org.geotools.graph.structure.DirectedNode;
 import org.geotools.graph.structure.Graph;
@@ -25,63 +26,58 @@ import org.geotools.graph.structure.GraphVisitor;
 import org.geotools.graph.structure.Graphable;
 import org.geotools.graph.traverse.GraphTraversal;
 import org.geotools.graph.traverse.basic.AbstractGraphIterator;
-import org.geotools.graph.util.FIFOQueue;
-import org.geotools.graph.util.Queue;
 
+public class DirectedBreadthFirstTopologicalIterator extends AbstractGraphIterator {
 
-/**
- *
- *
- * @source $URL$
- */
-public class DirectedBreadthFirstTopologicalIterator 
-  extends AbstractGraphIterator {
+    private Queue<Graphable> m_queue;
 
-  private Queue m_queue;
-  
-  public void init(Graph graph, GraphTraversal traversal) {
-    //create queue
-    m_queue = buildQueue(graph);
-    
-    //initialize nodes
-    graph.visitNodes(
-      new GraphVisitor() {
-        public int visit(Graphable component) {
-          DirectedNode node = (DirectedNode)component;
-          
-          node.setVisited(false);
-          node.setCount(0);
-          
-          if (node.getInDegree() == 0) m_queue.enq(node);
-          
-          return(0);  
-        }
-      } 
-    );
-  }
+    @Override
+    public void init(Graph graph, GraphTraversal traversal) {
+        // create queue
+        m_queue = buildQueue(graph);
 
-  public Graphable next(GraphTraversal traversal) {
-    return(!m_queue.isEmpty() ? (Graphable)m_queue.deq() : null); 
-  }
+        // initialize nodes
+        graph.visitNodes(
+                new GraphVisitor() {
+                    @Override
+                    public int visit(Graphable component) {
+                        DirectedNode node = (DirectedNode) component;
 
-  public void cont(Graphable current, GraphTraversal traversal) {
-    //increment the count of all adjacent nodes by one
-    // if the result count equal to the degree, place it into the queue
-    DirectedGraphable directed = (DirectedGraphable)current;
-    for (Iterator itr = directed.getOutRelated(); itr.hasNext();) {
-      DirectedNode related = (DirectedNode)itr.next();
-      if (!traversal.isVisited(related)) {
-        related.setCount(related.getCount()+1);  
-        if (related.getInDegree() == related.getCount()) m_queue.enq(related);
-      }  
+                        node.setVisited(false);
+                        node.setCount(0);
+
+                        if (node.getInDegree() == 0) m_queue.add(node);
+
+                        return (0);
+                    }
+                });
     }
-  }
 
-  public void killBranch(Graphable current, GraphTraversal traversal) {
-    //do nothing
-  }
-  
-  protected Queue buildQueue(Graph graph) {
-    return(new FIFOQueue(graph.getNodes().size()));  
-  }
+    @Override
+    public Graphable next(GraphTraversal traversal) {
+        return (!m_queue.isEmpty() ? (Graphable) m_queue.remove() : null);
+    }
+
+    @Override
+    public void cont(Graphable current, GraphTraversal traversal) {
+        // increment the count of all adjacent nodes by one
+        // if the result count equal to the degree, place it into the queue
+        DirectedGraphable directed = (DirectedGraphable) current;
+        for (Iterator<? extends Graphable> itr = directed.getOutRelated(); itr.hasNext(); ) {
+            DirectedNode related = (DirectedNode) itr.next();
+            if (!traversal.isVisited(related)) {
+                related.setCount(related.getCount() + 1);
+                if (related.getInDegree() == related.getCount()) m_queue.add(related);
+            }
+        }
+    }
+
+    @Override
+    public void killBranch(Graphable current, GraphTraversal traversal) {
+        // do nothing
+    }
+
+    protected Queue<Graphable> buildQueue(Graph graph) {
+        return (new ArrayDeque<>(graph.getNodes().size()));
+    }
 }

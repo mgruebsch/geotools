@@ -37,13 +37,13 @@ Module maintainers have the three most critical responsibilities in GeoTools:
    
    * Your source code must meet the developers guide to the letter
    * Your test code coverage is measured by the build box (you can provide a profile - if normal JUnit tests take too long)
-   * Your module code up should be up to date with other released modules (no deprecations)
+   * Your module code should be up to date with other released modules (no deprecations)
 
 3. You must keep your external documentation up to date
    
    * The Jira issue tracker should be up to date
    * Your module should have a couple of pages of User Guide
-   * Your module's wiki page should be accurate (see Module Matrix for the complete list)
+   * Your module should have an up-to-date README.md file
 
 If these requirements are not met for a release, or if the module maintainer cannot be found, the module will revert to unsupported status.
 
@@ -59,8 +59,8 @@ We have a "relaxed" set of requirements for "unsupported" modules - providing a 
    
    Recommended:
    
-   * User documentation will help reduce the amount of email you recieve
-   * Set up a module wiki page (see `Module Matrix <http://docs.codehaus.org/display/GEOTOOLS/Module+Matrix>`_ for the complete list)
+   * User documentation will help reduce the amount of email you receive
+   * Set up a module README.md page
     
 3. We have no process for "volunteering" to work on an unsupported module at this time; email the
    developer list and we will figure it out.

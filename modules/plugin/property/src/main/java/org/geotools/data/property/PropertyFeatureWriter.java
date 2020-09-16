@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,19 +16,26 @@
  */
 package org.geotools.data.property;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureWriter;
-import org.geotools.data.Transaction;
-import org.geotools.factory.Hints;
+import org.geotools.data.Query;
+import org.geotools.data.store.ContentFeatureSource;
+import org.geotools.data.store.ContentState;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.geometry.jts.WKTWriter2;
+import org.geotools.util.Converters;
+import org.geotools.util.factory.Hints;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.WKTWriter;
 import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -36,44 +43,61 @@ import org.opengis.feature.simple.SimpleFeatureType;
 /**
  * Uses PropertyAttributeWriter to generate a property file on disk.
  *
- *
- * @source $URL$
+ * @author Jody Garnett
+ * @author Torben Barsballe (Boundless)
  */
-public class PropertyFeatureWriter implements
-        FeatureWriter<SimpleFeatureType, SimpleFeature> {
+public class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFeature> {
 
     PropertyDataStore store;
+    ContentFeatureSource featureSource;
     File read;
-    PropertyAttributeReader reader;
+    private PropertyFeatureReader delegate;
     File write;
-    PropertyAttributeWriter writer;
+
+    // the writer will dump the z only when avaialble, so 3 can be the default
+    WKTWriter wktWriter = new WKTWriter2(3);
+    BufferedWriter writer;
+    SimpleFeatureType type;
+
     SimpleFeature origional = null;
     SimpleFeature live = null;
+    private ContentState state;
 
-    public PropertyFeatureWriter(PropertyDataStore dataStore, String typeName)
+    public PropertyFeatureWriter(
+            ContentFeatureSource source, ContentState contentState, Query query, boolean append)
             throws IOException {
-        store = dataStore;
-        File dir = store.directory;
-        read = new File(dir, typeName + ".properties");
-        write = File.createTempFile(typeName + System.currentTimeMillis(),
-                null, dir);
+        this.state = contentState;
+        this.featureSource = source;
+        PropertyDataStore store = (PropertyDataStore) contentState.getEntry().getDataStore();
+        String namespaceURI = store.getNamespaceURI();
+        String typeName = query.getTypeName();
 
-        reader = new PropertyAttributeReader(read);
-        writer = new PropertyAttributeWriter(write, reader.type);
+        File dir = store.dir;
+        read = new File(store.dir, typeName + ".properties");
+        write = File.createTempFile(typeName + System.currentTimeMillis(), null, dir);
+
+        // start reading
+        delegate = new PropertyFeatureReader(namespaceURI, read);
+        type = delegate.getFeatureType();
+
+        // open writer
+        writer = new BufferedWriter(new FileWriter(write));
+        // write header
+        writer.write("_=");
+        writer.write(DataUtilities.encodeType(type));
     }
-
     // constructor end
 
     // getFeatureType start
     public SimpleFeatureType getFeatureType() {
-        return reader.type;
+        return state.getFeatureType();
     }
-
     // getFeatureType end
+
     // hasNext start
     public boolean hasNext() throws IOException {
         if (writer == null) {
-            throw new IOException("Writer has been closed");
+            return false; // writer has been closed
         }
         if (live != null && origional != null) {
             // we have returned something to the user,
@@ -83,50 +107,84 @@ public class PropertyFeatureWriter implements
             origional = null;
             live = null;
         }
-        return reader.hasNext();
+        return delegate.hasNext();
     }
-
     // hasNext end
+
     // writeImplementation start
     private void writeImplementation(SimpleFeature f) throws IOException {
-        writer.next();
+        if (writer == null) {
+            throw new IOException("Writer has been closed");
+        }
+        writer.newLine();
+        writer.flush();
         String fid = f.getID();
-        if( Boolean.TRUE.equals( f.getUserData().get(Hints.USE_PROVIDED_FID) ) ){
-            if( f.getUserData().containsKey(Hints.PROVIDED_FID)){
+        if (Boolean.TRUE.equals(f.getUserData().get(Hints.USE_PROVIDED_FID))) {
+            if (f.getUserData().containsKey(Hints.PROVIDED_FID)) {
                 fid = (String) f.getUserData().get(Hints.PROVIDED_FID);
             }
         }
-        writer.writeFeatureID(fid);
+        writeFeatureID(fid);
         for (int i = 0; i < f.getAttributeCount(); i++) {
             Object value = f.getAttribute(i);
-            writer.write(i, value );            
+            write(i, value);
         }
     }
 
+    public void writeFeatureID(String fid) throws IOException {
+        if (writer == null) {
+            throw new IOException("Writer has been closed");
+        }
+        writer.write(fid);
+    }
+
+    public void write(int position, Object attribute) throws IOException {
+        if (writer == null) {
+            throw new IOException("Writer has been closed");
+        }
+        writer.write(position == 0 ? "=" : "|");
+        if (attribute == null) {
+            writer.write("<null>"); // nothing!
+        } else if (attribute instanceof String) {
+            // encode newlines
+            String txt = (String) attribute;
+            txt = txt.replace("\n", "\\n");
+            txt = txt.replace("\r", "\\r");
+            writer.write(txt);
+        } else if (attribute instanceof Geometry) {
+            Geometry geometry = (Geometry) attribute;
+            wktWriter.write(geometry, writer);
+        } else {
+            String txt = Converters.convert(attribute, String.class);
+            if (txt == null) { // could not convert?
+                txt = attribute.toString();
+            }
+            writer.write(txt);
+        }
+    }
     // writeImplementation end
+
     // next start
-    long nextFid = System.currentTimeMillis(); // seed with a big number
     public SimpleFeature next() throws IOException {
         if (writer == null) {
             throw new IOException("Writer has been closed");
         }
         String fid = null;
-        SimpleFeatureType type = reader.type;
         try {
             if (hasNext()) {
-                reader.next(); // grab next line
+                delegate.next(); // grab next line
 
-                fid = reader.getFeatureID();
-                Object values[] = new Object[reader.getAttributeCount()];
-                for (int i = 0; i < reader.getAttributeCount(); i++) {
-                    values[i] = reader.read(i);
+                fid = delegate.fid;
+                Object values[] = new Object[type.getAttributeCount()];
+                for (int i = 0; i < type.getAttributeCount(); i++) {
+                    values[i] = delegate.read(i);
                 }
 
                 origional = SimpleFeatureBuilder.build(type, values, fid);
                 live = SimpleFeatureBuilder.copy(origional);
                 return live;
             } else {
-                fid = type.getTypeName() + "." + (nextFid++);
+                fid = type.getTypeName() + "." + System.currentTimeMillis();
                 Object values[] = DataUtilities.defaultValues(type);
 
                 origional = null;
@@ -134,13 +192,12 @@ public class PropertyFeatureWriter implements
                 return live;
             }
         } catch (IllegalAttributeException e) {
-            String message = "Problem creating feature "
-                    + (fid != null ? fid : "");
+            String message = "Problem creating feature " + (fid != null ? fid : "");
             throw new DataSourceException(message, e);
         }
     }
-
     // next end
+
     // write start
     public void write() throws IOException {
         if (live == null) {
@@ -150,34 +207,35 @@ public class PropertyFeatureWriter implements
             writeImplementation(origional);
         } else {
             writeImplementation(live);
-            String typeName = live.getFeatureType().getTypeName();
-            Transaction autoCommit = Transaction.AUTO_COMMIT;
+            // String typeName = live.getFeatureType().getTypeName();
+            // Transaction autoCommit = Transaction.AUTO_COMMIT;
             if (origional != null) {
-                ReferencedEnvelope bounds = new ReferencedEnvelope();
-                bounds.include(live.getBounds());
+                ReferencedEnvelope bounds = ReferencedEnvelope.reference(live.getBounds());
                 bounds.include(origional.getBounds());
-                store.listenerManager.fireFeaturesChanged(typeName, autoCommit,
-                        bounds, false);
+                state.fireFeatureUpdated(featureSource, live, bounds);
+                // store.listenerManager.fireFeaturesChanged(typeName, autoCommit, bounds, false);
             } else {
-                store.listenerManager.fireFeaturesAdded(typeName, autoCommit,
-                        ReferencedEnvelope.reference(live.getBounds()), false);
+                state.fireFeatureAdded(featureSource, live);
+                // store.listenerManager.fireFeaturesAdded(typeName, autoCommit,
+                // ReferencedEnvelope.reference(live.getBounds()), false);
             }
         }
         origional = null;
         live = null;
     }
-
     // write end
+
     // remove start
     public void remove() throws IOException {
         if (live == null) {
             throw new IOException("No current feature to remove");
         }
         if (origional != null) {
-            String typeName = live.getFeatureType().getTypeName();
-            Transaction autoCommit = Transaction.AUTO_COMMIT;
-            store.listenerManager.fireFeaturesRemoved(typeName, autoCommit,
-                    ReferencedEnvelope.reference(origional.getBounds()), false);
+            // String typeName = live.getFeatureType().getTypeName();
+            // Transaction autoCommit = Transaction.AUTO_COMMIT;
+            state.fireFeatureRemoved(featureSource, origional);
+            // store.listenerManager.fireFeaturesRemoved(typeName,
+            // autoCommit,ReferencedEnvelope.reference(origional.getBounds()), false);
         }
         origional = null;
         live = null; // prevent live and remove from being written out
@@ -191,20 +249,23 @@ public class PropertyFeatureWriter implements
         }
         // write out remaining contents from reader
         // if applicable
-        while (reader.hasNext()) {
-            reader.next(); // advance
-            writer.next();
-            writer.echoLine(reader.line); // echo unchanged
+        while (delegate.hasNext()) {
+            delegate.next(); // advance
+            writer.newLine();
+            writer.flush();
+            echoLine(delegate.line); // echo unchanged
         }
         writer.close();
-        reader.close();
+        delegate.close();
         writer = null;
-        reader = null;
+        delegate = null;
         read.delete();
 
         if (write.exists() && !write.renameTo(read)) {
-            FileChannel out = new FileOutputStream(read).getChannel();
-            FileChannel in = new FileInputStream(write).getChannel();
+            FileOutputStream outStream = new FileOutputStream(read);
+            FileInputStream inStream = new FileInputStream(write);
+            FileChannel out = outStream.getChannel();
+            FileChannel in = inStream.getChannel();
             try {
                 long len = in.size();
                 long copied = out.transferFrom(in, 0, in.size());
@@ -215,11 +276,23 @@ public class PropertyFeatureWriter implements
             } finally {
                 in.close();
                 out.close();
+                inStream.close();
+                outStream.close();
             }
         }
         read = null;
         write = null;
         store = null;
+    }
+
+    public void echoLine(String line) throws IOException {
+        if (writer == null) {
+            throw new IOException("Writer has been closed");
+        }
+        if (line == null) {
+            return;
+        }
+        writer.write(line);
     }
     // close end
 }

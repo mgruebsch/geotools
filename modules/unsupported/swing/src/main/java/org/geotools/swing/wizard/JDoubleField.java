@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,19 +18,13 @@ package org.geotools.swing.wizard;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
-
 import org.geotools.data.Parameter;
 import org.geotools.swing.wizard.JWizard.Controller;
 
 /**
  * Widget for double values
- * 
+ *
  * @author gdavis
- *
- *
- *
- *
- * @source $URL$
  */
 public class JDoubleField extends ParamField {
 
@@ -48,12 +42,12 @@ public class JDoubleField extends ParamField {
     public Object getValue() {
         String val = text.getText();
         if (val == null || val.equals("")) {
-            return new Double(0);
+            return Double.valueOf(0);
         }
         try {
-            return new Double(val);
+            return Double.valueOf(val);
         } catch (NumberFormatException e) {
-            return new Double(0);
+            return Double.valueOf(0);
         }
     }
 
@@ -78,5 +72,4 @@ public class JDoubleField extends ParamField {
             return false;
         }
     }
-
 }

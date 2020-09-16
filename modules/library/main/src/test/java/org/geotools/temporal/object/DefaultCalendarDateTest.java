@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,6 +16,10 @@
  */
 package org.geotools.temporal.object;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.*;
+
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.temporal.reference.DefaultTemporalReferenceSystem;
@@ -25,18 +29,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.temporal.CalendarDate;
 import org.opengis.temporal.TemporalReferenceSystem;
-import static org.junit.Assert.*;
 import org.opengis.util.InternationalString;
 
-
-/**
- *
- * @author Mehdi Sidhoum (Geomatys)
- *
- *
- *
- * @source $URL$
- */
+/** @author Mehdi Sidhoum (Geomatys) */
 public class DefaultCalendarDateTest {
 
     private CalendarDate calendarDate1;
@@ -59,66 +54,53 @@ public class DefaultCalendarDateTest {
         calendarDate2 = null;
     }
 
-    /**
-     * Test of getCalendarEraName method, of class DefaultCalendarDate.
-     */
+    /** Test of getCalendarEraName method, of class DefaultCalendarDate. */
     @Test
     public void testGetCalendarEraName() {
         InternationalString result = calendarDate1.getCalendarEraName();
         assertTrue(calendarDate2.getCalendarEraName().equals(result));
     }
 
-    /**
-     * Test of getCalendarDate method, of class DefaultCalendarDate.
-     */
+    /** Test of getCalendarDate method, of class DefaultCalendarDate. */
     @Test
     public void testGetCalendarDate() {
         int[] result = calendarDate1.getCalendarDate();
-        assertFalse(calendarDate2.getCalendarDate().equals(result));
+        assertThat(calendarDate2.getCalendarDate(), not(equalTo(result)));
     }
 
-    /**
-     * Test of setCalendarEraName method, of class DefaultCalendarDate.
-     */
+    /** Test of setCalendarEraName method, of class DefaultCalendarDate. */
     @Test
     public void testSetCalendarEraName() {
         InternationalString result = calendarDate1.getCalendarEraName();
-        ((DefaultCalendarDate) calendarDate1).setCalendarEraName(new SimpleInternationalString("new Era"));
+        ((DefaultCalendarDate) calendarDate1)
+                .setCalendarEraName(new SimpleInternationalString("new Era"));
         assertFalse(calendarDate1.getCalendarEraName().equals(result));
     }
 
-    /**
-     * Test of setCalendarDate method, of class DefaultCalendarDate.
-     */
+    /** Test of setCalendarDate method, of class DefaultCalendarDate. */
     @Test
     public void testSetCalendarDate() {
         int[] result = calendarDate1.getCalendarDate();
         int[] caldate = {1995, 5, 5};
         ((DefaultCalendarDate) calendarDate1).setCalendarDate(caldate);
-        assertFalse(calendarDate1.getCalendarDate().equals(result));
+        assertThat(calendarDate1.getCalendarDate(), not(equalTo((result))));
     }
 
-    /**
-     * Test of equals method, of class DefaultCalendarDate.
-     */
+    /** Test of equals method, of class DefaultCalendarDate. */
     @Test
     public void testEquals() {
         assertFalse(calendarDate1.equals(null));
         assertEquals(calendarDate1, calendarDate1);
     }
 
-    /**
-     * Test of hashCode method, of class DefaultCalendarDate.
-     */
+    /** Test of hashCode method, of class DefaultCalendarDate. */
     @Test
     public void testHashCode() {
         int result = calendarDate1.hashCode();
         assertFalse(calendarDate2.hashCode() == result);
     }
 
-    /**
-     * Test of toString method, of class DefaultCalendarDate.
-     */
+    /** Test of toString method, of class DefaultCalendarDate. */
     @Test
     public void testToString() {
         String result = calendarDate1.toString();

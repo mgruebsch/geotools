@@ -17,9 +17,7 @@
  */
 package org.geotools.process.vector;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -34,19 +32,29 @@ import org.opengis.util.ProgressListener;
 
 /**
  * Returns the unique values of a certain attribute
- * 
- * @author Andrea Aime
  *
- * @source $URL$
+ * @author Andrea Aime
  */
-@DescribeProcess(title = "Unique", description = "Returns the unique values of a given attribute in a feature collection.")
+@DescribeProcess(
+    title = "Unique",
+    description = "Returns the unique values of a given attribute in a feature collection."
+)
 public class UniqueProcess implements VectorProcess {
 
-    @DescribeResult(name = "result", description = "Feature collection with an attribute containing the unique values")
+    @DescribeResult(
+        name = "result",
+        description = "Feature collection with an attribute containing the unique values"
+    )
     public SimpleFeatureCollection execute(
-            @DescribeParameter(name = "features", description = "Input feature collection") SimpleFeatureCollection features,
-            @DescribeParameter(name = "attribute", description = "Attribute whose unique values are extracted") String attribute,
-            ProgressListener progressListener) throws Exception {
+            @DescribeParameter(name = "features", description = "Input feature collection")
+                    SimpleFeatureCollection features,
+            @DescribeParameter(
+                        name = "attribute",
+                        description = "Attribute whose unique values are extracted"
+                    )
+                    String attribute,
+            ProgressListener progressListener)
+            throws Exception {
 
         int attIndex = -1;
         List<AttributeDescriptor> atts = features.getSchema().getAttributeDescriptors();
@@ -74,13 +82,4 @@ public class UniqueProcess implements VectorProcess {
         }
         return result;
     }
-
-    private List<String> attNames(List<AttributeDescriptor> atts) {
-        List<String> result = new ArrayList<String>();
-        for (AttributeDescriptor ad : atts) {
-            result.add(ad.getLocalName());
-        }
-        return result;
-    }
-
 }

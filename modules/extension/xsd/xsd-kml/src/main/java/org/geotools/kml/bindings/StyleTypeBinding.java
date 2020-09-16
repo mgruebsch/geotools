@@ -24,16 +24,16 @@ import org.geotools.kml.StyleMap;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 
 /**
  * Binding object for the type http://earth.google.com/kml/2.1:StyleType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType final="#all" name="StyleType"&gt;
  *      &lt;complexContent&gt;
@@ -52,13 +52,8 @@ import org.geotools.xml.Node;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class StyleTypeBinding extends AbstractComplexBinding {
     StyleBuilder sb;
@@ -69,14 +64,13 @@ public class StyleTypeBinding extends AbstractComplexBinding {
         this.styleMap = styleMap;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return KML.StyleType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -87,23 +81,23 @@ public class StyleTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         List l = node.getChildValues(Symbolizer.class);
         Symbolizer[] syms = (Symbolizer[]) l.toArray(new Symbolizer[l.size()]);
 
         FeatureTypeStyle style = sb.createFeatureTypeStyle(syms, 1.0, 1.0);
 
-        //if the style has an id, throw it in to the style cache
+        // if the style has an id, throw it in to the style cache
         if (node.hasAttribute("id")) {
             String id = (String) node.getAttributeValue("id");
 
-            //create a uri with just a fragment
+            // create a uri with just a fragment
             URI uri = new URI("#" + id);
 
             styleMap.put(uri, style);

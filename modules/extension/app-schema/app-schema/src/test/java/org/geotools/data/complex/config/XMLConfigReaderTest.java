@@ -22,19 +22,13 @@ import static org.junit.Assert.assertNotNull;
 
 import java.net.URL;
 import java.util.Set;
-
 import org.geotools.data.complex.FeatureTypeMapping;
 import org.geotools.test.AppSchemaTestSupport;
 import org.junit.Test;
 
 /**
- * 
  * @author Gabriel Roldan (Axios Engineering)
  * @version $Id$
- *
- *
- *
- * @source $URL$
  * @since 2.4
  */
 public class XMLConfigReaderTest extends AppSchemaTestSupport {
@@ -60,6 +54,5 @@ public class XMLConfigReaderTest extends AppSchemaTestSupport {
 
         // Map/*<String, Expression>*/idMappings = mapping.getIdMappings();
         // assertEquals(idMappings.get("RoadSegment"), ExpressionBuilder.parse("getId()"));
-    }    
-
+    }
 }

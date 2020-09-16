@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -17,21 +17,10 @@
 package org.geotools.xml.schema.impl;
 
 import java.net.URI;
-
 import org.geotools.xml.schema.Attribute;
 import org.geotools.xml.schema.AttributeGroup;
 
-
-/**
- * <p>
- * DOCUMENT ME!
- * </p>
- *
- * @author dzwiers
- *
- *
- * @source $URL$
- */
+/** @author dzwiers */
 public class AttributeGroupGT implements AttributeGroup {
     private String anyAttributeNamespace;
     private Attribute[] attributes;
@@ -43,17 +32,13 @@ public class AttributeGroupGT implements AttributeGroup {
         // do nothing
     }
 
-    /**
-     * Creates a new AttributeGroupGT object.
-     *
-     * @param id DOCUMENT ME!
-     * @param name DOCUMENT ME!
-     * @param namespace DOCUMENT ME!
-     * @param attributes DOCUMENT ME!
-     * @param anyAttributeNamespace DOCUMENT ME!
-     */
-    public AttributeGroupGT(String id, String name, URI namespace,
-        Attribute[] attributes, String anyAttributeNamespace) {
+    /** Creates a new AttributeGroupGT object. */
+    public AttributeGroupGT(
+            String id,
+            String name,
+            URI namespace,
+            Attribute[] attributes,
+            String anyAttributeNamespace) {
         this.id = id;
         this.name = name;
         this.namespace = namespace;
@@ -61,37 +46,27 @@ public class AttributeGroupGT implements AttributeGroup {
         this.anyAttributeNamespace = anyAttributeNamespace;
     }
 
-    /**
-     * @see org.geotools.xml.xsi.AttributeGroup#getAnyAttributeNameSpace()
-     */
+    /** @see org.geotools.xml.xsi.AttributeGroup#getAnyAttributeNameSpace() */
     public String getAnyAttributeNameSpace() {
         return anyAttributeNamespace;
     }
 
-    /**
-     * @see org.geotools.xml.xsi.AttributeGroup#getAttributeDescriptors()
-     */
+    /** @see org.geotools.xml.xsi.AttributeGroup#getAttributeDescriptors() */
     public Attribute[] getAttributes() {
         return attributes;
     }
 
-    /**
-     * @see org.geotools.xml.xsi.AttributeGroup#getId()
-     */
+    /** @see org.geotools.xml.xsi.AttributeGroup#getId() */
     public String getId() {
         return id;
     }
 
-    /**
-     * @see org.geotools.xml.xsi.AttributeGroup#getLocalName()
-     */
+    /** @see org.geotools.xml.xsi.AttributeGroup#getLocalName() */
     public String getName() {
         return name;
     }
 
-    /**
-     * @see org.geotools.xml.xsi.AttributeGroup#getNamespace()
-     */
+    /** @see org.geotools.xml.xsi.AttributeGroup#getNamespace() */
     public URI getNamespace() {
         return namespace;
     }

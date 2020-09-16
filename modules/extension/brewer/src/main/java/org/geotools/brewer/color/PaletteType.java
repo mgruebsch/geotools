@@ -16,14 +16,9 @@
  */
 package org.geotools.brewer.color;
 
+import java.util.Objects;
 
-/**
- * This class doubles as a filter and an identifier for colour palettes.
- *
- *
- *
- * @source $URL$
- */
+/** This class doubles as a filter and an identifier for colour palettes. */
 public class PaletteType {
     /** name of the type, if null this will match any name */
     String name;
@@ -41,8 +36,6 @@ public class PaletteType {
      * Creates an identifier for palettes
      *
      * @param name simple identifier
-     * @param suitableRanged
-     * @param suitableUnique
      */
     public PaletteType(boolean suitableRanged, boolean suitableUnique, String name) {
         this.name = name;
@@ -50,11 +43,7 @@ public class PaletteType {
         this.suitableUnique = suitableUnique;
     }
 
-    /**
-     *
-     * @param suitableRanged true, false, or null (for don't care)
-     * @param suitableUnique
-     */
+    /** @param suitableRanged true, false, or null (for don't care) */
     public PaletteType(boolean suitableRanged, boolean suitableUnique) {
         this.name = null;
         this.suitableRanged = suitableRanged;
@@ -85,19 +74,19 @@ public class PaletteType {
 
     public boolean isMatch(PaletteType filter) {
         if (filter.equals(ColorBrewer.ALL)) {
-            return true; //wildcard
+            return true; // wildcard
         }
 
         if (filter.isEmpty) {
-            return true; //wildcard (everything is null)
+            return true; // wildcard (everything is null)
         }
 
-        if (filter.getName() == null) { //generic filter
+        if (filter.getName() == null) { // generic filter
 
             if (isEmpty) {
-                return false; //we know nothing about this item, so we assume it doesn't match 
+                return false; // we know nothing about this item, so we assume it doesn't match
             }
-        } else { //specific filter (exact name match + conditions)
+        } else { // specific filter (exact name match + conditions)
 
             if (!filter.getName().equals(name)) {
                 return false;
@@ -145,5 +134,10 @@ public class PaletteType {
         }
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, suitableRanged, suitableUnique, isEmpty);
     }
 }

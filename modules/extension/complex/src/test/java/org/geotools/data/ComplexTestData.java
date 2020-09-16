@@ -17,11 +17,14 @@
 
 package org.geotools.data;
 
-import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.Set;
 import org.geotools.feature.TypeBuilder;
 import org.geotools.referencing.CRS;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
@@ -31,17 +34,9 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-
 /**
- * 
  * @author Gabriel Roldan (Axios Engineering)
  * @version $Id$
- *
- *
- *
- * @source $URL$
  * @since 2.4
  */
 public abstract class ComplexTestData {
@@ -51,6 +46,8 @@ public abstract class ComplexTestData {
     public static final String GML_NSURI = "http://www.opengis.net/gml";
 
     /**
+     *
+     *
      * <pre>
      * <code>
      *           	 FeatureType[
@@ -68,7 +65,7 @@ public abstract class ComplexTestData {
      *           	 					type = AttributeType[
      *           	 					name = sitename
      *           	 					identified = false
-     *           	 					super = null 
+     *           	 					super = null
      *           	 					abstract = false
      *           	 					binding = String.class
      *           	 					restrictions = EMPTY_SET
@@ -79,7 +76,7 @@ public abstract class ComplexTestData {
      *           	 				type = AttributeType[
      *           						name = anzlic_no
      *           						identified = false
-     *           						super = null 
+     *           						super = null
      *           						abstract = false
      *           						binding = String.class
      *           						restrictions = EMPTY_SET
@@ -101,7 +98,7 @@ public abstract class ComplexTestData {
      *           	 				type = ComplexType[
      *           	 					name = measurement
      *           	 					identified = true
-     *           	 					super = null 
+     *           	 					super = null
      *           	 					abstract = false
      *           	 					binding = null
      *           	 					restrictions = EMPTY_SET
@@ -111,7 +108,7 @@ public abstract class ComplexTestData {
      *           	 							type = AttributeType[
      *           	 								name = determinand_description
      *           	 								identified = false
-     *           	 								super = null 
+     *           	 								super = null
      *           	 								abstract = false
      *           	 								binding = String.class
      *           	 								restrictions = EMPTY_SET
@@ -122,7 +119,7 @@ public abstract class ComplexTestData {
      *           	 							type = AttributeType[
      *           	 								name = result
      *           	 								identified = false
-     *           	 								super = null 
+     *           	 								super = null
      *           	 								abstract = false
      *           	 								binding = String.class
      *           	 								restrictions = EMPTY_SET
@@ -136,7 +133,7 @@ public abstract class ComplexTestData {
      *           	 				type = AttributeType[
      *           	 					name = project_no
      *           	 					identified = false
-     *           	 					super = null 
+     *           	 					super = null
      *           	 					abstract = false
      *           	 					binding = String.class
      *           	 					restrictions = EMPTY_SET
@@ -145,13 +142,9 @@ public abstract class ComplexTestData {
      *           	 			]
      *           	 		]
      *           	 	]
-     *           	 ]	 
+     *           	 ]
      * </code>
      * </pre>
-     * 
-     * @param typeFactory
-     * @param descFactory
-     * @return
      */
     public static FeatureType createExample01MultiValuedComplexProperty(
             FeatureTypeFactory typeFactory) {
@@ -203,19 +196,13 @@ public abstract class ComplexTestData {
 
     /**
      * A feature type that has various multi-valued properties.
-     * <p>
-     * Multi valued properties: meassurement(0:unbounded), sitename(1:unbounded).
-     * 
+     *
+     * <p>Multi valued properties: meassurement(0:unbounded), sitename(1:unbounded).
+     *
      * <pre>
      * <code>
      * </code>
      * </pre>
-     * 
-     * </p>
-     * 
-     * @param typeFactory
-     * @param descFactory
-     * @return
      */
     public static FeatureType createExample02MultipleMultivalued(FeatureTypeFactory typeFactory) {
 
@@ -243,36 +230,32 @@ public abstract class ComplexTestData {
 
     /**
      * A feature may have multiple geometries
-     * 
+     *
      * <pre><code>
      *    	 &lt;xs:complexType name=&quot;measurement_Type&quot;&gt;
      *    	 &lt;xs:sequence&gt;
      *    	 &lt;xs:element name=&quot;determinand_description&quot; type=&quot;xs:string&quot;/&gt;
      *    	 &lt;xs:element name=&quot;result&quot; type=&quot;xs:string&quot;/&gt;
-     *    	 &lt;/xs:sequence&gt;            
+     *    	 &lt;/xs:sequence&gt;
      *    	 &lt;xs:attribute ref=&quot;gml:id&quot; use=&quot;optional&quot;/&gt;
-     *    	 &lt;/xs:complexType&gt; 
-     *    	 
+     *    	 &lt;/xs:complexType&gt;
+     *
      *    	 &lt;xs:complexType name=&quot;wq_plus_Type&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
      *    	 &lt;xs:complexContent&gt;
      *    	 &lt;xs:extension base=&quot;gml:AbstractFeatureType&quot;&gt;
      *    	 &lt;xs:sequence&gt;
      *    	 &lt;xs:element name=&quot;measurement&quot; maxOccurs=&quot;unbounded&quot; type=&quot;sco:measurement_Type&quot;/&gt;
-     *    	 
+     *
      *    	 &lt;xs:element name=&quot;location&quot; type=&quot;gml:LocationPropertyType&quot;/&gt;
-     *    	 &lt;xs:element name=&quot;nearestSlimePit&quot; type=&quot;gml:PointPropertyType&quot;/&gt; 
+     *    	 &lt;xs:element name=&quot;nearestSlimePit&quot; type=&quot;gml:PointPropertyType&quot;/&gt;
      *    	 &lt;xs:element name=&quot;sitename&quot; maxOccurs=&quot;unbounded&quot; nillable=&quot;false&quot; type=&quot;xs:string&quot; /&gt;
      *    	 &lt;/xs:sequence&gt;
      *    	 &lt;/xs:extension&gt;
      *    	 &lt;/xs:complexContent&gt;
      *    	 &lt;/xs:complexType&gt;
-     *    	 
+     *
      *    	 &lt;xs:element name='wq_plus' type='sco:wq_plus_Type' substitutionGroup=&quot;gml:_Feature&quot; /&gt;
      * </code></pre>
-     * 
-     * @param typeFactory
-     * @param descFactory
-     * @return
      */
     public static FeatureType createExample03MultipleGeometries(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
@@ -307,12 +290,7 @@ public abstract class ComplexTestData {
         return wqPlusType;
     }
 
-    /**
-     * 
-     * @param typeFactory
-     * @param descFactory
-     * @return
-     */
+    /** */
     public static FeatureType createExample04Type(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
         builder.setNamespaceURI(NSURI);
@@ -358,8 +336,6 @@ public abstract class ComplexTestData {
      * Creates a representation of a gml:LocationPropertyType association. This would be better done
      * by obtaining the type from a registry, so we can have GML2TypeRegistry, GML3TypeRegistry,
      * DefaultTypeRegistry, etc.
-     * 
-     * @return
      */
     public static AttributeType createGmlLocation(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
@@ -376,8 +352,6 @@ public abstract class ComplexTestData {
      * Creates a representation of a gml:PointPropertyType association as an AttributeType. This
      * would be better done by obtaining the type from a registry, so we can have GML2TypeRegistry,
      * GML3TypeRegistry, DefaultTypeRegistry, etc.
-     * 
-     * @return
      */
     public static AttributeType createGmlPoint(FeatureTypeFactory typeFactory) {
         TypeBuilder builder = new TypeBuilder(typeFactory);
@@ -388,7 +362,7 @@ public abstract class ComplexTestData {
         try {
             fakeCrs = CRS.decode("EPSG:4326");
         } catch (Exception e) {
-            e.printStackTrace();
+            java.util.logging.Logger.getGlobal().log(java.util.logging.Level.INFO, "", e);
             throw new RuntimeException(e);
         }
         builder.setCRS(fakeCrs);
@@ -401,18 +375,15 @@ public abstract class ComplexTestData {
     /**
      * Asserts the corresponding properties of <code>type</code> for equality with the provided
      * parameter values
-     * 
-     * @param type
-     * @param name
-     * @param binding
-     * @param restrictions
-     * @param identified
-     * @param _abstract
-     * @param superType
-     * @param nillable
      */
-    public static void checkType(AttributeType type, Name name, Class<?> binding,
-            Set<Filter> restrictions, boolean identified, boolean _abstract, AttributeType superType) {
+    public static void checkType(
+            AttributeType type,
+            Name name,
+            Class<?> binding,
+            Set<Filter> restrictions,
+            boolean identified,
+            boolean _abstract,
+            AttributeType superType) {
 
         assertNotNull(type);
         assertEquals(name, type.getName());
@@ -427,8 +398,7 @@ public abstract class ComplexTestData {
     /**
      * Similar to the feature type return by {@link createExample01MultiValuedComplexProperty}
      * except that there is no namespace uri specified.
-     * 
-     * @param typeFactory
+     *
      * @return FeatureType
      */
     public static FeatureType createExample05NoNamespaceURI(FeatureTypeFactory typeFactory) {

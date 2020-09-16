@@ -16,22 +16,20 @@
  */
 package org.geotools.kml.bindings;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
-import org.opengis.feature.simple.SimpleFeature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.kml.KML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.opengis.feature.simple.SimpleFeature;
 
 /**
  * Binding object for the type http://earth.google.com/kml/2.1:KmlType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType final="#all" name="KmlType"&gt;
  *      &lt;all&gt;
@@ -42,23 +40,17 @@ import org.geotools.xml.Node;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class KmlTypeBinding extends AbstractComplexBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return KML.KmlType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -69,21 +61,23 @@ public class KmlTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         return node.getChildValue(SimpleFeature.class);
     }
-    
+
     public Object getProperty(Object object, QName name) throws Exception {
-        if ( KML.Feature.equals( name ) ) {
+        if (KML.Feature.getLocalPart().equals(name.getLocalPart())
+                || org.geotools.kml.v22.KML.AbstractFeatureGroup.getLocalPart()
+                        .equals(name.getLocalPart())) {
             return object;
         }
-        
+
         return null;
     }
 }

@@ -23,7 +23,6 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.net.URL;
-
 import org.geotools.data.shapefile.files.FileWriter;
 import org.geotools.data.shapefile.files.Result;
 import org.geotools.data.shapefile.files.ShpFiles;
@@ -32,19 +31,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * 
- *
- * @source $URL$
- */
 public class ShpFilesLockingTest implements FileWriter {
 
     @Before
     public void setUp() throws Exception {
         getClass().getClassLoader().setDefaultAssertionStatus(true);
-        
     }
-    
+
     @After
     public void tearDown() throws Exception {
         Runtime.getRuntime().runFinalization();
@@ -54,24 +47,25 @@ public class ShpFilesLockingTest implements FileWriter {
     public void testAcquireReadFile() throws Throwable {
         ShpFiles shpFiles = new ShpFiles("http://somefile.com/shp.shp");
 
-        try{
+        try {
             shpFiles.acquireReadFile(DBF, this);
             fail("Not a file should send exception");
-        }catch(IllegalStateException e ){
+        } catch (IllegalStateException e) {
             // good
         }
-        
 
         String path = "somefile.shp";
-        shpFiles = new ShpFiles( new File( path ));
+        shpFiles = new ShpFiles(new File(path));
 
         File file = shpFiles.acquireReadFile(SHP, this);
-        assertEquals( new File(path).getCanonicalPath(), file.getPath());
+        // under windows the two paths can be just different in terms of case..
+        assertEquals(new File(path).getCanonicalPath().toLowerCase(), file.getPath().toLowerCase());
         assertEquals(1, shpFiles.numberOfLocks());
-        
+
         shpFiles.unlockRead(file, this);
         shpFiles.dispose();
     }
+
     @Test
     public void testAcquireWriteFile() throws Throwable {
         ShpFiles shpFiles = new ShpFiles("http://somefile.com/shp.shp");
@@ -82,15 +76,15 @@ public class ShpFilesLockingTest implements FileWriter {
         } catch (IllegalStateException e) {
             // good
         }
-        
 
         String path = "somefile.shp";
-        shpFiles = new ShpFiles( new File( path ));
+        shpFiles = new ShpFiles(new File(path));
 
         File file = shpFiles.acquireWriteFile(SHP, this);
-        assertEquals(new File( path ).getCanonicalPath(), file.getPath());
+        // under windows the two paths can be just different in terms of case..
+        assertEquals(new File(path).getCanonicalPath().toLowerCase(), file.getPath().toLowerCase());
         assertEquals(1, shpFiles.numberOfLocks());
-        
+
         shpFiles.unlockWrite(file, this);
         assertEquals(0, shpFiles.numberOfLocks());
         shpFiles.dispose();
@@ -103,24 +97,22 @@ public class ShpFilesLockingTest implements FileWriter {
         URL url = shpFiles.acquireRead(DBF, this);
         assertEquals("http://somefile.com/shp.dbf", url.toExternalForm());
         assertEquals(1, shpFiles.numberOfLocks());
-        FileWriter testWriter = new FileWriter() {
+        FileWriter testWriter =
+                new FileWriter() {
 
-            public String id() {
-                return "Other";
-            }
-
-        };
+                    public String id() {
+                        return "Other";
+                    }
+                };
 
         // same thread should work
         Result<URL, State> result1 = shpFiles.tryAcquireRead(SHX, testWriter);
-        assertEquals("http://somefile.com/shp.shx", result1.value
-                .toExternalForm());
+        assertEquals("http://somefile.com/shp.shx", result1.value.toExternalForm());
         assertEquals(2, shpFiles.numberOfLocks());
 
         // same thread should work
         Result<URL, State> result2 = shpFiles.tryAcquireRead(DBF, this);
-        assertEquals("http://somefile.com/shp.dbf", result2.value
-                .toExternalForm());
+        assertEquals("http://somefile.com/shp.dbf", result2.value.toExternalForm());
         assertEquals(3, shpFiles.numberOfLocks());
 
         shpFiles.unlockRead(result2.value, this);
@@ -136,24 +128,22 @@ public class ShpFilesLockingTest implements FileWriter {
         URL url = shpFiles.acquireRead(DBF, this);
         assertEquals("http://somefile.com/shp.dbf", url.toExternalForm());
         assertEquals(1, shpFiles.numberOfLocks());
-        FileWriter testWriter = new FileWriter() {
+        FileWriter testWriter =
+                new FileWriter() {
 
-            public String id() {
-                return "Other";
-            }
-
-        };
+                    public String id() {
+                        return "Other";
+                    }
+                };
 
         // same thread should work
         Result<URL, State> result1 = shpFiles.tryAcquireRead(SHX, testWriter);
-        assertEquals("http://somefile.com/shp.shx", result1.value
-                .toExternalForm());
+        assertEquals("http://somefile.com/shp.shx", result1.value.toExternalForm());
         assertEquals(2, shpFiles.numberOfLocks());
 
         try {
             shpFiles.unlockRead(result1.value, this);
-            throw new RuntimeException(
-                    "Unlock should fail because it is in the wrong reader");
+            throw new RuntimeException("Unlock should fail because it is in the wrong reader");
         } catch (IllegalArgumentException e) {
             // good
         } catch (RuntimeException e) {
@@ -172,24 +162,22 @@ public class ShpFilesLockingTest implements FileWriter {
         URL url = shpFiles.acquireWrite(DBF, this);
         assertEquals("http://somefile.com/shp.dbf", url.toExternalForm());
         assertEquals(1, shpFiles.numberOfLocks());
-        FileWriter testWriter = new FileWriter() {
+        FileWriter testWriter =
+                new FileWriter() {
 
-            public String id() {
-                return "Other";
-            }
-
-        };
+                    public String id() {
+                        return "Other";
+                    }
+                };
 
         // same thread should work
         Result<URL, State> result1 = shpFiles.tryAcquireWrite(SHX, testWriter);
-        assertEquals("http://somefile.com/shp.shx", result1.value
-                .toExternalForm());
+        assertEquals("http://somefile.com/shp.shx", result1.value.toExternalForm());
         assertEquals(2, shpFiles.numberOfLocks());
 
         try {
             shpFiles.unlockRead(result1.value, this);
-            throw new RuntimeException(
-                    "Unlock should fail because it is in the wrong reader");
+            throw new RuntimeException("Unlock should fail because it is in the wrong reader");
         } catch (IllegalArgumentException e) {
             // good
         } catch (RuntimeException e) {
@@ -204,5 +192,4 @@ public class ShpFilesLockingTest implements FileWriter {
     public String id() {
         return getClass().getName();
     }
-
 }

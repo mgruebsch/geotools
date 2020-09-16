@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
@@ -42,16 +41,10 @@ import org.opengis.feature.type.Name;
 /**
  * Implementation of {@link Repository} This class interprets the data source name as a file name or
  * an URL for a property file containing the ds creation parameters
- * 
- * For shape files ending with .shp or SHP, the shape file could be passed as name
- * 
- * 
+ *
+ * <p>For shape files ending with .shp or SHP, the shape file could be passed as name
+ *
  * @author Christian Mueller
- * 
- *
- *
- *
- * @source $URL$
  */
 public class DSFinderRepository implements Repository {
 
@@ -88,18 +81,17 @@ public class DSFinderRepository implements Repository {
         URL url = getURLForLocation(location);
 
         // for convenience, handle shape files in a short way
-        if (location.endsWith(".shp") || location.endsWith(".SHP"))
-            return getMapForShapeFile(url);
+        if (location.endsWith(".shp") || location.endsWith(".SHP")) return getMapForShapeFile(url);
 
         Map<String, Serializable> result = new HashMap<String, Serializable>();
 
         Properties properties = new Properties();
-        InputStream in = url.openStream();
-        properties.load(in);
-        for (Object key : properties.keySet()) {
-            result.put((String) key, (Serializable) properties.get(key));
+        try (InputStream in = url.openStream()) {
+            properties.load(in);
+            for (Object key : properties.keySet()) {
+                result.put((String) key, (Serializable) properties.get(key));
+            }
         }
-        in.close();
         return result;
     }
 
@@ -114,8 +106,7 @@ public class DSFinderRepository implements Repository {
     public DataStore dataStore(Name name) {
         String localName = name.getLocalPart();
         DataStore ds = map.get(localName);
-        if (ds != null)
-            return ds;
+        if (ds != null) return ds;
 
         try {
             Map<String, Serializable> params = getMapFromPropetryLocation(localName);
@@ -128,15 +119,14 @@ public class DSFinderRepository implements Repository {
         return ds;
     }
 
-    
     /* (non-Javadoc)
      * @see org.geotools.data.Repository#getDataStores()
-     * 
-     * These datastores are for internal use only 
+     *
+     * These datastores are for internal use only
      */
-    public List<DataStore> getDataStores(){
+    public List<DataStore> getDataStores() {
         return Collections.emptyList();
-//        List<DataStore> available = new ArrayList<DataStore>( this.map.values() );
-//        return available;
+        //        List<DataStore> available = new ArrayList<DataStore>( this.map.values() );
+        //        return available;
     }
 }

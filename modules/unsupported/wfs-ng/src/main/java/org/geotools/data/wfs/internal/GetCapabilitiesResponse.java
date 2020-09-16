@@ -1,3 +1,19 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2008-2014, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 package org.geotools.data.wfs.internal;
 
 import static org.geotools.data.wfs.internal.AbstractWFSStrategy.WFS_1_0_CAPABILITIES_CONFIGURATION;
@@ -14,27 +30,31 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import net.opengis.wfs.WFSCapabilitiesType;
-
 import org.apache.commons.io.IOUtils;
 import org.eclipse.emf.ecore.EObject;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.ows.HTTPResponse;
 import org.geotools.ows.ServiceException;
 import org.geotools.util.Version;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.DOMParser;
+import org.geotools.xsd.Configuration;
+import org.geotools.xsd.DOMParser;
 import org.w3c.dom.Document;
+import org.xml.sax.EntityResolver;
 
 public class GetCapabilitiesResponse extends org.geotools.data.ows.GetCapabilitiesResponse {
 
     private WFSGetCapabilities capabilities;
 
-    public GetCapabilitiesResponse(HTTPResponse response) throws IOException, ServiceException {
+    //    public GetCapabilitiesResponse(HTTPResponse response) throws IOException, ServiceException
+    // {
+    //        this(response, null);
+    //    }
+
+    public GetCapabilitiesResponse(HTTPResponse response, EntityResolver entityResolver)
+            throws IOException, ServiceException {
         super(response);
         MODULE.finer("Parsing GetCapabilities response");
         try {
@@ -58,13 +78,19 @@ public class GetCapabilitiesResponse extends org.geotools.data.ows.GetCapabiliti
                 builderFactory.setNamespaceAware(true);
                 builderFactory.setValidating(false);
                 DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+                if (entityResolver != null) {
+                    documentBuilder.setEntityResolver(entityResolver);
+                }
                 rawDocument = documentBuilder.parse(new ByteArrayInputStream(rawResponse));
             } catch (Exception e) {
                 throw new IOException("Error parsing capabilities document: " + e.getMessage(), e);
             }
 
-            List<Configuration> tryConfigs = Arrays.asList(WFS_2_0_CONFIGURATION,
-                    WFS_1_1_CONFIGURATION, WFS_1_0_CAPABILITIES_CONFIGURATION);
+            List<Configuration> tryConfigs =
+                    Arrays.asList(
+                            WFS_2_0_CONFIGURATION,
+                            WFS_1_1_CONFIGURATION,
+                            WFS_1_0_CAPABILITIES_CONFIGURATION);
 
             final String versionAtt = rawDocument.getDocumentElement().getAttribute("version");
             Version version = null;
@@ -87,7 +113,7 @@ public class GetCapabilitiesResponse extends org.geotools.data.ows.GetCapabiliti
                         break;
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    java.util.logging.Logger.getGlobal().log(java.util.logging.Level.INFO, "", e);
                 }
             }
 
@@ -118,7 +144,8 @@ public class GetCapabilitiesResponse extends org.geotools.data.ows.GetCapabiliti
         if (parsed == null) {
             throw new DataSourceException("WFS capabilities was not parsed");
         }
-        if (!(parsed instanceof WFSCapabilitiesType)) {
+        if (!(parsed instanceof WFSCapabilitiesType)
+                && !(parsed instanceof net.opengis.wfs20.WFSCapabilitiesType)) {
             throw new DataSourceException("Expected WFS Capabilities, got " + parsed);
         }
         EObject object = (EObject) parsed;

@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -16,16 +16,11 @@
  */
 package org.geotools.xml.filter;
 
-
 /**
  * Indicates an illegal filter configuration according to the compliance level set.
  *
  * @author Jesse
  * @since 2.2.1
- *
- *
- *
- * @source $URL$
  */
 public class UnsupportedFilterException extends RuntimeException {
     private static final long serialVersionUID = 1522023598004933175L;

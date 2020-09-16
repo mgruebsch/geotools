@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -18,35 +18,28 @@
 package org.geotools.filter.function.math;
 
 import org.geotools.filter.FunctionExpressionImpl;
-
+import org.geotools.filter.capability.FunctionNameImpl;
+import org.opengis.filter.capability.FunctionName;
 
 /**
  * Allow access to the value of Math.PI as an expression
- * 
+ *
  * @author Jody Garnett
  * @since 2.2, 2.5
- *
- *
- *
- * @source $URL$
  */
 public class PiFunction extends FunctionExpressionImpl {
+    public static FunctionName NAME = new FunctionNameImpl("pi", Double.class);
 
-	public PiFunction() {
-	    super("pi");
-	}
+    public PiFunction() {
+        super(NAME);
+    }
 
-	public int getArgCount() {
-		return 0;
-	}
+    public String toString() {
+        return "PI()";
+    }
 
-	public String toString() {
-		return "PI()";
-	}
-
-	@Override
-	public Object evaluate( Object object ) {
-	    return new Double( Math.PI );
-	}
-
+    @Override
+    public Object evaluate(Object object) {
+        return Double.valueOf(Math.PI);
+    }
 }

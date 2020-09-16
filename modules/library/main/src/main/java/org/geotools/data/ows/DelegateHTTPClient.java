@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -19,33 +19,37 @@ package org.geotools.data.ows;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-
+import java.util.Map;
 
 public class DelegateHTTPClient implements HTTPClient {
 
     protected HTTPClient delegate;
 
-    
-    public DelegateHTTPClient(HTTPClient delegate)  {
+    public DelegateHTTPClient(HTTPClient delegate) {
         this.delegate = delegate;
     }
 
-    
     @Override
-    public HTTPResponse post(URL url, InputStream postContent, String postContentType) throws IOException {
+    public HTTPResponse post(URL url, InputStream postContent, String postContentType)
+            throws IOException {
         return delegate.post(url, postContent, postContentType);
     }
 
-    @Override    
+    @Override
     public HTTPResponse get(URL url) throws IOException {
         return delegate.get(url);
     }
-    
+
+    @Override
+    public HTTPResponse get(URL url, Map<String, String> headers) throws IOException {
+        return delegate.get(url, headers);
+    }
+
     @Override
     public String getUser() {
         return delegate.getUser();
     }
-    
+
     @Override
     public void setUser(String user) {
         delegate.setUser(user);

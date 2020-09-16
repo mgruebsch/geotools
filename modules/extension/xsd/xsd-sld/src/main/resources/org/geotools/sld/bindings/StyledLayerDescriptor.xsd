@@ -192,7 +192,7 @@
     <xsd:annotation>
       <xsd:documentation>
         A FeatureTypeConstraint identifies a specific feature type and
-        supplies fitlering.
+        supplies filtering.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
@@ -233,6 +233,7 @@
         <xsd:element ref="sld:Title" minOccurs="0"/>
         <xsd:element ref="sld:Abstract" minOccurs="0"/>
         <xsd:element ref="sld:IsDefault" minOccurs="0"/>
+        <xsd:element ref="sld:Background" minOccurs="0"/>
         <xsd:element ref="sld:FeatureTypeStyle" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
@@ -264,6 +265,7 @@
                     maxOccurs="unbounded"/>
         <xsd:element ref="sld:Transformation" minOccurs="0"/>
         <xsd:element ref="sld:Rule" maxOccurs="unbounded"/>
+        <xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded" />
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -358,6 +360,8 @@
           <xsd:sequence>
             <xsd:element ref="sld:Geometry" minOccurs="0"/>
             <xsd:element ref="sld:Stroke" minOccurs="0"/>
+            <xsd:element ref="sld:PerpendicularOffset" minOccurs="0"/>
+            <xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded" />
           </xsd:sequence>
         </xsd:extension>
       </xsd:complexContent>
@@ -479,6 +483,7 @@
             <xsd:element ref="sld:Geometry" minOccurs="0"/>
             <xsd:element ref="sld:Fill" minOccurs="0"/>
             <xsd:element ref="sld:Stroke" minOccurs="0"/>
+            <xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded" />
           </xsd:sequence>
         </xsd:extension>
       </xsd:complexContent>
@@ -489,6 +494,22 @@
     <xsd:annotation>
       <xsd:documentation>
         A "Fill" specifies the pattern for filling an area geometry.
+        The allowed CssParameters are: "fill" (color) and "fill-opacity".
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="sld:GraphicFill" minOccurs="0"/>
+        <xsd:element ref="sld:CssParameter" minOccurs="0"
+                     maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Background">
+    <xsd:annotation>
+      <xsd:documentation>
+        A "Background" specifies the pattern for filling the map area background.
         The allowed CssParameters are: "fill" (color) and "fill-opacity".
       </xsd:documentation>
     </xsd:annotation>
@@ -521,6 +542,7 @@
           <xsd:sequence>
             <xsd:element ref="sld:Geometry" minOccurs="0"/>
             <xsd:element ref="sld:Graphic" minOccurs="0"/>
+            <xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded" />
           </xsd:sequence>
         </xsd:extension>
       </xsd:complexContent>
@@ -544,6 +566,8 @@
           <xsd:element ref="sld:Opacity" minOccurs="0"/>
           <xsd:element ref="sld:Size" minOccurs="0"/>
           <xsd:element ref="sld:Rotation" minOccurs="0"/>
+          <xsd:element ref="sld:AnchorPoint" minOccurs="0"/>
+          <xsd:element ref="sld:Displacement" minOccurs="0"/>
         </xsd:sequence>
       </xsd:sequence>
     </xsd:complexType>
@@ -793,6 +817,7 @@
             <xsd:element ref="sld:ContrastEnhancement" minOccurs="0"/>
             <xsd:element ref="sld:ShadedRelief" minOccurs="0"/>
             <xsd:element ref="sld:ImageOutline" minOccurs="0"/>
+            <xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded" />
           </xsd:sequence>
         </xsd:extension>
       </xsd:complexContent>
@@ -827,8 +852,7 @@
       <xsd:element ref="sld:ContrastEnhancement" minOccurs="0"/>
     </xsd:sequence>
   </xsd:complexType>
-  <xsd:element name="SourceChannelName" type="xsd:string"/>
-
+  <xsd:element name="SourceChannelName" type="sld:ParameterValueType"/>
   <xsd:element name="OverlapBehavior">
     <xsd:annotation>
       <xsd:documentation>
@@ -894,21 +918,43 @@
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:choice minOccurs="0">
-          <xsd:element ref="sld:Normalize"/>
-          <xsd:element ref="sld:Histogram"/>
-        </xsd:choice>
+			<xsd:choice minOccurs="0" maxOccurs="1">
+    			<xsd:element name="Normalize" type="sld:ContrastMethodType"/>
+                <xsd:element name="Logarithmic" type="sld:ContrastMethodType"/>
+                <xsd:element name="Exponential" type="sld:ContrastMethodType"/> 
+                <xsd:element name="Histogram" type="sld:ContrastMethodType"/>
+			</xsd:choice>
         <xsd:element ref="sld:GammaValue" minOccurs="0"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
+  
   <xsd:element name="Normalize">
     <xsd:complexType/>
   </xsd:element>
   <xsd:element name="Histogram">
     <xsd:complexType/>
   </xsd:element>
-  <xsd:element name="GammaValue" type="xsd:double"/>
+  <xsd:element name="Logarithmic">
+    <xsd:complexType/>
+  </xsd:element>
+      <xsd:element name="Exponential">
+    <xsd:complexType/>
+  </xsd:element>
+	<xsd:complexType name="ContrastMethodType">
+		<xsd:sequence minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="VendorOption" minOccurs="0"></xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  
+  
+  <xsd:element name="GammaValue">
+    <xsd:complexType mixed="true">
+      <xsd:complexContent>
+        <xsd:extension base="sld:ParameterValueType"/>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:element>
 
   <xsd:element name="ShadedRelief">
     <xsd:annotation>

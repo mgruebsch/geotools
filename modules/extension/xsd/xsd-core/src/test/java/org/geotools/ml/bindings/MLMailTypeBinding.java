@@ -22,16 +22,16 @@ import javax.xml.namespace.QName;
 import org.geotools.ml.Attachment;
 import org.geotools.ml.Envelope;
 import org.geotools.ml.Mail;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 
 /**
  * Strategy object for the type http://mails/refractions/net:mailType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:complexType name="mailType"&gt;
  *      &lt;xsd:sequence&gt;
@@ -45,18 +45,11 @@ import org.geotools.xml.Node;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class MLMailTypeBinding extends AbstractComplexBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return ML.MAILTYPE;
     }
@@ -66,13 +59,13 @@ public class MLMailTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         Envelope envelope = (Envelope) node.getChildValue("envelope");
         String body = (String) node.getChildValue("body");
         BigInteger id = (BigInteger) node.getAttributeValue("id");
@@ -82,14 +75,14 @@ public class MLMailTypeBinding extends AbstractComplexBinding {
 
         return new Mail(id, body, envelope, attachments);
     }
-    
+
     @Override
     public Object getProperty(Object object, QName name) throws Exception {
         Mail m = (Mail) object;
-        if ( "envelope".equals( name.getLocalPart() ) ) {
+        if ("envelope".equals(name.getLocalPart())) {
             return m.getEnvelope();
         }
-        
+
         return null;
     }
 }

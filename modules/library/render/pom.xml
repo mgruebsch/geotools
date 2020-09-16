@@ -11,12 +11,13 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                                http://maven.apache.org/maven-v4_0_0.xsd">
+                               
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>library</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
   
 
@@ -29,12 +30,6 @@
   <name>Render</name>
   
 
-  <scm>
-    <connection>
-      scm:svn:http://svn.osgeo.org/geotools/trunk/modules/library/render/
-    </connection>
-    <url>http://svn.osgeo.org/geotools/trunk/modules/library/render/</url>
-  </scm>
 
   <description>
     The render module contains a renderer built around the interface in
@@ -107,6 +102,11 @@
       <artifactId>gt-cql</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.conversantmedia</groupId>
+      <artifactId>disruptor</artifactId>
+      <version>1.2.13</version>
+    </dependency>
     
     <!-- Test dependencies -->
     <dependency>
@@ -157,6 +157,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-imagemosaic</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-arcgrid</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.geotools.xsd</groupId>
       <artifactId>gt-xsd-sld</artifactId>
       <version>${project.version}</version>
@@ -166,6 +178,22 @@
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-core</artifactId>
+         <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-image</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -184,8 +212,17 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <!-- settings these properties on Test's code won't work due to order of initialization -->
+            <it.geosolutions.jaiext.scale2>true</it.geosolutions.jaiext.scale2>
+            <buildDirectory>${project.build.directory}</buildDirectory>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
-  
-
 </project>

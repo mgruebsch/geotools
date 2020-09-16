@@ -17,60 +17,43 @@
 package org.geotools.coverageio.gdal.ecw;
 
 import it.geosolutions.imageio.plugins.ecw.ECWImageReaderSpi;
-
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverageio.gdal.BaseGDALGridCoverage2DReader;
 import org.geotools.data.DataSourceException;
-import org.geotools.factory.Hints;
+import org.geotools.util.factory.Hints;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 
 /**
- * This class can read a ECW data source and create a {@link GridCoverage2D}
- * from the data.
- * 
+ * This class can read a ECW data source and create a {@link GridCoverage2D} from the data.
+ *
  * @author Daniele Romagnoli, GeoSolutions.
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
- *
- *
- * @source $URL$
  */
-public final class ECWReader extends BaseGDALGridCoverage2DReader implements
-        GridCoverageReader {
-    private final static String worldFileExt = ".eww";
+public final class ECWReader extends BaseGDALGridCoverage2DReader implements GridCoverageReader {
+    private static final String worldFileExt = ".eww";
 
     /**
-     * Creates a new instance of a {@link ECWReader}. I assume nothing about
-     * file extension.
-     * 
-     * @param input
-     *                Source object for which we want to build an
-     *                {@link ECWReader}.
-     * @throws DataSourceException
+     * Creates a new instance of a {@link ECWReader}. I assume nothing about file extension.
+     *
+     * @param input Source object for which we want to build an {@link ECWReader}.
      */
     public ECWReader(Object input) throws DataSourceException {
         this(input, null);
     }
 
     /**
-     * Creates a new instance of a {@link ECWReader}. I assume nothing about
-     * file extension.
-     * 
-     * @param input
-     *                Source object for which we want to build an
-     *                {@link ECWReader}.
-     * @param hints
-     *                Hints to be used by this reader throughout his life.
-     * @throws DataSourceException
+     * Creates a new instance of a {@link ECWReader}. I assume nothing about file extension.
+     *
+     * @param input Source object for which we want to build an {@link ECWReader}.
+     * @param hints Hints to be used by this reader throughout his life.
      */
     public ECWReader(Object input, Hints hints) throws DataSourceException {
         super(input, hints, worldFileExt, new ECWImageReaderSpi());
     }
 
-    /**
-     * @see org.opengis.coverage.grid.GridCoverageReader#getFormat()
-     */
+    /** @see org.opengis.coverage.grid.GridCoverageReader#getFormat() */
     public Format getFormat() {
         return new ECWFormat();
     }

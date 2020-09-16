@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2016, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,20 +18,19 @@ package org.geotools.xs.bindings;
 
 import java.sql.Date;
 import java.util.Calendar;
-import java.util.TimeZone;
-
 import javax.xml.namespace.QName;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.SimpleBinding;
 import org.geotools.xml.impl.DatatypeConverterImpl;
 import org.geotools.xs.XS;
-
+import org.geotools.xs.XSUtils;
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.SimpleBinding;
 
 /**
  * Binding object for the type http://www.w3.org/2001/XMLSchema:date.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xs:simpleType name="date" id="date"&gt;
  *      &lt;xs:annotation&gt;
@@ -57,23 +56,17 @@ import org.geotools.xs.XS;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class XSDateBinding implements SimpleBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return XS.DATE;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -84,6 +77,7 @@ public class XSDateBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * This binding returns objects of type {@link java.sql.Date}.
      * <!-- end-user-doc -->
@@ -95,6 +89,7 @@ public class XSDateBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * This binding returns objects of type {@link java.sql.Date}.
      * <!-- end-user-doc -->
@@ -108,10 +103,9 @@ public class XSDateBinding implements SimpleBinding {
 
     public String encode(Object object, String value) throws Exception {
         final Date date = (Date) object;
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = XSUtils.getConfiguredCalendar();
         calendar.clear();
         calendar.setTimeInMillis(date.getTime());
-
         return DatatypeConverterImpl.getInstance().printDate(calendar);
     }
 }

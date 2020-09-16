@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2002-2012, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2002-2015, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -20,22 +20,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import javax.media.jai.Histogram;
-
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.ViewType;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.parameter.ParameterValueGroup;
 
 public class HistogramTest extends GridProcessingTestBase {
-    /**
-     * The grid coverage to test.
-     */
+    /** The grid coverage to test. */
     private GridCoverage2D coverage;
-    
-    /**
-     * Set up common objects used for all tests.
-     */
+
+    /** Set up common objects used for all tests. */
     @Before
     public void setUp() {
         coverage = EXAMPLES.get(0);
@@ -43,7 +37,7 @@ public class HistogramTest extends GridProcessingTestBase {
 
     @Test
     public void testHistogram() throws Exception {
-        GridCoverage2D source = coverage.view(ViewType.NATIVE);
+        GridCoverage2D source = coverage;
         CoverageProcessor processor = CoverageProcessor.getInstance();
 
         ParameterValueGroup param = processor.getOperation("Histogram").getParameters();
@@ -59,13 +53,13 @@ public class HistogramTest extends GridProcessingTestBase {
 
     @Test
     public void testHistogramWithNumBins() throws Exception {
-        GridCoverage2D source = coverage.view(ViewType.NATIVE);
+        GridCoverage2D source = coverage;
         CoverageProcessor processor = CoverageProcessor.getInstance();
 
         ParameterValueGroup param = processor.getOperation("Histogram").getParameters();
         param.parameter("Source").setValue(source);
-        param.parameter("numBins").setValue(new int[]{10});
-        
+        param.parameter("numBins").setValue(new int[] {10});
+
         GridCoverage2D processed = (GridCoverage2D) processor.doOperation(param);
 
         Histogram histo = (Histogram) processed.getProperty("histogram");
@@ -76,14 +70,14 @@ public class HistogramTest extends GridProcessingTestBase {
 
     @Test
     public void testHistogramWithHighLow() throws Exception {
-        GridCoverage2D source = coverage.view(ViewType.NATIVE);
+        GridCoverage2D source = coverage;
         CoverageProcessor processor = CoverageProcessor.getInstance();
 
         ParameterValueGroup param = processor.getOperation("Histogram").getParameters();
         param.parameter("Source").setValue(source);
-        param.parameter("numBins").setValue(new int[]{10});
-        param.parameter("lowValue").setValue(new double[]{100});
-        param.parameter("highValue").setValue(new double[]{200});
+        param.parameter("numBins").setValue(new int[] {10});
+        param.parameter("lowValue").setValue(new double[] {100});
+        param.parameter("highValue").setValue(new double[] {200});
         GridCoverage2D processed = (GridCoverage2D) processor.doOperation(param);
 
         Histogram histo = (Histogram) processed.getProperty("histogram");

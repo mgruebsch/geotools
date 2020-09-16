@@ -1,11 +1,12 @@
 package org.geotools.data.sort;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
-
 import org.geotools.data.simple.DelegateSimpleFeatureReader;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureReader;
@@ -17,22 +18,16 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-
-/**
- * 
- *
- * @source $URL$
- */
 public class SortedReaderTest {
 
     SimpleFeatureReader fr;
@@ -44,6 +39,8 @@ public class SortedReaderTest {
     SortBy[] peopleDesc;
 
     SortBy[] fidAsc;
+
+    SortBy[] nullAsc;
 
     SimpleFeatureType schema;
 
@@ -87,19 +84,22 @@ public class SortedReaderTest {
             point.setUserData(DefaultGeographicCRS.WGS84);
 
             builder.add(point);
-            builder.add(new Integer(i));
-            builder.add(new Byte((byte) i));
-            builder.add(new Short((short) i));
-            builder.add(new Long(i));
-            builder.add(new Float(i));
-            builder.add(new Double(i));
+            builder.add(Integer.valueOf(i));
+            builder.add(Byte.valueOf((byte) i));
+            builder.add(Short.valueOf((short) i));
+            builder.add(Long.valueOf(i));
+            builder.add(Float.valueOf(i));
+            builder.add(Double.valueOf(i));
             builder.add(new Date());
             builder.add(new java.sql.Date(System.currentTimeMillis()));
             builder.add(new java.sql.Time(System.currentTimeMillis()));
             builder.add(new java.sql.Timestamp(System.currentTimeMillis()));
 
-            LineString line = gf.createLineString(new Coordinate[] { new Coordinate(x + i, y + i),
-                    new Coordinate(x + i + 1, y + i + 1) });
+            LineString line =
+                    gf.createLineString(
+                            new Coordinate[] {
+                                new Coordinate(x + i, y + i), new Coordinate(x + i + 1, y + i + 1)
+                            });
             line.setUserData(DefaultGeographicCRS.WGS84);
             builder.add(line);
 
@@ -108,17 +108,18 @@ public class SortedReaderTest {
 
         // add a feature with a null geometry
         builder.add(null);
-        builder.add(new Integer(-1));
+        builder.add(Integer.valueOf(-1));
         builder.add(null);
         fc.add(builder.buildFeature((features + 1) + ""));
 
         fr = new DelegateSimpleFeatureReader(schema, fc.features());
 
         ff = CommonFactoryFinder.getFilterFactory(null);
-        peopleAsc = new SortBy[] { ff.sort("PERSONS", SortOrder.ASCENDING) };
-        peopleDesc = new SortBy[] { ff.sort("PERSONS", SortOrder.DESCENDING) };
-        dateAsc = new SortBy[] { ff.sort("date", SortOrder.ASCENDING) };
-        fidAsc = new SortBy[] { SortBy.NATURAL_ORDER };
+        peopleAsc = new SortBy[] {ff.sort("PERSONS", SortOrder.ASCENDING)};
+        peopleDesc = new SortBy[] {ff.sort("PERSONS", SortOrder.DESCENDING)};
+        dateAsc = new SortBy[] {ff.sort("date", SortOrder.ASCENDING)};
+        fidAsc = new SortBy[] {SortBy.NATURAL_ORDER};
+        nullAsc = new SortBy[] {ff.sort("null", SortOrder.ASCENDING)};
     }
 
     @After
@@ -131,6 +132,7 @@ public class SortedReaderTest {
         assertTrue(SortedFeatureReader.canSort(schema, peopleAsc));
         assertTrue(SortedFeatureReader.canSort(schema, peopleDesc));
         assertTrue(SortedFeatureReader.canSort(schema, fidAsc));
+        assertFalse(SortedFeatureReader.canSort(schema, nullAsc));
     }
 
     @Test
@@ -146,10 +148,10 @@ public class SortedReaderTest {
             }
         }
     }
-    
+
     @Test
     public void testFileSortDate() throws IOException {
-        // make it so that we are not going to hit the disk
+        // make it so that we are going to hit the disk
         SimpleFeatureReader sr = null;
         try {
             sr = new SortedFeatureReader(fr, dateAsc, 100);
@@ -163,7 +165,7 @@ public class SortedReaderTest {
 
     @Test
     public void testFileSortPeople() throws IOException {
-        // make it so that we are not going to hit the disk
+        // make it so that we are going to hit the disk
         SimpleFeatureReader sr = null;
         try {
             sr = new SortedFeatureReader(fr, peopleAsc, 5);
@@ -196,9 +198,9 @@ public class SortedReaderTest {
         try {
             sr = new SortedFeatureReader(fr, peopleDesc, 1000);
             double prev = -1;
-            while (fr.hasNext()) {
-                SimpleFeature f = fr.next();
-                double curr = (Double) f.getAttribute("PERSONS");
+            while (sr.hasNext()) {
+                SimpleFeature f = sr.next();
+                int curr = (Integer) f.getAttribute("PERSONS");
                 if (prev > 0) {
                     assertTrue(curr <= prev);
                 }
@@ -218,8 +220,8 @@ public class SortedReaderTest {
         try {
             sr = new SortedFeatureReader(fr, fidAsc, 1000);
             String prev = null;
-            while (fr.hasNext()) {
-                SimpleFeature f = fr.next();
+            while (sr.hasNext()) {
+                SimpleFeature f = sr.next();
                 String id = f.getID();
                 if (prev != null) {
                     assertTrue(id.compareTo(prev) >= 0);
@@ -233,8 +235,36 @@ public class SortedReaderTest {
         }
     }
 
-    private void assertSortedOnPeopleAsc(SimpleFeatureReader fr) throws IllegalArgumentException,
-            NoSuchElementException, IOException {
+    @Test
+    public void testSortNaturalPartialLastPage() throws IOException {
+        // make it so that we are not going to hit the disk, but
+        // some of the data won't fit in the last page, used to be
+        // left in memory and forgotten
+        SimpleFeatureReader sr = null;
+        try {
+            final int PRIME = 173;
+            sr = new SortedFeatureReader(fr, fidAsc, PRIME);
+            String prev = null;
+            int count = 0;
+            while (sr.hasNext()) {
+                SimpleFeature f = sr.next();
+                String id = f.getID();
+                if (prev != null) {
+                    assertTrue(id.compareTo(prev) >= 0);
+                }
+                prev = id;
+                count++;
+            }
+            assertEquals(fc.size(), count);
+        } finally {
+            if (sr != null) {
+                sr.close();
+            }
+        }
+    }
+
+    private void assertSortedOnPeopleAsc(SimpleFeatureReader fr)
+            throws IllegalArgumentException, NoSuchElementException, IOException {
         double prev = -1;
         while (fr.hasNext()) {
             SimpleFeature f = fr.next();
@@ -246,8 +276,8 @@ public class SortedReaderTest {
         }
     }
 
-    private void assertSortedOnDateAsc(SimpleFeatureReader fr) throws IllegalArgumentException,
-            NoSuchElementException, IOException {
+    private void assertSortedOnDateAsc(SimpleFeatureReader fr)
+            throws IllegalArgumentException, NoSuchElementException, IOException {
         Date prev = null;
         while (fr.hasNext()) {
             SimpleFeature f = fr.next();
@@ -259,8 +289,8 @@ public class SortedReaderTest {
         }
     }
 
-    private void assertSortedOnPeopleAsc(SimpleFeatureIterator fi) throws IllegalArgumentException,
-            NoSuchElementException, IOException {
+    private void assertSortedOnPeopleAsc(SimpleFeatureIterator fi)
+            throws IllegalArgumentException, NoSuchElementException, IOException {
         double prev = -1;
         while (fi.hasNext()) {
             SimpleFeature f = fi.next();
@@ -271,5 +301,4 @@ public class SortedReaderTest {
             prev = curr;
         }
     }
-
 }

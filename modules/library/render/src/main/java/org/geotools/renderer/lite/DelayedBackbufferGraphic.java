@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2004-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -28,10 +28,10 @@ import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.RenderingHints.Key;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.Transparency;
-import java.awt.RenderingHints.Key;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
@@ -46,7 +46,7 @@ import java.util.Map;
 /**
  * A graphic drawing on a BufferedImage compatible with a main graphic. Used to delay the allocation
  * of the back buffer until the last moment
- * 
+ *
  * @author Andrea Aime - OpenGeo
  */
 final class DelayedBackbufferGraphic extends Graphics2D {
@@ -63,13 +63,16 @@ final class DelayedBackbufferGraphic extends Graphics2D {
 
     Graphics2D delegate;
 
-    /**
-     * Call this method before starting to use the graphic for good
-     */
+    /** Call this method before starting to use the graphic for good */
     public void init() {
         if (delegate == null) {
-            image = master.getDeviceConfiguration().createCompatibleImage(screenSize.width,
-                    screenSize.height, Transparency.TRANSLUCENT);
+            if (master instanceof DelayedBackbufferGraphic) {
+                ((DelayedBackbufferGraphic) master).init();
+            }
+            image =
+                    master.getDeviceConfiguration()
+                            .createCompatibleImage(
+                                    screenSize.width, screenSize.height, Transparency.TRANSLUCENT);
             delegate = image.createGraphics();
             delegate.setRenderingHints(master.getRenderingHints());
         }
@@ -104,7 +107,7 @@ final class DelayedBackbufferGraphic extends Graphics2D {
     }
 
     public void dispose() {
-        if(delegate != null) {
+        if (delegate != null) {
             delegate.dispose();
         }
     }
@@ -149,22 +152,42 @@ final class DelayedBackbufferGraphic extends Graphics2D {
         return delegate.drawImage(img, x, y, observer);
     }
 
-    public boolean drawImage(Image img, int x, int y, int width, int height, Color bgcolor,
-            ImageObserver observer) {
+    public boolean drawImage(
+            Image img, int x, int y, int width, int height, Color bgcolor, ImageObserver observer) {
         return delegate.drawImage(img, x, y, width, height, bgcolor, observer);
     }
 
-    public boolean drawImage(Image img, int x, int y, int width, int height, ImageObserver observer) {
+    public boolean drawImage(
+            Image img, int x, int y, int width, int height, ImageObserver observer) {
         return delegate.drawImage(img, x, y, width, height, observer);
     }
 
-    public boolean drawImage(Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1,
-            int sx2, int sy2, Color bgcolor, ImageObserver observer) {
+    public boolean drawImage(
+            Image img,
+            int dx1,
+            int dy1,
+            int dx2,
+            int dy2,
+            int sx1,
+            int sy1,
+            int sx2,
+            int sy2,
+            Color bgcolor,
+            ImageObserver observer) {
         return delegate.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, bgcolor, observer);
     }
 
-    public boolean drawImage(Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1,
-            int sx2, int sy2, ImageObserver observer) {
+    public boolean drawImage(
+            Image img,
+            int dx1,
+            int dy1,
+            int dx2,
+            int dy2,
+            int sx1,
+            int sy1,
+            int sx2,
+            int sy2,
+            ImageObserver observer) {
         return delegate.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, observer);
     }
 
@@ -252,10 +275,6 @@ final class DelayedBackbufferGraphic extends Graphics2D {
         delegate.fillRoundRect(x, y, width, height, arcWidth, arcHeight);
     }
 
-    public void finalize() {
-        delegate.finalize();
-    }
-
     public Color getBackground() {
         return delegate.getBackground();
     }
@@ -272,6 +291,7 @@ final class DelayedBackbufferGraphic extends Graphics2D {
         return delegate.getClipBounds(r);
     }
 
+    @SuppressWarnings("deprecation")
     public Rectangle getClipRect() {
         return delegate.getClipRect();
     }
@@ -411,5 +431,4 @@ final class DelayedBackbufferGraphic extends Graphics2D {
     public void translate(int x, int y) {
         delegate.translate(x, y);
     }
-
 }

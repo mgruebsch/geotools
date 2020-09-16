@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -21,15 +21,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
-
 import junit.framework.TestCase;
-
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Divide;
 import org.opengis.filter.expression.Expression;
@@ -42,16 +41,12 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.expression.Subtract;
 
 /**
- * 
  * @author Gabriel Roldan, Axios Engineering
- *
- *
- *
- * @source $URL$
  * @version $Id$
  */
 public class FunctionExpressionImplTest extends TestCase {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(FunctionExpressionImplTest.class.getPackage().getName());
+    private static final Logger LOGGER =
+            org.geotools.util.logging.Logging.getLogger(FunctionExpressionImplTest.class);
 
     FunctionExpressionImpl function;
 
@@ -59,12 +54,10 @@ public class FunctionExpressionImplTest extends TestCase {
 
     public void setUp() throws Exception {
         super.setUp();
-        function = new FunctionExpressionImpl("testFunction") {
-            public int getArgCount() {
-                return 1;
-            }
-        };
-
+        function =
+                new FunctionExpressionImpl(
+                        FunctionExpressionImpl.functionName(
+                                "testFunction", "test:String", "argument:String")) {};
         testVisitor = new TestExpressionVisitor();
     }
 
@@ -79,7 +72,7 @@ public class FunctionExpressionImplTest extends TestCase {
 
         function.accept(testVisitor, extraData);
 
-        final Object[] expected = { Boolean.TRUE, extraData };
+        final Object[] expected = {Boolean.TRUE, extraData};
         final Object[] actual = testVisitor.functionVisited;
 
         assertEquals(expected[0], actual[0]);
@@ -87,58 +80,47 @@ public class FunctionExpressionImplTest extends TestCase {
     }
 
     public void testGetType() {
-        assertEquals(ExpressionType.FUNCTION, function.getType());
+        assertEquals(ExpressionType.FUNCTION, Filters.getExpressionType(function));
     }
 
     public void testGetName() {
-        function.setName("testFunction");
-        assertEquals("testFunction", function.getName());
-    }
-
-    public void testSetName() {
-        function.setName("testFunction");
-        // do not try this at home
-        assertEquals("testFunction", function.name);
+        FunctionExpressionImpl anonymous =
+                new FunctionExpressionImpl(
+                        FunctionExpressionImpl.functionName("testFunction", "text:String")) {};
+        assertEquals("testFunction", anonymous.getName());
     }
 
     public void testGetParameters() {
-        final List expected = Collections
-                .singletonList(new LiteralExpressionImpl(10d));
+        final List expected = Collections.singletonList(new LiteralExpressionImpl(10d));
         // do not try this at home
         function.params = expected;
         assertEquals(expected, function.getParameters());
     }
 
     public void testSetParameters() {
-        final List expected = Collections
-                .singletonList(new LiteralExpressionImpl(10d));
+        final List expected = Collections.singletonList(new LiteralExpressionImpl(10d));
         // do not try this at home
         function.setParameters(expected);
         assertEquals(expected, function.params);
     }
 
     public void testGetArgs() {
-        final List expected = Collections
-                .singletonList(new LiteralExpressionImpl(10d));
+        final List expected = Collections.singletonList(new LiteralExpressionImpl(10d));
         function.setParameters(expected);
-        Expression[] args = function.getArgs();
-        List actual = Arrays.asList(args);
+        List<Expression> actual = function.getParameters();
         assertEquals(expected, actual);
     }
 
     public void testSetArgs() {
-        final List expected = Collections
-                .singletonList(new LiteralExpressionImpl(10d));
-        org.geotools.filter.Expression[] args = (org.geotools.filter.Expression[]) expected.toArray(new org.geotools.filter.Expression[1]);
-        function.setArgs(args);
+        final List expected = Collections.singletonList(new LiteralExpressionImpl(10d));
+        function.setParameters(expected);
         assertEquals(expected, function.params);
     }
 
     public void testGetArgCount() {
-        final List expected = Collections
-                .singletonList(new LiteralExpressionImpl(10d));
+        final List expected = Collections.singletonList(new LiteralExpressionImpl(10d));
         function.setParameters(expected);
-        assertEquals(1, function.getArgCount());
+        assertEquals(1, function.getFunctionName().getArgumentCount());
     }
 
     public void testGetImplementationHints() {
@@ -146,16 +128,16 @@ public class FunctionExpressionImplTest extends TestCase {
         assertTrue(function.getImplementationHints().isEmpty());
     }
 
-    public void testImplementations() throws IOException,
-            ClassNotFoundException, InstantiationException,
-            IllegalAccessException {
+    public void testImplementations()
+            throws IOException, ClassNotFoundException, InstantiationException,
+                    IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         List functionClasses = loadFunctionClasses();
 
         List errors = new LinkedList();
-        for (Iterator it = functionClasses.iterator(); it.hasNext();) {
+        for (Iterator it = functionClasses.iterator(); it.hasNext(); ) {
             Class functionClass = (Class) it.next();
-            Function function = (Function) functionClass.newInstance();
+            Function function = (Function) functionClass.getDeclaredConstructor().newInstance();
             testFunction(function, errors);
         }
         if (errors.size() > 0) {
@@ -166,15 +148,14 @@ public class FunctionExpressionImplTest extends TestCase {
     }
 
     /**
-     * @param errors
-     *            List&lt;Exception&gt
+     * @param errors List&lt;Exception&gt
      * @return a formatted error message
      */
     private String buildErrosMessage(List errors) {
-        StringBuffer sb = new StringBuffer(
-                "Some function expression implementations violates contract:\n");
+        StringBuffer sb =
+                new StringBuffer("Some function expression implementations violates contract:\n");
         int errorCount = 1;
-        for (Iterator it = errors.iterator(); it.hasNext();) {
+        for (Iterator it = errors.iterator(); it.hasNext(); ) {
             String error = (String) it.next();
             sb.append(errorCount++ + " - ");
             sb.append(error);
@@ -184,7 +165,8 @@ public class FunctionExpressionImplTest extends TestCase {
     }
 
     private void testFunction(Function function, List errors)
-            throws InstantiationException, IllegalAccessException {
+            throws InstantiationException, IllegalAccessException, NoSuchMethodException,
+                    InvocationTargetException {
         final String functionClass = function.getClass().getName();
 
         if (null == function.getName()) {
@@ -195,13 +177,14 @@ public class FunctionExpressionImplTest extends TestCase {
         Object extraData = "[extraData correctly returned]";
         function.accept(testVisitor, extraData);
         Object[] functionVisited = testVisitor.functionVisited;
-        if (Boolean.TRUE != functionVisited[0]
-                || extraData != functionVisited[1]) {
-            errors
-                    .add(functionClass
+        if (Boolean.TRUE != functionVisited[0] || extraData != functionVisited[1]) {
+            errors.add(
+                    functionClass
                             + ": accept didn't called visitor.visit(Function, extraData): "
-                            + " visited: " + functionVisited[0]
-                            + ", extraData: " + functionVisited[1]);
+                            + " visited: "
+                            + functionVisited[0]
+                            + ", extraData: "
+                            + functionVisited[1]);
         }
 
         try {
@@ -213,85 +196,82 @@ public class FunctionExpressionImplTest extends TestCase {
         if (function instanceof FunctionExpression) {
             testDeprecatedMethods((FunctionExpression) function, errors);
         }
-        
+
         List<Expression> parameters = function.getParameters();
-        if(parameters == null){
+        if (parameters == null) {
             errors.add(functionClass + ".getParameters() returns null");
         }
     }
 
-    private void addExceptionError(List errors, final String functionClass,
-            final String method, Exception e) {
+    private void addExceptionError(
+            List errors, final String functionClass, final String method, Exception e) {
         /*
          * StringWriter stringWriter = new StringWriter(); e.printStackTrace(new
          * PrintWriter(stringWriter));
-         * 
+         *
          * errors.add(functionClass + "." + method + "() throwed an exception: " +
          * stringWriter.getBuffer());
          */
-        errors.add(functionClass + "." + method + "() throwed an exception: "
-                + e.getMessage());
+        errors.add(functionClass + "." + method + "() throwed an exception: " + e.getMessage());
     }
 
-    private void testDeprecatedMethods(FunctionExpression function, List errors)
-            throws InstantiationException, IllegalAccessException {
+    private void testDeprecatedMethods(FunctionExpression function, List<String> errors)
+            throws InstantiationException, IllegalAccessException, NoSuchMethodException,
+                    InvocationTargetException {
         final String functionClass = function.getClass().getName();
-        int argCount = function.getArgCount();
-        if (argCount < 0) { //unlimited parameters
-            argCount = 5; //we'll try 5
+        int argCount = function.getFunctionName().getArgumentCount();
+        if (argCount < 0) { // unlimited parameters
+            argCount = 5; // we'll try 5
         }
 
-        final org.geotools.filter.Expression[] expected = new org.geotools.filter.Expression[argCount];
+        final List<Expression> expected = new ArrayList<Expression>();
+
         for (int i = 0; i < argCount; i++) {
-            org.geotools.filter.Expression ex = new AttributeExpressionImpl("attName");
-            expected[i] = ex;
+            AttributeExpressionImpl ex = new AttributeExpressionImpl("attName");
+            expected.add(ex);
         }
 
-        final List expectedList = Arrays.asList(expected);
         try {
-            function.setArgs(expected);
+            function.setParameters(expected);
         } catch (Exception e) {
             addExceptionError(errors, functionClass, "setArgs", e);
         }
 
-        List returnedParams = function.getParameters();
+        List<Expression> returnedParams = function.getParameters();
         if (returnedParams == null) {
-            errors
-                    .add(functionClass
+            errors.add(
+                    functionClass
                             + ".getParameters() returned null when parameters were set through setArgs(Expression[])");
-        } else if (!expectedList.equals(returnedParams)) {
-            errors
-                    .add(functionClass
+        } else if (!expected.equals(returnedParams)) {
+            errors.add(
+                    functionClass
                             + ".getParameters() returned a wrong result when parameters were set through setArgs(Expression[])");
         }
 
-        function = (FunctionExpression) function.getClass().newInstance();
-        function.setParameters(expectedList);
+        function = (FunctionExpression) function.getClass().getDeclaredConstructor().newInstance();
+        function.setParameters(expected);
 
-        Expression[] returnedArgs = function.getArgs();
+        List<Expression> returnedArgs = function.getParameters();
         if (returnedArgs == null) {
-            errors
-                    .add(functionClass
-                            + ".getArgs() returns null then arguments set through setParameters()");
+            errors.add(
+                    functionClass
+                            + ".getParameters() returns null then arguments set through setParameters()");
         } else {
-            returnedParams = Arrays.asList(expected);
+            returnedParams = new ArrayList<Expression>(expected);
 
-            if (!expectedList.equals(returnedParams)) {
-                errors.add(functionClass
-                        + ".getArgs() incompatible with getParameters()");
+            if (!expected.equals(returnedParams)) {
+                errors.add(functionClass + ".getParameters() incompatible with getParameters()");
             }
         }
 
-        if (ExpressionType.FUNCTION != function.getType()) {
-            errors
-                    .add(functionClass + ".getType != "
-                            + ExpressionType.FUNCTION);
+        if (ExpressionType.FUNCTION != Filters.getExpressionType(function)) {
+            errors.add(functionClass + ".getType != " + ExpressionType.FUNCTION);
         }
     }
 
-    private List loadFunctionClasses() throws IOException,
-            ClassNotFoundException {
-        final String spiDefinitionResource = "/META-INF/services/org.opengis.filter.expression.Function";
+    private List loadFunctionClasses() throws IOException, ClassNotFoundException {
+        final String spiDefinitionResource =
+                "/META-INF/services/org.opengis.filter.expression.Function";
         InputStream in = getClass().getResourceAsStream(spiDefinitionResource);
         if (in == null) {
             throw new FileNotFoundException(spiDefinitionResource);
@@ -308,14 +288,13 @@ public class FunctionExpressionImplTest extends TestCase {
     }
 
     /**
-     * An ExpressionVisitor for function expressions test purposes that stores
-     * the visited status in a public field
-     * 
+     * An ExpressionVisitor for function expressions test purposes that stores the visited status in
+     * a public field
+     *
      * @author Gabriel Roldan, Axios Engineering
-     * 
      */
     private static class TestExpressionVisitor implements ExpressionVisitor {
-        public Object[] functionVisited = { Boolean.FALSE, null };
+        public Object[] functionVisited = {Boolean.FALSE, null};
 
         public Object visit(Function expression, Object extraData) {
             functionVisited[0] = Boolean.TRUE;

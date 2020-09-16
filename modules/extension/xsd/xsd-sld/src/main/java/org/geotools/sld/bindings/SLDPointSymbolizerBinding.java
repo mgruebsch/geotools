@@ -17,26 +17,24 @@
 package org.geotools.sld.bindings;
 
 import java.util.List;
-
-import org.picocontainer.MutablePicoContainer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
-
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.PropertyName;
 import org.geotools.sld.CssParameter;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.StyleFactory;
-import org.geotools.xml.*;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.PropertyName;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * Binding object for the element http://www.opengis.net/sld:PointSymbolizer.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xsd:element name="PointSymbolizer" substitutionGroup="sld:Symbolizer"&gt;
  *      &lt;xsd:annotation&gt;
@@ -58,13 +56,8 @@ import org.geotools.xml.*;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class SLDPointSymbolizerBinding extends AbstractComplexBinding {
     StyleFactory styleFactory;
@@ -73,14 +66,13 @@ public class SLDPointSymbolizerBinding extends AbstractComplexBinding {
         this.styleFactory = styleFactory;
     }
 
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return SLD.POINTSYMBOLIZER;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -91,6 +83,7 @@ public class SLDPointSymbolizerBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -101,28 +94,28 @@ public class SLDPointSymbolizerBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {
-    }
+    public void initialize(ElementInstance instance, Node node, MutablePicoContainer context) {}
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         PointSymbolizer ps = styleFactory.createPointSymbolizer();
 
-        //&lt;xsd:element ref="sld:Geometry" minOccurs="0"/&gt;
-        if(node.hasChild("Geometry")) {
+        // &lt;xsd:element ref="sld:Geometry" minOccurs="0"/&gt;
+        if (node.hasChild("Geometry")) {
             Expression geometry = (Expression) node.getChildValue("Geometry");
-            if(geometry instanceof PropertyName) {
+            if (geometry instanceof PropertyName) {
                 PropertyName propertyName = (PropertyName) geometry;
                 ps.setGeometryPropertyName(propertyName.getPropertyName());
             } else {
@@ -130,14 +123,15 @@ public class SLDPointSymbolizerBinding extends AbstractComplexBinding {
             }
         }
 
-        //&lt;xsd:element ref="sld:Graphic" minOccurs="0"/&gt;
+        // &lt;xsd:element ref="sld:Graphic" minOccurs="0"/&gt;
         if (node.hasChild("Graphic")) {
             ps.setGraphic((Graphic) node.getChildValue("Graphic"));
         }
-        
-        //&lt;xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded"/&gt;
+
+        // &lt;xsd:element ref="sld:VendorOption" minOccurs="0" maxOccurs="unbounded"/&gt;
         for (CssParameter param : (List<CssParameter>) node.getChildValues(CssParameter.class)) {
-            ps.getOptions().put(param.getName(), param.getExpression().evaluate(null, String.class));
+            ps.getOptions()
+                    .put(param.getName(), param.getExpression().evaluate(null, String.class));
         }
 
         return ps;

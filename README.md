@@ -1,11 +1,11 @@
-# GeoTools
+![GeoTools logo](/geotools-logo.png)
 
 [GeoTools](http://geotools.org) is an open source Java library that provides
  tools for geospatial data. Our Users guide provides an [overview](http://docs.geotools.org/latest/userguide/geotools.html) of the core features, supported formats and standards support.
 
 ## License
 
-GeoTools licensed under the [LGPL](http://www.gnu.org/licenses/lgpl.html). The user guide [license](http://docs.geotools.org/latest/userguide/welcome/license.html) page describes the less restrictive license for documentation and source code examples.
+GeoTools is licensed under the [LGPL](http://www.gnu.org/licenses/lgpl.html). The user guide [license](http://docs.geotools.org/latest/userguide/welcome/license.html) page describes the less restrictive license for documentation and source code examples.
 
 ## Contributing
 
@@ -25,15 +25,15 @@ for more details.
 
 ## Bugs
 
-GeoTools uses [JIRA](http://www.codehaus.org/), hosted by 
-[CodeHaus](http://www.codehaus.org/), for issue tracking.
+GeoTools uses [JIRA](https://osgeo-org.atlassian.net/browse/GEOT), hosted by 
+[Atlassian](https://www.atlassian.com/), for issue tracking.
 
 ## Mailing Lists
 
 The [user list](mailto:geotools-gt2-users@lists.sourceforge.net) is for all questions 
 related to GeoTools usage. 
 
-The [dev list](mailto:geotools-devel@lists.sourceforge.net) is for questions relateded 
+The [dev list](mailto:geotools-devel@lists.sourceforge.net) is for questions related 
 to hacking on the GeoTools library itself.
 
 ## More Information

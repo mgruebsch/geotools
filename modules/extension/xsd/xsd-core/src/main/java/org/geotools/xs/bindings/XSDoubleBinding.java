@@ -17,16 +17,16 @@
 package org.geotools.xs.bindings;
 
 import javax.xml.namespace.QName;
-import org.geotools.xml.InstanceComponent;
-import org.geotools.xml.SimpleBinding;
 import org.geotools.xs.XS;
-
+import org.geotools.xsd.InstanceComponent;
+import org.geotools.xsd.SimpleBinding;
 
 /**
  * Binding object for the type http://www.w3.org/2001/XMLSchema:double.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;xs:simpleType name="double" id="double"&gt;
  *      &lt;xs:annotation&gt;
@@ -52,23 +52,17 @@ import org.geotools.xs.XS;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
 public class XSDoubleBinding implements SimpleBinding {
-    /**
-     * @generated
-     */
+    /** @generated */
     public QName getTarget() {
         return XS.DOUBLE;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
@@ -79,6 +73,7 @@ public class XSDoubleBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * This binding returns objects of type {@link java.lang.Double}.
      * <!-- end-user-doc -->
@@ -90,23 +85,24 @@ public class XSDoubleBinding implements SimpleBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
-     * This binding returns objects of type {@link java.lang.Double}. This is an
-     * override so value is null.
+     * This binding returns objects of type {@link java.lang.Double}. This is an override so value
+     * is null.
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(InstanceComponent instance, Object value)
-        throws Exception {
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
         if ("INF".equals(value)) {
-            return new Double(Double.POSITIVE_INFINITY);
+            return Double.valueOf(Double.POSITIVE_INFINITY);
         }
 
-        return new Double((String) value);
+        return Double.valueOf((String) value);
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *

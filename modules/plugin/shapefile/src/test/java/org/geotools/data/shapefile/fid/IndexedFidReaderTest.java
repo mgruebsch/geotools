@@ -16,17 +16,13 @@
  */
 package org.geotools.data.shapefile.fid;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.files.ShpFiles;
 import org.geotools.data.shapefile.shp.IndexFile;
@@ -37,11 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 
-/**
- * 
- * 
- * @source $URL$
- */
 public class IndexedFidReaderTest extends FIDTestCase {
 
     private IndexedFidReader reader;
@@ -182,7 +173,6 @@ public class IndexedFidReaderTest extends FIDTestCase {
 
         offset = reader.findFid(TYPE_NAME + ".3");
         assertEquals(-1, offset);
-
     }
 
     @Test

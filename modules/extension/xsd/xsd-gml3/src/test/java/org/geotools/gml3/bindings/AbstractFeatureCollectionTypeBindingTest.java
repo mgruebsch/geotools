@@ -20,31 +20,27 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.gml3.GML;
 import org.geotools.gml3.GML3TestSupport;
-import org.geotools.xml.Configuration;
+import org.geotools.xsd.Configuration;
 import org.opengis.feature.simple.SimpleFeature;
 import org.w3c.dom.Element;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class AbstractFeatureCollectionTypeBindingTest extends GML3TestSupport {
     protected Configuration createConfiguration() {
         return new TestConfiguration();
     }
 
-    protected void registerNamespaces(Element root) {
-        super.registerNamespaces(root);
-        root.setAttribute("xmlns:test", TEST.NAMESPACE);
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        registerNamespaceMapping("test", TEST.NAMESPACE);
     }
 
     public void testFeatureMember() throws Exception {
-        Element featureCollection = GML3MockData.element(TEST.TestFeatureCollection, document,
-                document);
+        Element featureCollection =
+                GML3MockData.element(TEST.TestFeatureCollection, document, document);
 
-        Element featureMember = GML3MockData.element(GML.featureMember, document, featureCollection);
+        Element featureMember =
+                GML3MockData.element(GML.featureMember, document, featureCollection);
 
         Element feature = GML3MockData.feature(document, featureMember);
         feature.setAttributeNS(GML.NAMESPACE, "id", "fid.1");
@@ -63,7 +59,7 @@ public class AbstractFeatureCollectionTypeBindingTest extends GML3TestSupport {
         try {
             SimpleFeature f = (SimpleFeature) i.next();
             assertEquals("fid.1", f.getID());
-    
+
             f = (SimpleFeature) i.next();
             assertEquals("fid.2", f.getID());
         } finally {
@@ -72,10 +68,11 @@ public class AbstractFeatureCollectionTypeBindingTest extends GML3TestSupport {
     }
 
     public void testFeatureMembers() throws Exception {
-        Element featureCollection = GML3MockData.element(TEST.TestFeatureCollection, document,
-                document);
+        Element featureCollection =
+                GML3MockData.element(TEST.TestFeatureCollection, document, document);
 
-        Element featureMember = GML3MockData.element(GML.featureMembers, document, featureCollection);
+        Element featureMember =
+                GML3MockData.element(GML.featureMembers, document, featureCollection);
 
         Element feature = GML3MockData.feature(document, featureMember);
         feature.setAttributeNS(GML.NAMESPACE, "id", "fid.1");
@@ -92,7 +89,7 @@ public class AbstractFeatureCollectionTypeBindingTest extends GML3TestSupport {
         try {
             SimpleFeature f = (SimpleFeature) i.next();
             assertEquals("fid.1", f.getID());
-    
+
             f = (SimpleFeature) i.next();
             assertEquals("fid.2", f.getID());
         } finally {

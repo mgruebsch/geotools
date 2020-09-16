@@ -16,23 +16,26 @@
  */
 package org.geotools.gml3.bindings;
 
+import java.util.Arrays;
+import java.util.List;
 import javax.xml.namespace.QName;
-
+import org.geotools.geometry.jts.CompoundCurvedGeometry;
+import org.geotools.geometry.jts.CurvedGeometry;
+import org.geotools.geometry.jts.CurvedGeometryFactory;
+import org.geotools.gml3.ArcParameters;
 import org.geotools.gml3.GML;
-import org.geotools.xml.AbstractComplexBinding;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
-
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-
+import org.geotools.xsd.AbstractComplexBinding;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 
 /**
  * Binding object for the type http://www.opengis.net/gml:CurveType.
  *
  * <p>
- *        <pre>
+ *
+ * <pre>
  *         <code>
  *  &lt;complexType name="CurveType"&gt;
  *      &lt;annotation&gt;
@@ -55,37 +58,37 @@ import com.vividsolutions.jts.geom.MultiLineString;
  *
  *          </code>
  *         </pre>
- * </p>
  *
  * @generated
- *
- *
- *
- * @source $URL$
  */
-public class CurveTypeBinding extends AbstractComplexBinding {
+@SuppressWarnings("ComparableType")
+public class CurveTypeBinding extends AbstractComplexBinding implements Comparable {
     protected GeometryFactory gf;
+
+    ArcParameters arcParameters;
 
     public CurveTypeBinding(GeometryFactory gf) {
         this.gf = gf;
     }
 
-    /**
-     * @generated
-     */
+    public void setArcParameters(ArcParameters arcParameters) {
+        this.arcParameters = arcParameters;
+    }
+
+    /** @generated */
     public QName getTarget() {
         return GML.CurveType;
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
     public Class getType() {
-        //return Curve.class;
-        return MultiLineString.class;
+        return CurvedGeometry.class;
     }
 
     public int getExecutionMode() {
@@ -93,34 +96,56 @@ public class CurveTypeBinding extends AbstractComplexBinding {
     }
 
     /**
+     *
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      *
      * @generated modifiable
      */
-    public Object parse(ElementInstance instance, Node node, Object value)
-        throws Exception {
+    public Object parse(ElementInstance instance, Node node, Object value) throws Exception {
         LineString[] segments = (LineString[]) node.getChildValue("segments");
 
-        return gf.createMultiLineString(segments);
-
-        //return new Curve(segments, gf);
+        if (segments.length == 0) {
+            return null;
+        } else if (segments.length == 1) {
+            return segments[0];
+        } else {
+            LineString curved = null;
+            for (LineString ls : segments) {
+                if (ls instanceof CurvedGeometry<?>) {
+                    curved = ls;
+                }
+            }
+            CurvedGeometryFactory factory =
+                    GML3ParsingUtils.getCurvedGeometryFactory(
+                            arcParameters,
+                            gf,
+                            curved != null ? curved.getCoordinateSequence() : null);
+            return factory.createCurvedGeometry(Arrays.asList(segments));
+        }
     }
 
-    public Object getProperty(Object object, QName name)
-        throws Exception {
+    public Object getProperty(Object object, QName name) throws Exception {
         if ("segments".equals(name.getLocalPart())) {
-            //Curve curve = (Curve) object;
-            MultiLineString curve = (MultiLineString) object;
-            LineString[] segments = new LineString[curve.getNumGeometries()];
-
-            for (int i = 0; i < segments.length; i++) {
-                segments[i] = (LineString) curve.getGeometryN(i);
+            if (object instanceof CompoundCurvedGeometry<?>) {
+                CompoundCurvedGeometry<?> curve = (CompoundCurvedGeometry<?>) object;
+                List<LineString> components = curve.getComponents();
+                return components;
+            } else {
+                return object;
             }
-
-            return segments;
+        } else {
+            super.getProperty(object, name);
         }
 
         return null;
+    }
+
+    public int compareTo(Object o) {
+        if (o instanceof LineStringTypeBinding) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 }

@@ -1,9 +1,9 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
- *    
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -18,42 +18,36 @@ package org.geotools.filter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * @author jdeolive
- *
- *
- *
- * @source $URL$
- */
+/** @author jdeolive */
 public abstract class BinaryLogicAbstract extends AbstractFilter {
-	protected List/*<Filter>*/ children;
-	
-	protected BinaryLogicAbstract(org.opengis.filter.FilterFactory factory, List/*<Filter>*/ children ) {
-		super(factory);
-		this.children = children;
-	}
-	/**
-	 * Returned list is unmodifieable.
-	 * For a cheaper access option use visitor
-	 */
-	public List<org.opengis.filter.Filter> getChildren() {
-	    return Collections.unmodifiableList(children);
-	}
-	
-	public void setChildren(List children) {
-		this.children = children;
-	}
+    protected List<org.opengis.filter.Filter> children;
 
-	public Filter and(org.opengis.filter.Filter filter) {
-		return (Filter) factory.and(this, filter);
-	}
+    protected BinaryLogicAbstract(List<org.opengis.filter.Filter> children) {
+        this.children = children;
+    }
+    /** Returned list is unmodifieable. For a cheaper access option use visitor */
+    public List<org.opengis.filter.Filter> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
 
-	public Filter or(org.opengis.filter.Filter filter) {
-		return (Filter) factory.or(this, filter);
-	}
+    public void setChildren(List<org.opengis.filter.Filter> children) {
+        this.children = children;
+    }
 
-	public Filter not() {
-		return (Filter) factory.not(this);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BinaryLogicAbstract that = (BinaryLogicAbstract) o;
+        if (children == null) return that.children == null;
+        if (children.size() != that.children.size()) return false;
+        return children.containsAll(that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(children);
+    }
 }

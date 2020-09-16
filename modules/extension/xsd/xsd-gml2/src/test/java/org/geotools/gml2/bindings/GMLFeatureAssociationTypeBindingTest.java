@@ -17,15 +17,9 @@
 package org.geotools.gml2.bindings;
 
 import org.geotools.gml2.GML;
-import org.geotools.xml.ElementInstance;
-import org.geotools.xml.Node;
+import org.geotools.xsd.ElementInstance;
+import org.geotools.xsd.Node;
 
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLFeatureAssociationTypeBindingTest extends AbstractGMLBindingTest {
     ElementInstance featureAssociation;
     ElementInstance feature;
@@ -33,23 +27,24 @@ public class GMLFeatureAssociationTypeBindingTest extends AbstractGMLBindingTest
     protected void setUp() throws Exception {
         super.setUp();
 
-        featureAssociation = createElement(GML.NAMESPACE, "myFeatureAssociation",
-                GML.FEATUREASSOCIATIONTYPE, null);
-        feature = createElement(GML.NAMESPACE, "myFeature", GML.ABSTRACTFEATURETYPE, null);
+        featureAssociation =
+                createElement(
+                        GML.NAMESPACE, "myFeatureAssociation", GML.FeatureAssociationType, null);
+        feature = createElement(GML.NAMESPACE, "myFeature", GML.AbstractFeatureType, null);
     }
 
     //	public void testWithFeature() throws Exception {
     //		Feature f = createFeature(
     //			new String[]{"geom","count"},new Class[]{Point.class,Integer.class},
-    //			new Object[]{new GeometryFactory().createPoint(new Coordinate(1,1)), new Integer(2)}
+    //			new Object[]{new GeometryFactory().createPoint(new Coordinate(1,1)), Integer.valueOf(2)}
     //		);
-    //		
+    //
     //		Node node = createNode(
     //			featureAssociation,new ElementInstance[]{feature},new Object[]{f},
     //			null,null
     //		);
-    //		
-    //		GMLFeatureAssociationTypeBinding s = 
+    //
+    //		GMLFeatureAssociationTypeBinding s =
     //			(GMLFeatureAssociationTypeBinding)getBinding(GML.FEATUREASSOCIATIONTYPE);
     //		Feature f1 = (Feature) s.parse(featureAssociation,node,null);
     //		assertNotNull(f1);
@@ -58,12 +53,13 @@ public class GMLFeatureAssociationTypeBindingTest extends AbstractGMLBindingTest
     public void testWithoutFeature() throws Exception {
         Node node = createNode(featureAssociation, null, null, null, null);
 
-        GMLFeatureAssociationTypeBinding s = (GMLFeatureAssociationTypeBinding) getBinding(GML.FEATUREASSOCIATIONTYPE);
+        GMLFeatureAssociationTypeBinding s =
+                (GMLFeatureAssociationTypeBinding) getBinding(GML.FeatureAssociationType);
 
         try {
             assertNull(s.parse(featureAssociation, node, null));
         } catch (Exception e) {
-            //ok
+            // ok
         }
     }
 }

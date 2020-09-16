@@ -25,28 +25,27 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.WindowEvent;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.fest.swing.fixture.DialogFixture;
-import org.fest.swing.fixture.FrameFixture;
-import org.fest.swing.fixture.WindowFixture;
+import org.assertj.swing.fixture.AbstractWindowFixture;
+import org.assertj.swing.fixture.DialogFixture;
+import org.assertj.swing.fixture.FrameFixture;
 
 /**
- * Listens for a window of specified class to be activated on the AWT event thread
- * and, when it appears, creates a FEST {@linkplain WindowFixture} object from it.
- * 
+ * Listens for a window of specified class to be activated on the AWT event thread and, when it
+ * appears, creates a FEST {@linkplain WindowFixture} object from it.
+ *
  * @author Michael Bedward
  * @since 8.0
- * @source $URL$
  * @version $Id$
  */
 public class WindowActivatedListener implements AWTEventListener {
 
     private final Class<? extends Window> windowClass;
     private final CountDownLatch latch;
-    private WindowFixture fixture;
+    private AbstractWindowFixture fixture;
 
     /**
      * Creates a new listener.
-     * 
+     *
      * @param windowClass the class to listen for.
      */
     public WindowActivatedListener(Class<? extends Window> windowClass) {
@@ -55,17 +54,16 @@ public class WindowActivatedListener implements AWTEventListener {
             this.windowClass = windowClass;
 
         } else {
-            throw new UnsupportedOperationException(
-                    windowClass.getName() + " is not supported");
+            throw new UnsupportedOperationException(windowClass.getName() + " is not supported");
         }
 
         this.latch = new CountDownLatch(1);
     }
 
     /**
-     * Checks if an event pertains to this listener's target window class
-     * and is of type {@linkplain WindowEvent#WINDOW_ACTIVATED}.
-     * 
+     * Checks if an event pertains to this listener's target window class and is of type {@linkplain
+     * WindowEvent#WINDOW_ACTIVATED}.
+     *
      * @param event an event
      */
     @Override
@@ -88,14 +86,13 @@ public class WindowActivatedListener implements AWTEventListener {
 
     /**
      * Gets the {@linkplain WindowFixture} created by this listener if available.
-     * 
+     *
      * @param timeOutMillis maximum waiting time in milliseconds
      * @return the fixture or {@code null} if the time-out expires
-     * 
-     * @throws InterruptedException on interruption while waiting for the fixture to
-     *     become available
+     * @throws InterruptedException on interruption while waiting for the fixture to become
+     *     available
      */
-    public WindowFixture getFixture(long timeOutMillis) throws InterruptedException {
+    public AbstractWindowFixture getFixture(long timeOutMillis) throws InterruptedException {
         if (latch.await(timeOutMillis, TimeUnit.MILLISECONDS)) {
             return fixture;
         } else {

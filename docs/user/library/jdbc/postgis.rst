@@ -7,7 +7,7 @@ References:
 
 Related
 
-* http://www.foss4g2007.org/workshops/W-04/ PostGIS workshop if you need an intro to setting up PostGIS
+* http://www.foss4g2007.org/workshops/W-04/ PostGIS workshop if you need an introduction to setting up PostGIS
 
 **Maven**
 
@@ -19,7 +19,7 @@ Related
       <version>${geotools.version}</version>
     </dependency>
 
-Note that the groupId is **org.geotools.jdbc** for this and other JDBC plugin modules.
+Note that the ``groupId`` is ``org.geotools.jdbc`` for this and other JDBC plugin modules.
 
 Connection Parameters
 ^^^^^^^^^^^^^^^^^^^^^
@@ -27,13 +27,13 @@ Connection Parameters
 ============== ============================================
 Parameter      Description
 ============== ============================================
-"dbtype"       Must be the string "postgis"
-"host"         Machine name or IP address to connect to
-"port"         Port number to connect to, default 5432
-"schema"       The database schema to access
-"database"     The databse to connect to
-"user"         User name
-"passwd"       Password
+``dbtype``       Must be the string ``postgis``
+``host``         Machine name or IP address to connect to
+``port``         Port number to connect to, default 5432
+``schema``       The database schema to access
+``database``     The database to connect to
+``user``         User name
+``passwd``       Password
 ============== ============================================
 
 Creation
@@ -49,17 +49,26 @@ Connect using DataStore finder:
 Advanced
 ^^^^^^^^
 
-+----------------------+------------------------------------------------+
-| Parameter            | Description                                    |
-+======================+================================================+
-| "loose bbox"         | Flag controlling loose bbox comparisons,       |
-|                      | default is true                                |
-+----------------------+------------------------------------------------+
-| "preparedStatements" | Flag controlling wether prepared statements    |
-|                      | are used, default is false                     |
-+----------------------+------------------------------------------------+
++------------------------+------------------------------------------------+
+| Parameter              | Description                                    |
++========================+================================================+
+| ``loose bbox``         | Flag controlling loose ``bbox`` comparisons,   |
+|                        | default is true                                |
++------------------------+------------------------------------------------+
+| ``preparedStatements`` | Flag controlling whether prepared statements   |
+|                        | are used, default is false                     |
++------------------------+------------------------------------------------+
 
 Example use::
   
   params.put(PostgisDataStoreFactory.LOOSEBBOX, true );
   params.put(PostgisDataStoreFactory.PREPARED_STATEMENTS, true );
+  
+Configuration Flags
+^^^^^^^^^^^^^^^^^^^
+
+An optimization on spatial queries can be applied, to avoid a bug with PostGIS query planner with big geometries and small bounding boxes, setting a system property.
+
+This optimization can be enabled using a system-wide default from the command line::
+  
+  java -Dorg.geotools.data.postgis.largeGeometriesOptimize=true

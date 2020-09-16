@@ -1,7 +1,7 @@
 Render
 ======
 
-Supports the rendering of geospatial information using the Java2D api.
+Supports the rendering of geospatial information using the Java2D API.
 
 .. image:: /images/gt-render.png
 
@@ -11,7 +11,7 @@ lets you draw a map using all that data you set up.
 **Reference**
 
 * :doc:`/library/opengis/se`
-* :doc:`/library/api/sld`
+* :doc:`/library/main/sld`
 * http://www.opengeospatial.org/standards/sld
 * http://www.opengeospatial.org/standards/se
 
@@ -43,6 +43,7 @@ lets you draw a map using all that data you set up.
    map
    style
    icon
+   wkt
 
 Graphic plugins:
 
@@ -52,10 +53,7 @@ Graphic plugins:
    chart
    svg
 
-Unsupported:
+See also:
 
-.. toctree::
-   :maxdepth: 1
-   
-   wkt
-   shapefile
+* :doc:`/extension/mbstyle/index` (Extension)
+* :doc:`/unsupported/css` (Unsupported)

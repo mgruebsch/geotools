@@ -17,17 +17,10 @@
 package org.geotools.gml2.bindings;
 
 import org.geotools.gml2.GML;
-import org.geotools.xml.Binding;
+import org.geotools.xsd.Binding;
+import org.locationtech.jts.geom.LineString;
 import org.w3c.dom.Document;
 
-import com.vividsolutions.jts.geom.LineString;
-
-
-/**
- * 
- *
- * @source $URL$
- */
 public class GMLLineStringPropertyTypeBinding2Test extends GMLTestSupport {
     public void testType() {
         assertEquals(LineString.class, binding(GML.LineStringPropertyType).getType());
@@ -46,8 +39,10 @@ public class GMLLineStringPropertyTypeBinding2Test extends GMLTestSupport {
 
     public void testEncode() throws Exception {
         Document doc = encode(GML2MockData.lineString(), GML.lineStringProperty);
-        
-        assertEquals(1,
-            doc.getElementsByTagNameNS(GML.NAMESPACE, GML.LineString.getLocalPart()).getLength());
+
+        assertEquals(
+                1,
+                doc.getElementsByTagNameNS(GML.NAMESPACE, GML.LineString.getLocalPart())
+                        .getLength());
     }
 }
